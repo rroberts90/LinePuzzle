@@ -1,102 +1,14 @@
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useRef, useState } from "react";
-import { Animated, View, StyleSheet, PanResponder, Text, TextPropTypes, TouchableOpacity } from "react-native";
+import { Animated, View, StyleSheet, PanResponder, Text, TextPropTypes, Button, measureInWindow} from "react-native";
 import { Svg, Path, Line, Rect, Circle, G } from 'react-native-svg';
 
-const Node_Width = 75;
-
-const distance = (dx, dy) => {
-  return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2))
-}
-
-const centerOnNode = (pos, flipped) => {
-  if (flipped) {
-    return { x: pos.x - Node_Width / 16, y: pos.y - Node_Width / 16 };
-  }
-  else {
-    return { x: pos.x + Node_Width / 2, y: pos.y + Node_Width / 2 };
-  }
-}
-
-const convertToLayout = (pos) => {
-  return { left: pos.x, top: pos.y };
-}
-
-const borderStyles = (colors) => {
-  return {
-    borderTopColor: colors[0],
-    borderLeftColor: colors[1],
-    borderBottomColor: colors[2],
-    borderRightColor: colors[3],
-  }
-}
-const rotate = (colors, rot) => {
-  return colors.map((val, i) => {
-    if (i + rot < 0) {
-      return colors[colors.length - 1];
-    }
-    else {
-      return colors[(i + rot) % 4]
-    }
-  })
-}
-const Pulse = (props) => {
-  console.log(`props: ${props.GOGOGO}`);
-  const fadeAnim = useRef(new Animated.Value(1)).current;
-  const sizeAnim = useRef(new Animated.Value(Node_Width)).current;
-  const moverAnim = useRef(new Animated.Value(0)).current;
-  const colorStyles = borderStyles(props.colors);
-  const duration = 1000;
-  useEffect(() => {
-
-    fadeAnim.setValue(1);
-    sizeAnim.setValue(Node_Width);
-    moverAnim.setValue(0);
-
-    Animated.parallel([
-      Animated.timing(sizeAnim, {
-        toValue: Node_Width * 1.5,
-        duration: duration,
-        useNativeDriver: false,
-      }),
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: duration,
-        useNativeDriver: false,
-
-      }),
-      Animated.timing(moverAnim, {
-        toValue: Node_Width * -.25,
-        duration: duration,
-        useNativeDriver: false,
-      })
-    ]).start(finished => {
-      if (!finished) {
-        // make sure that the pulse's opacity is 0 at end, so it will disapear
-        fadeAnim.setValue(0);
-
-      }
-    });
-  }, [props.GOGOGO]);
-  return <Animated.View
-    style={[
-      styles.nodeSize,
-      styles.pulse,
-      colorStyles,
-      convertToLayout(props.pos),
-      {
-        opacity: fadeAnim,
-        width: sizeAnim, //Bind animated values
-        height: sizeAnim,
-        borderRadius: sizeAnim,
-        transform: [{ translateX: moverAnim }, { translateY: moverAnim }]
-      }]}
-
-  />
-
-}
+import { Node, Pulse, dynamicNodeSize ,dynamicNodeSizeNoPosition} from './NodeCode';
+import {Board, centerOnNode, distance, rotateColors, calculateColor, toDegrees} from './GameLogic.js';
+import {Cursor} from './UserInput';
 
 const Segment = (props) => {
+
   return <Line
     x1={props.x1}
     x2={props.x2}
@@ -104,9 +16,10 @@ const Segment = (props) => {
     y2={props.y2}
     fill="none"
     stroke={props.color}
-    strokeWidth="3"
+    strokeWidth="10"
   />;
 }
+
 const UserPath = (props) => {
   return (
     <G>
@@ -115,139 +28,99 @@ const UserPath = (props) => {
   );
 }
 
-const Node = (props) => {
-  const colorStyles = borderStyles(props.colors);
+const NodeGrid = (props) => {
+  const flat = props.grid.reduce((flat, row) => [...flat, ...row]);
+
+  const nodes = flat.map((node,ndx)=>  
+  <Node node={node}
+  key={ndx}
+  />);
+
   return (
-    <View style={[convertToLayout(props.pos),
-    styles.nodeSize,
-    styles.nodeBorder,
-      colorStyles
-    ]} >
+  <View style= {[styles.board]}>
+      {nodes}
       {props.children}
-    </View>
-  );
-}
-const nodeObj = (row, col, x, y, colors) => {
-  return {
-    gridPos: { row: row, col: col },
-    pos: { x: x, y: y },
-    colors: colors || [colorScheme1.one, colorScheme1.two, colorScheme1.three, colorScheme1.four]
-  };
+  </View>);
 }
 
 const App = () => {
 
-  const testNode = nodeObj(0, 0, 150, 300);
-  const [endPoint, setEndPoint] = useState(centerOnNode(testNode.pos));
-  const [visitedNodes, setVisitedNodes] = useState([testNode]);
+  const start = {row:4,col: 2};
+  const board = useRef(new Board(5,5,start )).current;
+ 
+  //setInterval(()=> { console.log("board positions: ");
+  //board.grid.forEach(row=> row.forEach(node=> console.log(node.pos)));}, 2000)
+ 
+  const [currentNode, setCurrentNode] = useState(board.getCurrentNode());
+  const [endPoint, setEndPoint] = useState(currentNode.pos);//centerOnNode(currentNode.pos, currentNode.diameter));
+ 
+  useEffect(()=> {
+    setTimeout(()=> {
+      setCurrentNode(board.getCurrentNode());
+      setEndPoint(centerOnNode(currentNode.pos, currentNode.diameter));
+    }, 500);
+  },[]);
+
   const lineSegments = useRef([]).current;
-
-  const pan = useRef(new Animated.ValueXY()).current;
   const pulseFlag = useRef(0);
+  
+  const color = calculateColor(currentNode, endPoint );
+  const currPos = centerOnNode(currentNode.pos, currentNode.diameter);
+  const currPosF =  currentNode.pos;//centerOnNodeFlipped(currentNode.pos, currentNode.diameter);
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => {
-        console.log("granting");
-        pulseFlag.current = pulseFlag.current + 1;
-        return true;
-      },
-      onMoveShouldSetPanResponder: () => true,
-
-      onPanResponderGrant: (evt, gestureState) => {
-
-        pan.setOffset({
-          x: pan.x._value,
-          y: pan.y._value
-        });
-      },
-      onPanResponderMove: (evt, gestureState) => {
-        setEndPoint({ x: gestureState.moveX, y: gestureState.moveY });
-
-        return Animated.event(
-          [
-            null,
-            { dx: pan.x, dy: pan.y }
-          ],
-          { useNativeDriver: false }
-        )(evt, gestureState);
-      },
-      onPanResponderRelease: (evt, gestureState) => {
-        console.log("RELEASED");
-        setEndPoint(centerOnNode(visitedNodes[visitedNodes.length - 1].pos));
-
-        pan.setValue({ x: 0, y: 0 });
-
-      }
-    })
-  ).current;
-
-  const p1 = visitedNodes[visitedNodes.length - 1].pos;
+  const currX = currentNode.pos.x;
+  const currY = currentNode.pos.y;
+  
   return (
-    <View style={styles.container}>
-      <Node pos={p1} colors={testNode.colors} />
-      <Pulse pos={p1} colors={testNode.colors} GOGOGO={pulseFlag.current} />
 
-      <Svg height="100%" width="100%">
+    <View style={styles.container}>
+      <NodeGrid  grid={board.grid} >
+        </NodeGrid>
+        <Cursor  setEndPoint={setEndPoint} node={currentNode} currX={currPosF.x} currY ={currPosF.y} />
+
+      <Svg style={{position: "absolute"}} height="100%" width="100%">
         <UserPath segments={lineSegments} />
-        <Segment x1={p1.x + styles.nodeSize.width / 2} y1={p1.y + styles.nodeSize.width / 2} x2={endPoint.x} y2={endPoint.y} color="red" />
+        <Segment x1={currPos.x} y1={currPos.y} x2={endPoint.x} y2={endPoint.y} color={color} />
       </Svg>
 
-      <Animated.View
-        style={[{
-          transform: [{ translateX: pan.x }, { translateY: pan.y }],
-          position: "absolute",
-          top: p1.y,
-          left: p1.x,
-        }, styles.nodeSize, styles.cursor]}
-        {...panResponder.panHandlers}
-      >
-
-      </Animated.View>
 
     </View>
   );
 }
 
-const colorScheme1 =
-{
-  one: "rgba(231, 48, 110,1)", // magenta
-  two: "rgba(47, 127, 183,1)", // blue
-  three: "rgba(255, 167, 53,1)", // orange
-  four: "rgba(46.3, 91.8, 3.1,1)" // lime green
-}
 
 const styles = StyleSheet.create({
-  nodeSize: {
-    position: "absolute",
-    width: Node_Width,
-    height: Node_Width,
-    borderRadius: Node_Width / 2,
-    borderWidth: Node_Width / 6,
-    backgroundColor: "lightgrey",
-
-    zIndex: 10
-  },
-  nodeBorder: {
-  },
-  pulse: {
-    backgroundColor: "grey",
-    zIndex: 0
-  },
   container: {
+    flex: 1, 
+    flexDirection: 'column',
+    justifyContent: 'center',
+    height: '100%',
+    backgroundColor: "rgba(248,248,255,1)",
+
+  },
+  board: {
+    paddingTop: '30%',
     flex: 1,
+    justifyContent: "space-between",
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(240,234,214,1)"
+    flexWrap: "wrap",
+  
+  },
+  spacer: {
+    height: '25%'
+  },
+  
+  row: {
+    flex:1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width:"100%"
   },
   titleText: {
     fontSize: 14,
     lineHeight: 24,
     fontWeight: "bold"
-  },
-  cursor: {
-    backgroundColor: "rgba(0,0,0,.1)",
-    borderColor: "rgba(255,255,255,.1)"
   },
   origin: {
     position: "absolute",
@@ -255,13 +128,67 @@ const styles = StyleSheet.create({
     left: 100
   },
   rect: {
-    left: 10,
     width: 50,
     height: 50,
     backgroundColor: "blue",
-    borderRadius: 1
+    borderRadius: 1,
+    margin: 10
+  },
+  zero: {
+    position: "absolute",
+    height: '100%',
+    width: '100%',
+    padding: 0,
+    margin: 0,
+  },
+  testSize: {
+    position: "absolute",
+    width: 58.5,
+    height: 58.5,
+    borderRadius: 58.5 / 2,
+    borderWidth:58.5 / 6,
+    backgroundColor: "lightgrey",
+    zIndex: 10
   }
 
 });
 
 export default App;
+
+/**
+ *      
+  <Pulse pos={currentNode.pos} colors={currentNode.colors} GOGOGO={pulseFlag.current} diameter = {currentNode.diameter}/>
+
+ *   const rows = props.grid.map(row => {
+   return ( 
+     <Row height={row[0].diameter} key={row[0].gridPos.row}>
+       {row.map(node=>{
+         console.log(`diameter: ${node.diameter}`);
+       //return <Node pos={node.pos} colors={node.colors} rot={node.rot} diameter = {node.diameter} key={node.gridPos.row+ node.gridPos.col} />  
+     return<View style={styles.rect} />
+  }
+        )}
+    </Row>
+    );
+  }
+  );
+
+       <Animated.View
+        style={[{
+          transform: [{ translateX: pan.x }, { translateY: pan.y }],
+          position: "absolute",
+          top: currX,
+          left: currY,
+        }, dynamicNodeSize(currentNode.diameter), styles.cursor]}
+        {...panResponder.panHandlers}
+      >
+
+      </Animated.View>
+
+
+        console.log(`Segment position1: ${props.x1} ${props.y1}`);
+  console.log(`Segment position2: ${props.x2} ${props.y2}`);
+  console.log(`Segment color: ${props.color}`);
+
+   onLayout={(event)=> {console.log(`CursorLayout: ${event.nativeEvent.layout.x} ${event.nativeEvent.layout.y}`)}}
+ */
