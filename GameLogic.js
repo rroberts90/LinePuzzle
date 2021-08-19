@@ -1,6 +1,6 @@
 
-import { useWindowDimensions } from 'react-native';
-
+import * as MyMath from './MathStuff.js';
+import {setupGrid as setupGridSolution } from './Pathing';
 const Default_Node_Width = 75;
 
 const colorScheme1 =
@@ -19,31 +19,47 @@ const colorScheme2 =
   four: "rgba(141, 255, 164,1)" // lime green
 }
 
-
-const distance = (dx, dy) => {
-    return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2))
-  }
-  
-  const centerOnNode = (pos, diameter) => {
-      return { x: pos.x + diameter / 2, y: pos.y + diameter / 2 };
-  }
-  
-  const centerOnNodeFlipped = (pos, diameter) => {
-    return { x: pos.x - diameter / 4, y: pos.y - diameter / 4 };
+// brighter version
+const colorScheme3 = 
+{
+    one:"rgba(226, 84, 132,1)", // magenta
+    two: "rgba(140, 197, 245,1)", // blue
+    three:  "rgba(255, 200, 95,1)",  //"rgba(255, 187, 95,1)", // orange
+    four: "rgba(144, 200, 105,1)" // lime green
 }
 
-  // note: breaks if rotating counter clockwise by more than 1 at a time.
-  const rotateColors = (colors, rot) => {
-    return colors.map((val, i) => {
-      if (i + rot < 0) {
-        return colors[colors.length - 1];
-      }
-      else {
-        return colors[(i + rot) % 4]
-      }
-    })
-  }
+// better brighter version 
+const colorScheme4 = 
+{
+  one:"rgba(255, 15, 96,1)", // magenta
+  two: "rgba(30, 162, 255,1)", // blue
+  three:  "rgba(255, 151, 15,1)",  // orange
+  four: "rgba(132, 255, 15,1)" // lime green darker version: 69, 142, 0
+}
 
+// easier to read colors in printouts
+const colorScheme5 = 
+{
+  one:'magenta', // magenta
+  two: 'skyblue', // blue
+  three:  'orange',  // orange
+  four: 'forestgreen' // lime green darker version: 69, 142, 0
+}
+const rotateColors = (colors, rot) => {
+  return colors.map((val, i) => {
+    if (rot < 0) { // reverse case
+      if (i + rot < 0) {// wrap around 
+        return colors[colors.length + i + rot];
+      }
+      else{  // no wrap
+        return colors[i+rot];
+      }
+    }
+    else {
+      return colors[(i + rot) % 4]
+    }
+  })
+}
 
   const toDegrees = (angle) =>{
     return angle * (180 / Math.PI);
@@ -51,9 +67,9 @@ const distance = (dx, dy) => {
   
   const calculateColor = (node, endPoint) => {
    
-    const center = centerOnNode(node.pos, node.diameter);
-    const hypo  = distance(endPoint.x - center.x, endPoint.y - center.y);
-    const adj = distance(endPoint.x - center.x, 0);
+    const center = MyMath.centerOnNode(node.pos, node.diameter);
+    const hypo  = MyMath.distance(endPoint.x - center.x, endPoint.y - center.y);
+    const adj = MyMath.distance(endPoint.x - center.x, 0);
     const angle = toDegrees(Math.acos(adj/ hypo));
     const xDir = Math.sign(endPoint.x - center.x);
     const yDir = Math.sign(endPoint.y - center.y)
@@ -80,62 +96,87 @@ const distance = (dx, dy) => {
 
   const testColors = [colorScheme1.one, colorScheme1.four, colorScheme1.two, colorScheme1.three];
   const testColors2 = [colorScheme2.one, colorScheme2.four, colorScheme2.two, colorScheme2.three];
+  
+  const getColors = (colorSet) => {
+    return Object.entries(colorSet).map((arr)=> arr[1]);
+  }
 
+  /**
+ * 
+ * @param {} props 
+ */
   class Node {
-
-      constructor(row, col, x, y, diameter, colors,neighbors, links, direction) {
-        this.gridPos = { row: row, col: col };
-        this.pos = { x: x, y: y };
+       
+      constructor(gridPos, point, diameter, colors, links, direction) {
+        this.gridPos =gridPos;
+        this.pos = point;
         this.colors = colors;
         this.rot = 0;
-        this.neighbors = neighbors; // array of gridPos objects adjacent to node
+        this.neighbors = []; // Adjacent Nodes 
         this.diameter = diameter || Default_Node_Width;
-        this.links = links || []; // array of nodes to rotate when node is touched
+        this.links = links || []; // If this node is reached these nodes will rotate.
         this.direction = direction || -1; // rotation direction
+        this.fixed = false; // if node is in visited nodes list can't rotate
       }
 
-      rotate(){
-          this.rot += this.direction;
-          this.colors = rotateColors(this.colors, this.direction);
-      }
 
-      rotateLinked() {
-        this.links.forEach(node => node.rotate());
-      }
-
-      isNeighbor(node){
-            return this.neighbors.some(gridPos=> 
-            gridPos.row == node.gridPos.row && gridPos.col == node.gridPos.col);
-      }
-
-       isMatch (node2){
-        let match;
-        if(this.gridPos.row == node2.gridPos.row && this.gridPos.col == node2.gridPos.col) {
-           console.log("isMatch detecting a node touching itself");
-           match = false;
+      // if the node is rotatable (not in the line's path) change colors + direction
+      rotate(reverse){
+        const direction = reverse ? -this.direction : this.direction;
+        if(!this.fixed) {
+          this.rot += direction;
         }
-        else if(this.isNeighbor(node)) {
-            // node is a neighbor. must be above/below/left/right
+      }
+
+      rotateLinked(reverse) {
+        this.links.forEach(node => node.rotate(reverse));
+      }
+
+
+      // determines if point is inside of neighbor node and is also a match.
+      // returns the matching node or null
+      matchPoint(point) {
+        const neighbor = this.insideNeighbor(point);
+        if(neighbor) {
+           //console.log(`inside neighbor:`);
+           //console.log(` ${neighbor.pos.x} ${neighbor.pos.y}`);
+        
+        const matchColor = this.isMatch(neighbor);
+        if(neighbor && matchColor){
+            return {candidate: neighbor,matchColor: matchColor} ;
+        }
+      }
+      return {candidate: null,matchColor: null} ;
+
+    }
+
+      insideNeighbor(point){
+        return this.neighbors.find(neighbor=> MyMath.pointInCircle(point, neighbor.pos, neighbor.diameter));
+      }
+
+       isMatch (node){
+        let match = null;
+        // get computed colors
+        const compNodeRotatedColors = rotateColors(node.colors, node.rot);
+        const myNodeRotatedColors = rotateColors(this.colors, this.rot);
+        // node is a neighbor. must be above/below/left/right
+            
             if(node.gridPos.row > this.gridPos.row ) {
-                // right of current node. left == right
-               match = node.colors[3] == this.colors[1] ? true : false;    
+                // below current node. bottom == top
+                match = compNodeRotatedColors[0] == myNodeRotatedColors[2] ? myNodeRotatedColors[2] : null;  
             }
             else if(node.gridPos.row < this.gridPos.row ) {
-                // left of current node. right == left
-                match = node.colors[1] == this.colors[3] ? true : false;
+                // above of current node. top == bottom
+                match = compNodeRotatedColors[2] == myNodeRotatedColors[0] ? myNodeRotatedColors[0] : null;  
             }
             else if(node.gridPos.col > this.gridPos.col ) {
-                // above current node. bottom == top
-               match = node.colors[2] == this.colors[0] ? true : false;    
+                // right of current node. left == right
+                match = compNodeRotatedColors[3] == myNodeRotatedColors[1] ? myNodeRotatedColors[1] : null;
             }
             else if(node.gridPos.col < this.gridPos.col ) {
-                // below current node. top == bottom
-               match = node.colors[0] == this.colors[2] ? true : false;    
+                // left of current node. right == left
+                match = compNodeRotatedColors[1] == myNodeRotatedColors[3] ? myNodeRotatedColors[3] : null;
             }
-        } 
-        else {
-            match = false;
-        }
         return match;
       }
   }
@@ -146,35 +187,34 @@ const distance = (dx, dy) => {
     const margin = (3/60) * windowWidth;
     const topMargin = 100;
     let x;
-    let y;
+    let y; 
+
+
     for (let i = 0; i < numRow; i++) { 
       grid[i] = []; 
       y = margin*2 + diameter * i + margin * i + topMargin;
       for (let j = 0; j < numCol; j++) { 
         x = margin/2 + diameter * j + margin * j;
-        grid[i][j] = new Node(i, j, x, y, diameter, testColors ); 
+        grid[i][j] = new Node(MyMath.gridPos(i,j), MyMath.point(x,y), diameter, testColors); 
       } 
     } 
-    return grid;
+    return grid; 
   }
 
-  const setupGridFlex = (numRow, numCol, diameter, neighbors) =>{ 
+  const setupGridFlex = (numRow, numCol, diameter) =>{ 
     const grid = []; 
     let x;
     let y;
     for (let i = 0; i < numRow; i++) { 
       grid[i] = []; 
       for (let j = 0; j < numCol; j++) { 
-        grid[i][j] = new Node(i, j, 0, 0, diameter, testColors, neighbors[i][j]); 
+        grid[i][j] = new Node(MyMath.gridPos(i,j), MyMath.point(0,0), diameter, getColors(colorScheme2)); 
 
       } 
     } 
     return grid;
   }
 
-const gridPos = (row, col) => {
-    return {row:row, col:col}
-}
 
 const isInBounds = (gridPos, numRow, numCol) => {
 
@@ -188,24 +228,25 @@ const isInBounds = (gridPos, numRow, numCol) => {
 }
 
 const getNeighbors =  (i,j, numRow, numCol) => {
-    const potentials = [gridPos(j+1, i), 
-        gridPos(j-1, i), 
-        gridPos(j, i-1), 
-        gridPos(j,i+1)];
+  const potentials = [MyMath.gridPos( i,j+1), //right
+    MyMath.gridPos( i,j-1), //left
+    MyMath.gridPos( i-1,j), // bottom
+    MyMath.gridPos(i+1,j)];
     return potentials.filter(neighbor => isInBounds(neighbor, numRow, numCol));
   
 }
-
+// returns a 2d array. 
+//Each element contains a list of the row/col positions of neighboring nodes. 
 const getAllNeighbors = (numRow, numCol)  => {
 
     const grid = [];
-    for(let i = 0; i <numCol;i++) {
+    for(let i = 0; i <numRow;i++) {
         grid[i] = [];
-        for(let j = 0; j< numRow; j++) {
-            const potentials = [gridPos(j+1, i), 
-                          gridPos(j-1, i), 
-                          gridPos(j, i-1), 
-                          gridPos(j,i+1)];
+        for(let j = 0; j< numCol; j++) {
+            const potentials = [MyMath.gridPos( i,j+1), //right
+              MyMath.gridPos( i,j-1), //left
+              MyMath.gridPos( i-1,j), // bottom
+              MyMath. gridPos(i+1,j)];// top
             grid[i][j] =  potentials.filter(neighbor => isInBounds(neighbor, numRow, numCol));
         }
     }
@@ -213,19 +254,38 @@ const getAllNeighbors = (numRow, numCol)  => {
     return grid;
 }
 
-
 class Board {
 
-    constructor (numRow, numCol, start, finish) {
-        const windowWidth = useWindowDimensions().width;
-        const windowHeight = useWindowDimensions().height;
+    constructor (numRow, numCol, start, finish, windowWidth) {
+        console.log("new board");
 
         //this.grid = setupGrid(numRow, numCol, windowWidth, windowHeight);
-        const neighbors = getAllNeighbors(numRow, numCol);
-        this.grid = setupGridFlex(numRow,numCol, .15 * windowWidth, neighbors);
+        this.grid = setupGridFlex(numRow,numCol, .21 * windowWidth);
+        this.setupNeighbors(numRow, numCol);
         
-        this.visitedNodes = [this.grid[start.row][start.col]];
+        this.start = this.grid[start.row][start.col];
+        this.finish =  this.grid[finish.row][finish.col];
+        this.start.fixed = true;
+        
+        this.visitedNodes = [this.start];
+        
+        // rotate nodes properly
+        setupGridSolution(this);
+        //this.initialSetup = this.grid.map(this.row.map(node=> {return {...node};}));
+    }
 
+    setupNeighbors(numRow, numCol){
+        const neighborGridPosArray2d = getAllNeighbors(numRow, numCol);
+        
+        this.grid.forEach((row,i)=> row.forEach((node,j)=> node.neighbors = this.getNodesFromGridPosArr(neighborGridPosArray2d[i][j])));
+    }
+
+    /**
+    * Takes a list of node coordinaes in grid and returns a list of node objects
+    * @param {[]} gridPosArr 
+    */
+    getNodesFromGridPosArr(gridPosArr) {
+        return gridPosArr.map(gridPos => this.grid[gridPos.row][gridPos.col]);
     }
 
      getCurrentNode(){
@@ -237,9 +297,82 @@ class Board {
 
     }
 
+    // Checks if a line between two nodes already exists.
+    // If two nodes are adjacent in visitedNodes a line exists.
+    isPathOpen(curr, next){
+      let prevNode;
+     
+      const results = this.visitedNodes.filter((node,ndx) => {
+        if(ndx === 0) {
+          prevNode = node;
+        }
+        else {
+          if((curr === prevNode && next === node) || ((curr === node && next === prevNode) )) {
+            // this path is closed!
+            return true;
+          }
+          prevNode = node;
+        }
+      });
+
+      if(results.length > 0) {
+        return false;
+      }else{
+        return true;
+      }
+    }
+    
+    visitNode(nextNode) {
+      const curr = this.visitedNodes[this.visitedNodes.length-1];
+      if(curr === nextNode) {//can't visit myself
+        return null;
+      }
+      if(this.isPathOpen(curr, nextNode)) {
+
+       // console.log("adding node");
+        this.visitedNodes = [...this.visitedNodes, nextNode];
+        nextNode.fixed = true; 
+      //  MyMath.logGridPos('next: ', nextNode.gridPos);
+       // MyMath.logGridPos('  links: ', nextNode.links[0].gridPos);
+        nextNode.rotateLinked();
+        return nextNode;
+      } 
+      else {
+        return null;
+      }
+      
+    }
+
+    removeLast(){
+      if(this.visitedNodes.length <= 1){
+        return null;
+      }
+      const current = this.visitedNodes.pop();
+  
+      // if current is not in visited list a second time, remove fixed
+      const isStillThere = this.visitedNodes.find(node=> node === current);
+      current.fixed = isStillThere ? true : false;
+
+      const prev = this.visitedNodes[this.visitedNodes.length-1];
+      
+      current.rotateLinked(true); // reverse rotate
+
+      return prev;
+
+    }
+ 
+    restart(){
+  
+    while(this.visitedNodes.length > 1){
+      this.removeLast();
+    }
+    }
 
 }
 
 
+const ZeroNode = {pos: MyMath.point(0,0), diameter: Default_Node_Width, colors: getColors(colorScheme1) };
+const testObj = {property:1, func: function() {console.log(this.property); this.property += 1000;}};
 
-export {Board, centerOnNode, distance, rotateColors, calculateColor, toDegrees, centerOnNodeFlipped };
+
+export {Board, calculateColor, toDegrees, ZeroNode};

@@ -1,5 +1,5 @@
+import { Animated, View, StyleSheet, Easing} from "react-native";
 import React, { useEffect, useRef, useState } from "react";
-import { Animated, View, StyleSheet} from "react-native";
 
 const Node_Width = 60;
 
@@ -14,7 +14,6 @@ const borderStyles = (colors) => {
 
   const dynamicNodeSize = (diameter, margin) => {
       return {
-        margin:  diameter /6,
         marginTop:  diameter /6 + 10,
         width: diameter,
         height: diameter,
@@ -41,7 +40,7 @@ const convertToLayout = (pos) => {
     return { left: pos.x, top: pos.y };
   }
   
-const Node = (props) => {
+const NodeView = (props) => {
 
     const rotAnim = useRef(new Animated.Value(0)).current;
     
@@ -52,6 +51,7 @@ const Node = (props) => {
             useNativeDriver: false,
     
           }).start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     },[props.node.rot]);
 
     const colorStyles = borderStyles(props.node.colors);
@@ -68,14 +68,16 @@ const Node = (props) => {
 
         onLayout={(event)=>{
              props.node.pos = {x:event.nativeEvent.layout.x,y:event.nativeEvent.layout.y};
+             if(props.afterUpdate) {
+               props.afterUpdate();
+             }
    }}
-
        >
         {props.children}
       </Animated.View>
     );
-  }
-
+  } 
+  
   const Pulse = (props) => {
     const fadeAnim = useRef(new Animated.Value(1)).current;
     const sizeAnim = useRef(new Animated.Value(props.diameter)).current;
@@ -83,9 +85,8 @@ const Node = (props) => {
    
     const colorStyles = borderStyles(props.colors);
     const duration = 1000;
-   
     useEffect(() => {
-  
+
       fadeAnim.setValue(1);
       sizeAnim.setValue(props.diameter);
       moverAnim.setValue(0);
@@ -95,17 +96,21 @@ const Node = (props) => {
           toValue: props.diameter * 1.5,
           duration: duration,
           useNativeDriver: false,
+          easing: Easing.linear
+
         }),
         Animated.timing(fadeAnim, {
           toValue: 0,
           duration: duration,
           useNativeDriver: false,
-  
+          easing: Easing.quad
         }),
         Animated.timing(moverAnim, {
           toValue: props.diameter * -.25,
           duration: duration,
           useNativeDriver: false,
+          easing: Easing.linear
+
         })
       ]).start(finished => {
         if (!finished) {
@@ -114,11 +119,12 @@ const Node = (props) => {
   
         }
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.GOGOGO]);
   
     return <Animated.View
       style={[
-        dynamicNodeSize(props.diameter),
+        dynamicNodeSizeNoPosition(props.diameter),
         styles.pulse,
         colorStyles,
         convertToLayout(props.pos),
@@ -147,9 +153,11 @@ const Node = (props) => {
     nodeBorder: {
     },
     pulse: {
+        position: "absolute",
+
       backgroundColor: "grey",
       zIndex: 0
     }
 });
 const nodeSize = styles.nodeSize;
-  export {Node, Pulse, dynamicNodeSize, dynamicNodeSizeNoPosition};
+  export {NodeView, Pulse, dynamicNodeSize, dynamicNodeSizeNoPosition};

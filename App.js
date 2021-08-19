@@ -1,22 +1,28 @@
-import { StatusBar } from 'expo-status-bar';
-import React, { useEffect, useRef, useState } from "react";
-import { Animated, View, StyleSheet, PanResponder, Text, TextPropTypes, Button, measureInWindow} from "react-native";
-import { Svg, Path, Line, Rect, Circle, G } from 'react-native-svg';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { View, StyleSheet, useWindowDimensions, Button, TouchableOpacity, Image, Text} from 'react-native'
+import { Svg, Line, G } from 'react-native-svg'
 
-import { Node, Pulse, dynamicNodeSize ,dynamicNodeSizeNoPosition} from './NodeCode';
-import {Board, centerOnNode, distance, rotateColors, calculateColor, toDegrees} from './GameLogic.js';
-import {Cursor} from './UserInput';
+import { NodeView, Pulse} from './NodeViews'
+import {Board, calculateColor, ZeroNode} from './GameLogic.js'
+import {Cursor} from './UserInput.js'
+import {gridPos, point, centerOnNode, logPoint,logGridPos, compareGridPos}from './MathStuff.js'
 
-const Segment = (props) => {
+const Segment = ({startNode, endPoint}) => {
+
+  const color = calculateColor(startNode, endPoint );
+  
+  const startPos = centerOnNode(startNode.pos,  startNode.diameter);
+  const endPos  = endPoint; //centerEndPoint ? centerOnNode(endPoint, startNode.diameter): endPoint;
 
   return <Line
-    x1={props.x1}
-    x2={props.x2}
-    y1={props.y1}
-    y2={props.y2}
-    fill="none"
-    stroke={props.color}
-    strokeWidth="10"
+    x1={startPos.x}
+    x2={endPos.x}
+    y1={startPos.y}
+    y2={endPos.y}
+    fill='none'
+    stroke={color}
+    strokeWidth='10'
+    strokeLinecap='round'
   />;
 }
 
@@ -28,62 +34,148 @@ const UserPath = (props) => {
   );
 }
 
-const NodeGrid = (props) => {
-  const flat = props.grid.reduce((flat, row) => [...flat, ...row]);
+const GridView = (props) => {
+  const flat = props.board.grid.reduce((flat, row) => [...flat, ...row]);
 
   const nodes = flat.map((node,ndx)=>  
-  <Node node={node}
+   <NodeView node={node}
   key={ndx}
-  />);
+  afterUpdate = {props.board.getCurrentNode() === node ? props.afterUpdate : null }
+  />
+  );
 
   return (
-  <View style= {[styles.board]}>
+  <View style= {[styles.board]} 
+  >
       {nodes}
       {props.children}
   </View>);
 }
 
 const App = () => {
+ 
+  const windowWidth = useWindowDimensions().width; 
 
-  const start = {row:4,col: 2};
-  const board = useRef(new Board(5,5,start )).current;
- 
-  //setInterval(()=> { console.log("board positions: ");
-  //board.grid.forEach(row=> row.forEach(node=> console.log(node.pos)));}, 2000)
- 
-  const [currentNode, setCurrentNode] = useState(board.getCurrentNode());
-  const [endPoint, setEndPoint] = useState(currentNode.pos);//centerOnNode(currentNode.pos, currentNode.diameter));
- 
-  useEffect(()=> {
-    setTimeout(()=> {
-      setCurrentNode(board.getCurrentNode());
-      setEndPoint(centerOnNode(currentNode.pos, currentNode.diameter));
-    }, 500);
-  },[]);
-
-  const lineSegments = useRef([]).current;
-  const pulseFlag = useRef(0);
+  const board = useRef(null); 
+  function getBoard() { // so board is not re initialized every time
   
-  const color = calculateColor(currentNode, endPoint );
-  const currPos = centerOnNode(currentNode.pos, currentNode.diameter);
-  const currPosF =  currentNode.pos;//centerOnNodeFlipped(currentNode.pos, currentNode.diameter);
+    if(board.current === null) {
+      board.current = new Board(6,4, gridPos(5,2) , gridPos(0,2), windowWidth);
+   }
+   return board.current;
+  }
+
+  const [currentNode, setCurrentNode] = useState(()=>{return getBoard().getCurrentNode()});
+  //const currentNode = getBoard().getCurrentNode();
+  const [endPoint, setEndPoint] = useState(()=> currentNode.pos);
+
+  const lineSegments = useRef([]);
+  const pulseTrigger = useRef(0); // triggers pulse animation
+
+  // sets the endPointto the CurrentNode position after it's position is measurable.
+  const updateAfterLayout = () => {
+    console.log('updateAfterLayout');
+    setEndPoint(centerOnNode(currentNode.pos, currentNode.diameter));
+    // loaded.current = true;
+     pulseTrigger.current += 1;
+  }
+
+  /** 
+  Handles side effects of setting a new current node. 
+  // updates the pulse position.
+  //esets current Node state
+  // adds segment between currentNode and lastCurrentNode to UserPath
+  // rotates linked nodes
+  // resets endPoint to current Node.
+  */
+  const updateNodeBundle = (next,node) => {
+    console.log('updateNode');
+  
+   const prevNode = node;
+   const updatedEndPoint = centerOnNode(next.pos, next.diameter);
+
+   setCurrentNode(next);
+   setEndPoint(updatedEndPoint);
+
+   const seg = <Segment startNode={prevNode} endPoint ={updatedEndPoint} key={lineSegments.current.length}/>
+
+   lineSegments.current  = [...lineSegments.current, seg];
+
+   pulseTrigger.current++;
+
+    //console.log(`visited nodes length: ${getBoard().visitedNodes.length}`);
+    //console.log(getBoard().visitedNodes);
+  };
+
+  function detectMatch(point) {
+   // console.log(getBoard().getCurrentNode().gridPos);
+  //  console.log(currentNode.gridPos);
+  /// console.log('');
+  const node = getBoard().getCurrentNode();
+  //logGridPos('current: ', node.gridPos);
+  
+   const {candidate, matchColor} = node.matchPoint(point);
+  // logGridPos('candidate Node: ', candidate && candidate.gridPos);
+   
+
+   const next = candidate ? getBoard().visitNode(candidate) : null;
+    if(next){
+      updateNodeBundle(next,node);
+      return true;
+    }
+    else{
+      return false;
+    }
+
+    
+  }
+  
+  //logPoint('currentPoint', currentNode.pos);
+  //logPoint('endPoint', endPoint);
+  const currPosF =  currentNode.pos;
 
   const currX = currentNode.pos.x;
   const currY = currentNode.pos.y;
-  
-  return (
+//
+//source={{uri:'https://reactnative.dev/img/tiny_logo.png'}} />
+  return ( 
 
     <View style={styles.container}>
-      <NodeGrid  grid={board.grid} >
-        </NodeGrid>
-        <Cursor  setEndPoint={setEndPoint} node={currentNode} currX={currPosF.x} currY ={currPosF.y} />
 
       <Svg style={{position: "absolute"}} height="100%" width="100%">
-        <UserPath segments={lineSegments} />
-        <Segment x1={currPos.x} y1={currPos.y} x2={endPoint.x} y2={endPoint.y} color={color} />
+        <UserPath segments={lineSegments.current} />
+        <Segment startNode={currentNode} endPoint={endPoint} />
       </Svg>
+    
+      <GridView board={getBoard()} afterUpdate={updateAfterLayout}/>
+        <Cursor  setEndPoint={setEndPoint} node={currentNode} currX={currX} currY ={currY} pulseTrigger={pulseTrigger} detectMatch = {detectMatch}  />
+        <Pulse pos={currPosF} colors={currentNode.colors} GOGOGO={pulseTrigger.current} diameter = {currentNode.diameter} />
 
+      <View style={styles.buttonsBar}>
+        <TouchableOpacity style={styles.button} onPress={() => {
+          console.log('undo');
+          
+          if (getBoard().removeLast()) {
+            lineSegments.current.pop();
 
+            setCurrentNode(getBoard().getCurrentNode());
+            setEndPoint(centerOnNode(getBoard().getCurrentNode().pos, getBoard().getCurrentNode().diameter));
+          }
+      }}>
+         <Image style={styles.icon} source={require('./Icons/undo.png')}/>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() =>{
+
+          console.log('restart')
+          getBoard().restart();
+          lineSegments.current = [];
+          setCurrentNode(getBoard().getCurrentNode());
+          setEndPoint(centerOnNode(getBoard().getCurrentNode().pos, getBoard().getCurrentNode().diameter));
+
+        }}>
+          <Image style={styles.icon} source={require('./Icons/restart.png')} />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -95,17 +187,18 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     height: '100%',
-    backgroundColor: "rgba(248,248,255,1)",
+    backgroundColor: "rgba(248,248,255,1)"
 
   },
   board: {
-    paddingTop: '30%',
+    paddingTop: '25%',
     flex: 1,
     justifyContent: "space-between",
     flexDirection: "row",
     alignItems: "center",
     flexWrap: "wrap",
-  
+    paddingHorizontal: 5
+    
   },
   spacer: {
     height: '25%'
@@ -149,46 +242,40 @@ const styles = StyleSheet.create({
     borderWidth:58.5 / 6,
     backgroundColor: "lightgrey",
     zIndex: 10
+  },
+  icon: {
+    width:50,
+    height:50,
+    tintColor: "rgb(59,68,75)" 
+  },
+  button: {
+    marginLeft: 30,
+    marginBottom: 30,
+  },
+  buttonsBar: {
+    flexDirection:'row'
   }
 
 });
 
 export default App;
 
-/**
- *      
-  <Pulse pos={currentNode.pos} colors={currentNode.colors} GOGOGO={pulseFlag.current} diameter = {currentNode.diameter}/>
 
- *   const rows = props.grid.map(row => {
-   return ( 
-     <Row height={row[0].diameter} key={row[0].gridPos.row}>
-       {row.map(node=>{
-         console.log(`diameter: ${node.diameter}`);
-       //return <Node pos={node.pos} colors={node.colors} rot={node.rot} diameter = {node.diameter} key={node.gridPos.row+ node.gridPos.col} />  
-     return<View style={styles.rect} />
+//  OTHER WAY OF MEASURING NODE POSITION. NEEDS A SETTIMEOUT TO WORK.     
+  /*
+    const measuredRef = useRef(null); // will measure location of current node
+
+    useLayoutEffect(()=> {
+    if(measuredRef.current) {
+      measuredRef.current.measure((x,y, width, height, px,py) => {
+          console.log(`finally. ${x} ${y} ${width} ${height} ${px} ${py}`);
+      });
   }
-        )}
-    </Row>
-    );
+  else {
+    console.log('thought the whole point was this would work??');
   }
-  );
-
-       <Animated.View
-        style={[{
-          transform: [{ translateX: pan.x }, { translateY: pan.y }],
-          position: "absolute",
-          top: currX,
-          left: currY,
-        }, dynamicNodeSize(currentNode.diameter), styles.cursor]}
-        {...panResponder.panHandlers}
-      >
-
-      </Animated.View>
-
-
-        console.log(`Segment position1: ${props.x1} ${props.y1}`);
-  console.log(`Segment position2: ${props.x2} ${props.y2}`);
-  console.log(`Segment color: ${props.color}`);
-
-   onLayout={(event)=> {console.log(`CursorLayout: ${event.nativeEvent.layout.x} ${event.nativeEvent.layout.y}`)}}
- */
+  
+      setEndPoint(centerOnNode(currentNode.pos, currentNode.diameter));
+      pulseTrigger.current += 1;
+  
+  },[]);*/
