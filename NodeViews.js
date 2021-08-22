@@ -1,4 +1,4 @@
-import { Animated, View, StyleSheet, Easing} from "react-native";
+import { Animated, View, StyleSheet, Easing, Text} from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 
 const Node_Width = 60;
@@ -20,7 +20,9 @@ const borderStyles = (colors) => {
         borderRadius: diameter / 2,
         borderWidth: diameter / 6,
         backgroundColor: "lightgrey",
-        zIndex: 10
+        zIndex: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
       };
   }
   const dynamicNodeSizeNoPosition = (diameter) => {
@@ -56,6 +58,9 @@ const NodeView = (props) => {
 
     const colorStyles = borderStyles(props.node.colors);
 
+    const testTouchHandlers = {onStartShouldSetResponder: ()=> true, onResponderGrant: ()=> {
+      props.node.rotate();
+    }};
     return (
       <Animated.View style={[
       dynamicNodeSize(props.node.diameter),
@@ -72,8 +77,10 @@ const NodeView = (props) => {
                props.afterUpdate();
              }
    }}
+
+    {...testTouchHandlers}
        >
-        {props.children}
+        <Text style={styles.symbol}> {props.node.symbol} </Text>
       </Animated.View>
     );
   } 
@@ -157,6 +164,9 @@ const NodeView = (props) => {
 
       backgroundColor: "grey",
       zIndex: 0
+    },
+    symbol: {
+      fontSize: 30
     }
 });
 const nodeSize = styles.nodeSize;

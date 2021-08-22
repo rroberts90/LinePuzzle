@@ -70,6 +70,7 @@ const Cursor = (props) => {
     }, dynamicNodeSizeNoPosition(props.node.diameter,0), styles.cursor]}
     {...panResponder.panHandlers}
    
+  
    >
     </Animated.View>
     );
@@ -78,7 +79,8 @@ const Cursor = (props) => {
   const styles = StyleSheet.create({
     cursor: {
         backgroundColor: "rgba(0,0,0,.5)",
-        borderColor: "rgba(255,255,255,.5)"
+        borderColor: "rgba(255,255,255,.5)",
+        opacity:0
       },
     }
   );

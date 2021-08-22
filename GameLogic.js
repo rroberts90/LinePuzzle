@@ -45,14 +45,16 @@ const colorScheme5 =
   three:  'orange',  // orange
   four: 'forestgreen' // lime green darker version: 69, 142, 0
 }
+
 const rotateColors = (colors, rot) => {
   return colors.map((val, i) => {
     if (rot < 0) { // reverse case
-      if (i + rot < 0) {// wrap around 
-        return colors[colors.length + i + rot];
+      const rot2 = rot  % 4;
+      if (i + rot2 < 0) {// wrap around 
+        return colors[colors.length + i + rot2];
       }
       else{  // no wrap
-        return colors[i+rot];
+        return colors[i+rot2];
       }
     }
     else {
@@ -75,17 +77,18 @@ const rotateColors = (colors, rot) => {
     const yDir = Math.sign(endPoint.y - center.y)
    
     let color;
+    const computedColors = rotateColors(node.colors, node.rot);
     if(xDir == 1 &&  angle < 45) {
-      color = node.colors[1];
+      color = computedColors[1];
     }
     else if(xDir == -1 && angle < 45) {
-      color = node.colors[3];
+      color = computedColors[3];
     }
     else if( yDir == -1 && angle >= 45) {
-      color = node.colors[0];
+      color = computedColors[0];
     }
     else if(yDir == 1 && angle >= 45){
-      color = node.colors[2];
+      color = computedColors[2];
     }
     else {
       color = "grey";
@@ -117,6 +120,7 @@ const rotateColors = (colors, rot) => {
         this.links = links || []; // If this node is reached these nodes will rotate.
         this.direction = direction || -1; // rotation direction
         this.fixed = false; // if node is in visited nodes list can't rotate
+        this.symbol = null;
       }
 
 
@@ -156,11 +160,16 @@ const rotateColors = (colors, rot) => {
 
        isMatch (node){
         let match = null;
+        
         // get computed colors
         const compNodeRotatedColors = rotateColors(node.colors, node.rot);
         const myNodeRotatedColors = rotateColors(this.colors, this.rot);
+        
+        /*console.log(`next node top color: ${compNodeRotatedColors[0]}`);
+        console.log(`current rot: ${this.rot}`);
+        console.log(`current bottom color: ${myNodeRotatedColors[2]}`);*/
+
         // node is a neighbor. must be above/below/left/right
-            
             if(node.gridPos.row > this.gridPos.row ) {
                 // below current node. bottom == top
                 match = compNodeRotatedColors[0] == myNodeRotatedColors[2] ? myNodeRotatedColors[2] : null;  
@@ -208,7 +217,7 @@ const rotateColors = (colors, rot) => {
     for (let i = 0; i < numRow; i++) { 
       grid[i] = []; 
       for (let j = 0; j < numCol; j++) { 
-        grid[i][j] = new Node(MyMath.gridPos(i,j), MyMath.point(0,0), diameter, getColors(colorScheme2)); 
+        grid[i][j] = new Node(MyMath.gridPos(i,j), MyMath.point(0,0), diameter, getColors(colorScheme5)); 
 
       } 
     } 
@@ -375,4 +384,4 @@ const ZeroNode = {pos: MyMath.point(0,0), diameter: Default_Node_Width, colors: 
 const testObj = {property:1, func: function() {console.log(this.property); this.property += 1000;}};
 
 
-export {Board, calculateColor, toDegrees, ZeroNode};
+export {Board, calculateColor, toDegrees, ZeroNode, rotateColors};

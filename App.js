@@ -3,7 +3,7 @@ import { View, StyleSheet, useWindowDimensions, Button, TouchableOpacity, Image,
 import { Svg, Line, G } from 'react-native-svg'
 
 import { NodeView, Pulse} from './NodeViews'
-import {Board, calculateColor, ZeroNode} from './GameLogic.js'
+import {Board, calculateColor,rotateColors, ZeroNode} from './GameLogic.js'
 import {Cursor} from './UserInput.js'
 import {gridPos, point, centerOnNode, logPoint,logGridPos, compareGridPos}from './MathStuff.js'
 
@@ -149,7 +149,7 @@ const App = () => {
     
       <GridView board={getBoard()} afterUpdate={updateAfterLayout}/>
         <Cursor  setEndPoint={setEndPoint} node={currentNode} currX={currX} currY ={currY} pulseTrigger={pulseTrigger} detectMatch = {detectMatch}  />
-        <Pulse pos={currPosF} colors={currentNode.colors} GOGOGO={pulseTrigger.current} diameter = {currentNode.diameter} />
+        <Pulse pos={currPosF} colors={rotateColors(currentNode.colors, currentNode.rot)} GOGOGO={pulseTrigger.current} diameter = {currentNode.diameter} />
 
       <View style={styles.buttonsBar}>
         <TouchableOpacity style={styles.button} onPress={() => {
@@ -160,6 +160,8 @@ const App = () => {
 
             setCurrentNode(getBoard().getCurrentNode());
             setEndPoint(centerOnNode(getBoard().getCurrentNode().pos, getBoard().getCurrentNode().diameter));
+            pulseTrigger.current++;
+
           }
       }}>
          <Image style={styles.icon} source={require('./Icons/undo.png')}/>
@@ -171,6 +173,7 @@ const App = () => {
           lineSegments.current = [];
           setCurrentNode(getBoard().getCurrentNode());
           setEndPoint(centerOnNode(getBoard().getCurrentNode().pos, getBoard().getCurrentNode().diameter));
+          pulseTrigger.current++;
 
         }}>
           <Image style={styles.icon} source={require('./Icons/restart.png')} />
