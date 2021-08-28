@@ -34,6 +34,11 @@ const distance = (dx, dy) => {
     return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2))
   }
 
+  const convertToLayout = (pos) => {
+    return { left: pos.x, top: pos.y };
+  }
+  
+
 const logPoint = (name,point) => {
     console.log(`${name}: ${point.x} ${point.y}`);
 }
@@ -80,4 +85,4 @@ const logColors  = (colors) => {
 const randInt = (min,max)  => {
     return Math.floor(Math.random() * (max - min)) + min;
 }
-export {gridPos, point, distance, centerOnNode, pointInCircle, logPoint, logGridPos,compareGridPos, rotateArray, logColors, randInt};
+export {gridPos, point, distance, centerOnNode, pointInCircle, logPoint, logGridPos,compareGridPos, rotateArray, logColors, randInt, convertToLayout};

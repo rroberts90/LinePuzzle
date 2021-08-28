@@ -1,10 +1,12 @@
-import React, {useRef } from "react";
-import { Animated, PanResponder, StyleSheet} from "react-native";
+import React, {useRef, useState } from "react";
+import { Animated, PanResponder, StyleSheet, View} from "react-native";
 import {dynamicNodeSizeNoPosition} from './NodeViews';
+import {  Segment } from "./PathViews";
 import * as MyMath from './MathStuff';
 
 const Cursor = (props) => {
-    const mostRecent = useRef(null);
+    const mostRecentPoint = useRef(null);
+    const [endPoint, setEndPoint] = useState(null);
 
     const pan = useRef(new Animated.ValueXY()).current;
     
@@ -21,9 +23,9 @@ const Cursor = (props) => {
           console.log("granting");
           
           const centeredEndPoint = MyMath.point(gestureState.x0, gestureState.y0);
-          props.setEndPoint(centeredEndPoint);
+          setEndPoint(centeredEndPoint);
           
-          mostRecent.current = centeredEndPoint;
+          mostRecentPoint.current = centeredEndPoint;
           props.pulseTrigger.current += 1;
 
           pan.setOffset({
@@ -32,12 +34,16 @@ const Cursor = (props) => {
           });
         },
         onPanResponderMove: (evt, gestureState) => {
+       
           const point =  MyMath.point( gestureState.moveX,gestureState.moveY );
-          props.setEndPoint(point);
+          setEndPoint(point);
          
           // check for intersections with other nodes
           const onNewNode = props.detectMatch(point);
-          mostRecent.current = onNewNode ? point : mostRecent.current;
+          if(onNewNode){
+            mostRecentPoint.current = point;
+            
+          }
  
           return Animated.event(
             [
@@ -48,18 +54,21 @@ const Cursor = (props) => {
           )(evt, gestureState);
         },
         onPanResponderRelease: (evt, gestureState) => {
-          console.log("RELEASED");
+          //console.log("RELEASED");
          
-          const centeredEndPoint = mostRecent.current;///MyMath.point(gestureState.x0, gestureState.y0); //MyMath.centerOnNode(MyMath.point(props.currX, props.currY), props.node.diameter );
-          props.setEndPoint(centeredEndPoint);
+          const centeredEndPoint = mostRecentPoint.current;///MyMath.point(gestureState.x0, gestureState.y0); //MyMath.centerOnNode(MyMath.point(props.currX, props.currY), props.node.diameter );
+          setEndPoint(null);
 
           pan.setValue({ x: 0, y: 0 });
   
         }
       })
     ).current;
-  
-    return ( <Animated.View
+    const segment = props.node && endPoint ? 
+    <Segment startNode= {props.node} endPoint={endPoint}/>
+    : null;
+    return (<>   
+      <Animated.View
     style={[{
       transform: [{ translateX: pan.x }, { translateY: pan.y }],
       position: "absolute",
@@ -69,10 +78,12 @@ const Cursor = (props) => {
       zIndex: 11
     }, dynamicNodeSizeNoPosition(props.node.diameter,0), styles.cursor]}
     {...panResponder.panHandlers}
-   
-  
    >
     </Animated.View>
+    {segment}
+
+    </>
+
     );
   }
 
@@ -80,7 +91,7 @@ const Cursor = (props) => {
     cursor: {
         backgroundColor: "rgba(0,0,0,.5)",
         borderColor: "rgba(255,255,255,.5)",
-        opacity:0
+        opacity:.5
       },
     }
   );

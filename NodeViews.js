@@ -1,6 +1,7 @@
 import { Animated, View, StyleSheet, Easing, Text} from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 
+import { convertToLayout } from "./MathStuff";
 const Node_Width = 60;
 
 const borderStyles = (colors) => {
@@ -14,7 +15,7 @@ const borderStyles = (colors) => {
 
   const dynamicNodeSize = (diameter, margin) => {
       return {
-        marginTop:  diameter /6 + 10,
+        marginTop:  diameter /6 ,
         width: diameter,
         height: diameter,
         borderRadius: diameter / 2,
@@ -33,15 +34,20 @@ const borderStyles = (colors) => {
         borderWidth: diameter / 6
       };
   }
+  const pulseSize = (diameter) => {
+    return {
+            width: diameter,
+      height: diameter,
+      borderRadius: diameter / 2,
+      borderWidth: diameter / 2
+    };
+}
 const rotToTransform = (rot) =>{
     const degrees = rot * -90; // negative because colors are rotated counter clockwise by default
     return {transform: [{rotate:`${degrees}deg`}]};
   }
 
-const convertToLayout = (pos) => {
-    return { left: pos.x, top: pos.y };
-  }
-  
+
 const NodeView = (props) => {
 
     const rotAnim = useRef(new Animated.Value(0)).current;
@@ -50,7 +56,7 @@ const NodeView = (props) => {
         Animated.timing(rotAnim, {
             toValue: props.node.rot * -90,
             duration: 1000,
-            useNativeDriver: false,
+            useNativeDriver: true,
     
           }).start();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -87,37 +93,30 @@ const NodeView = (props) => {
   
   const Pulse = (props) => {
     const fadeAnim = useRef(new Animated.Value(1)).current;
-    const sizeAnim = useRef(new Animated.Value(props.diameter)).current;
-    const moverAnim = useRef(new Animated.Value(0)).current;
+    const sizeAnim = useRef(new Animated.Value(1)).current;
+    
    
     const colorStyles = borderStyles(props.colors);
     const duration = 1000;
     useEffect(() => {
 
       fadeAnim.setValue(1);
-      sizeAnim.setValue(props.diameter);
-      moverAnim.setValue(0);
+      sizeAnim.setValue(1);
+      
   
       Animated.parallel([
         Animated.timing(sizeAnim, {
-          toValue: props.diameter * 1.5,
+          toValue: 1.5,
           duration: duration,
-          useNativeDriver: false,
+          useNativeDriver: true,
           easing: Easing.linear
 
         }),
         Animated.timing(fadeAnim, {
           toValue: 0,
           duration: duration,
-          useNativeDriver: false,
+          useNativeDriver: true,
           easing: Easing.quad
-        }),
-        Animated.timing(moverAnim, {
-          toValue: props.diameter * -.25,
-          duration: duration,
-          useNativeDriver: false,
-          easing: Easing.linear
-
         })
       ]).start(finished => {
         if (!finished) {
@@ -137,10 +136,7 @@ const NodeView = (props) => {
         convertToLayout(props.pos),
         {
           opacity: fadeAnim,
-          width: sizeAnim, //Bind animated values
-          height: sizeAnim,
-          borderRadius: sizeAnim,
-          transform: [{ translateX: moverAnim }, { translateY: moverAnim }]
+          transform: [ {scale:sizeAnim}]
         }]}
   
     />
@@ -161,8 +157,7 @@ const NodeView = (props) => {
     },
     pulse: {
         position: "absolute",
-
-      backgroundColor: "grey",
+      backgroundColor: "darkgrey",
       zIndex: 0
     },
     symbol: {

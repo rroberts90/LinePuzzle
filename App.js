@@ -1,38 +1,14 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { View, StyleSheet, useWindowDimensions, Button, TouchableOpacity, Image, Text} from 'react-native'
-import { Svg, Line, G } from 'react-native-svg'
 
-import { NodeView, Pulse} from './NodeViews'
-import {Board, calculateColor,rotateColors, ZeroNode} from './GameLogic.js'
-import {Cursor} from './UserInput.js'
-import {gridPos, point, centerOnNode, logPoint,logGridPos, compareGridPos}from './MathStuff.js'
+import { NodeView, Pulse} from './NodeViews';
+import {Board, calculateColor,rotateColors, ZeroNode} from './GameLogic.js';
+import {Cursor} from './UserInput.js';
+import {gridPos, point, centerOnNode, logPoint,logGridPos, compareGridPos}from './MathStuff.js';
 
-const Segment = ({startNode, endPoint}) => {
+import ButtonsBar from './ButtonsBar'
 
-  const color = calculateColor(startNode, endPoint );
-  
-  const startPos = centerOnNode(startNode.pos,  startNode.diameter);
-  const endPos  = endPoint; //centerEndPoint ? centerOnNode(endPoint, startNode.diameter): endPoint;
-
-  return <Line
-    x1={startPos.x}
-    x2={endPos.x}
-    y1={startPos.y}
-    y2={endPos.y}
-    fill='none'
-    stroke={color}
-    strokeWidth='10'
-    strokeLinecap='round'
-  />;
-}
-
-const UserPath = (props) => {
-  return (
-    <G>
-      {props.segments}
-    </G>
-  );
-}
+import { Segment, UserPath } from './PathViews'
 
 const GridView = (props) => {
   const flat = props.board.grid.reduce((flat, row) => [...flat, ...row]);
@@ -63,21 +39,32 @@ const App = () => {
       board.current = new Board(6,4, gridPos(5,2) , gridPos(0,2), windowWidth);
    }
    return board.current;
+  
   }
 
   const [currentNode, setCurrentNode] = useState(()=>{return getBoard().getCurrentNode()});
+  const [cursorMover, setCursorMover] = useState(null); // hacky state variable to force cursor to rerender.
+
   //const currentNode = getBoard().getCurrentNode();
-  const [endPoint, setEndPoint] = useState(()=> currentNode.pos);
 
   const lineSegments = useRef([]);
   const pulseTrigger = useRef(0); // triggers pulse animation
 
+  /*useEffect(()=>{ // test snippet
+    const board = getBoard();
+    const next = board.start
+    const seg = <Segment startNode={board.getCurrentNode()} endPoint ={updatedEndPoint} key={lineSegments.current.length}/>
+
+    lineSegments.current  = [...lineSegments.current, seg];
+  },[]);*/
+
+
   // sets the endPointto the CurrentNode position after it's position is measurable.
   const updateAfterLayout = () => {
     console.log('updateAfterLayout');
-    setEndPoint(centerOnNode(currentNode.pos, currentNode.diameter));
     // loaded.current = true;
-     pulseTrigger.current += 1;
+    setCursorMover(1);
+    //resetCurrentNode();
   }
 
   /** 
@@ -86,16 +73,14 @@ const App = () => {
   //esets current Node state
   // adds segment between currentNode and lastCurrentNode to UserPath
   // rotates linked nodes
-  // resets endPoint to current Node.
   */
   const updateNodeBundle = (next,node) => {
-    console.log('updateNode');
+    //console.log('updateNode');
   
    const prevNode = node;
-   const updatedEndPoint = centerOnNode(next.pos, next.diameter);
 
    setCurrentNode(next);
-   setEndPoint(updatedEndPoint);
+   const updatedEndPoint = centerOnNode(next.pos, next.diameter);
 
    const seg = <Segment startNode={prevNode} endPoint ={updatedEndPoint} key={lineSegments.current.length}/>
 
@@ -129,56 +114,46 @@ const App = () => {
 
     
   }
-  
-  //logPoint('currentPoint', currentNode.pos);
-  //logPoint('endPoint', endPoint);
+
   const currPosF =  currentNode.pos;
 
   const currX = currentNode.pos.x;
   const currY = currentNode.pos.y;
-//
-//source={{uri:'https://reactnative.dev/img/tiny_logo.png'}} />
+
+  function resetCurrentNode(){
+    
+    setCurrentNode(getBoard().getCurrentNode());
+    
+    pulseTrigger.current++;
+  }
+
+  function onUndo() {
+    if (getBoard().removeLast()) {
+      lineSegments.current.pop();
+      resetCurrentNode();
+    
+
+    }
+  }
+
+  function onRestart() {
+    getBoard().restart();
+    lineSegments.current = [];
+    resetCurrentNode();
+
+  }
   return ( 
 
     <View style={styles.container}>
 
-      <Svg style={{position: "absolute"}} height="100%" width="100%">
         <UserPath segments={lineSegments.current} />
-        <Segment startNode={currentNode} endPoint={endPoint} />
-      </Svg>
-    
+       
+      <Pulse pos={currPosF} colors={rotateColors(currentNode.colors, currentNode.rot)} GOGOGO={pulseTrigger.current} diameter = {currentNode.diameter} />
+      <Cursor cursorMover={cursorMover} node={currentNode} currX={currX} currY ={currY} pulseTrigger={pulseTrigger} detectMatch = {detectMatch}  />
+
       <GridView board={getBoard()} afterUpdate={updateAfterLayout}/>
-        <Cursor  setEndPoint={setEndPoint} node={currentNode} currX={currX} currY ={currY} pulseTrigger={pulseTrigger} detectMatch = {detectMatch}  />
-        <Pulse pos={currPosF} colors={rotateColors(currentNode.colors, currentNode.rot)} GOGOGO={pulseTrigger.current} diameter = {currentNode.diameter} />
 
-      <View style={styles.buttonsBar}>
-        <TouchableOpacity style={styles.button} onPress={() => {
-          console.log('undo');
-          
-          if (getBoard().removeLast()) {
-            lineSegments.current.pop();
-
-            setCurrentNode(getBoard().getCurrentNode());
-            setEndPoint(centerOnNode(getBoard().getCurrentNode().pos, getBoard().getCurrentNode().diameter));
-            pulseTrigger.current++;
-
-          }
-      }}>
-         <Image style={styles.icon} source={require('./Icons/undo.png')}/>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() =>{
-
-          console.log('restart')
-          getBoard().restart();
-          lineSegments.current = [];
-          setCurrentNode(getBoard().getCurrentNode());
-          setEndPoint(centerOnNode(getBoard().getCurrentNode().pos, getBoard().getCurrentNode().diameter));
-          pulseTrigger.current++;
-
-        }}>
-          <Image style={styles.icon} source={require('./Icons/restart.png')} />
-        </TouchableOpacity>
-      </View>
+    <ButtonsBar onRestart = {onRestart} onUndo = {onUndo}/>
     </View>
   );
 }
@@ -237,6 +212,7 @@ const styles = StyleSheet.create({
     padding: 0,
     margin: 0,
   },
+  
   testSize: {
     position: "absolute",
     width: 58.5,
@@ -246,24 +222,24 @@ const styles = StyleSheet.create({
     backgroundColor: "lightgrey",
     zIndex: 10
   },
-  icon: {
+  dot: {
     width:50,
     height:50,
-    tintColor: "rgb(59,68,75)" 
-  },
-  button: {
-    marginLeft: 30,
-    marginBottom: 30,
-  },
-  buttonsBar: {
-    flexDirection:'row'
+    position: 'absolute',
+    top: 0,
+    left: 0,
   }
 
 });
 
 export default App;
 
-
+/**
+ *       <Svg style={{position: "absolute"}} height="100%" width="100%">
+        <UserPath segments={lineSegments.current} />
+        <Segment startNode={currentNode} endPoint={endPoint} />
+      </Svg>
+ */
 //  OTHER WAY OF MEASURING NODE POSITION. NEEDS A SETTIMEOUT TO WORK.     
   /*
     const measuredRef = useRef(null); // will measure location of current node
