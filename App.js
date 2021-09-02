@@ -1,42 +1,24 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { View, StyleSheet, useWindowDimensions, Button, TouchableOpacity, Image, Text} from 'react-native'
+import { View, StyleSheet, useWindowDimensions, Vibration} from 'react-native'
 
-import { NodeView, Pulse} from './NodeViews';
+import { NodeView, Pulse, GridView} from './NodeViews';
 import {Board, calculateColor,rotateColors, ZeroNode} from './GameLogic.js';
 import {Cursor} from './UserInput.js';
-import {gridPos, point, centerOnNode, logPoint,logGridPos, compareGridPos}from './MathStuff.js';
+import {gridPos, point, centerOnNode, logPoint,logGridPos, compareGridPos} from './MathStuff.js';
+import ButtonsBar from './ButtonsBar';
+import { Segment, UserPath, Fade } from './PathViews';
 
-import ButtonsBar from './ButtonsBar'
-
-import { Segment, UserPath } from './PathViews'
-
-const GridView = (props) => {
-  const flat = props.board.grid.reduce((flat, row) => [...flat, ...row]);
-
-  const nodes = flat.map((node,ndx)=>  
-   <NodeView node={node}
-  key={ndx}
-  afterUpdate = {props.board.getCurrentNode() === node ? props.afterUpdate : null }
-  />
-  );
-
-  return (
-  <View style= {[styles.board]} 
-  >
-      {nodes}
-      {props.children}
-  </View>);
-}
 
 const App = () => {
  
   const windowWidth = useWindowDimensions().width; 
+  const height = useWindowDimensions().height; 
 
   const board = useRef(null); 
   function getBoard() { // so board is not re initialized every time
   
     if(board.current === null) {
-      board.current = new Board(6,4, gridPos(5,2) , gridPos(0,2), windowWidth);
+      board.current = new Board(6,4, windowWidth);
    }
    return board.current;
   
@@ -44,35 +26,25 @@ const App = () => {
 
   const [currentNode, setCurrentNode] = useState(()=>{return getBoard().getCurrentNode()});
   const [cursorMover, setCursorMover] = useState(null); // hacky state variable to force cursor to rerender.
+  const [won, setWon] = useState(false); // hacky state variable to force cursor to rerender.
 
   //const currentNode = getBoard().getCurrentNode();
 
   const lineSegments = useRef([]);
+  const fadeSegments = useRef([]);
+
   const pulseTrigger = useRef(0); // triggers pulse animation
-
-  /*useEffect(()=>{ // test snippet
-    const board = getBoard();
-    const next = board.start
-    const seg = <Segment startNode={board.getCurrentNode()} endPoint ={updatedEndPoint} key={lineSegments.current.length}/>
-
-    lineSegments.current  = [...lineSegments.current, seg];
-  },[]);*/
-
 
   // sets the endPointto the CurrentNode position after it's position is measurable.
   const updateAfterLayout = () => {
     console.log('updateAfterLayout');
-    // loaded.current = true;
     setCursorMover(1);
-    //resetCurrentNode();
+    resetCurrentNode();
   }
 
   /** 
-  Handles side effects of setting a new current node. 
-  // updates the pulse position.
-  //esets current Node state
-  // adds segment between currentNode and lastCurrentNode to UserPath
-  // rotates linked nodes
+   Sets a new current node. 
+   Adds segment to previous node
   */
   const updateNodeBundle = (next,node) => {
     //console.log('updateNode');
@@ -82,12 +54,18 @@ const App = () => {
    setCurrentNode(next);
    const updatedEndPoint = centerOnNode(next.pos, next.diameter);
 
-   const seg = <Segment startNode={prevNode} endPoint ={updatedEndPoint} key={lineSegments.current.length}/>
-
+  const seg = {
+   startNode:prevNode,
+   endPoint:updatedEndPoint,
+};
    lineSegments.current  = [...lineSegments.current, seg];
 
    pulseTrigger.current++;
-
+  
+   if(next === getBoard().finish) {
+     setWon(true);
+     Vibration.vibrate();
+   }
     //console.log(`visited nodes length: ${getBoard().visitedNodes.length}`);
     //console.log(getBoard().visitedNodes);
   };
@@ -128,10 +106,12 @@ const App = () => {
   }
 
   function onUndo() {
+
     if (getBoard().removeLast()) {
-      lineSegments.current.pop();
+
+      const seg = lineSegments.current.pop();
+      fadeSegments.current.push(seg);
       resetCurrentNode();
-    
 
     }
   }
@@ -140,19 +120,26 @@ const App = () => {
     getBoard().restart();
     lineSegments.current = [];
     resetCurrentNode();
-
+    setWon(false); // for testing
   }
+
+  const startCenter = centerOnNode(getBoard().start.pos, getBoard().start.diameter);
+  const startPoint = point(startCenter.x, startCenter.y+250);
+  
+  const finishCenter = centerOnNode(getBoard().finish.pos, getBoard().finish.diameter);
+  const finishPoint = point(finishCenter.x, finishCenter.y-250);
+  const fixedColor = won ? null : 'grey';
+
   return ( 
 
     <View style={styles.container}>
 
-        <UserPath segments={lineSegments.current} />
+        <UserPath segments={lineSegments.current} fades={fadeSegments.current} />
        
       <Pulse pos={currPosF} colors={rotateColors(currentNode.colors, currentNode.rot)} GOGOGO={pulseTrigger.current} diameter = {currentNode.diameter} />
       <Cursor cursorMover={cursorMover} node={currentNode} currX={currX} currY ={currY} pulseTrigger={pulseTrigger} detectMatch = {detectMatch}  />
 
-      <GridView board={getBoard()} afterUpdate={updateAfterLayout}/>
-
+      <GridView board={getBoard()} afterUpdate={updateAfterLayout} height={height} wonColor={fixedColor}/>
     <ButtonsBar onRestart = {onRestart} onUndo = {onUndo}/>
     </View>
   );
@@ -167,16 +154,6 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: "rgba(248,248,255,1)"
 
-  },
-  board: {
-    paddingTop: '25%',
-    flex: 1,
-    justifyContent: "space-between",
-    flexDirection: "row",
-    alignItems: "center",
-    flexWrap: "wrap",
-    paddingHorizontal: 5
-    
   },
   spacer: {
     height: '25%'
@@ -233,28 +210,3 @@ const styles = StyleSheet.create({
 });
 
 export default App;
-
-/**
- *       <Svg style={{position: "absolute"}} height="100%" width="100%">
-        <UserPath segments={lineSegments.current} />
-        <Segment startNode={currentNode} endPoint={endPoint} />
-      </Svg>
- */
-//  OTHER WAY OF MEASURING NODE POSITION. NEEDS A SETTIMEOUT TO WORK.     
-  /*
-    const measuredRef = useRef(null); // will measure location of current node
-
-    useLayoutEffect(()=> {
-    if(measuredRef.current) {
-      measuredRef.current.measure((x,y, width, height, px,py) => {
-          console.log(`finally. ${x} ${y} ${width} ${height} ${px} ${py}`);
-      });
-  }
-  else {
-    console.log('thought the whole point was this would work??');
-  }
-  
-      setEndPoint(centerOnNode(currentNode.pos, currentNode.diameter));
-      pulseTrigger.current += 1;
-  
-  },[]);*/

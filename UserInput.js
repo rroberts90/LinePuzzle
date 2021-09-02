@@ -20,7 +20,7 @@ const Cursor = (props) => {
         onMoveShouldSetPanResponder: () => true,
   
         onPanResponderGrant: (evt, gestureState) => {
-          console.log("granting");
+         // console.log("granting");
           
           const centeredEndPoint = MyMath.point(gestureState.x0, gestureState.y0);
           setEndPoint(centeredEndPoint);
@@ -64,9 +64,7 @@ const Cursor = (props) => {
         }
       })
     ).current;
-    const segment = props.node && endPoint ? 
-    <Segment startNode= {props.node} endPoint={endPoint}/>
-    : null;
+    const segment =   <Segment startNode= {props.node} endPoint={endPoint}/>
     return (<>   
       <Animated.View
     style={[{
@@ -91,7 +89,7 @@ const Cursor = (props) => {
     cursor: {
         backgroundColor: "rgba(0,0,0,.5)",
         borderColor: "rgba(255,255,255,.5)",
-        opacity:.5
+        opacity:0
       },
     }
   );

@@ -1,5 +1,5 @@
-import React from 'react'
-import {StyleSheet, View, Animated} from 'react-native'
+import React, { useEffect, useRef, forwardRef } from 'react'
+import {StyleSheet, View, Animated,Easing} from 'react-native'
 
 import { distance, centerOnNode } from './MathStuff';
 import { rotateColors } from './GameLogic';
@@ -44,9 +44,33 @@ const calculateColor = (node, endPoint) => {
     return color;
   }
 
-const Segment = ({startNode, endPoint}) => {
+const Fade = (props) => {
+  
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  useEffect(()=>{
+    if(props.fade === true){
+    Animated.timing(fadeAnim, {
+      toValue: 0,
+      duration: 500,
+      useNativeDriver: true,
+      easing: Easing.quad
+    }).start(finished=>{
+      props.onFade();
+    });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[props.fadeOut]);
+  return <Animated.View style= {{opacity:fadeAnim}}>
+     {props.children}
+    </Animated.View>
+}
+const Segment = ({startNode, endPoint, fixedColor}) => {
 
-    const color = calculateColor(startNode, endPoint );
+  if (startNode === null  || endPoint === null){
+      return null;
+    }
+
+    const color = fixedColor || calculateColor(startNode, endPoint );
     
     const startPos = centerOnNode(startNode.pos,  startNode.diameter);
     const endPos  = endPoint; //centerEndPoint ? centerOnNode(endPoint, startNode.diameter): endPoint;
@@ -60,7 +84,6 @@ const Segment = ({startNode, endPoint}) => {
 
     const rotate = `${angle}deg`;
     
-
  // toPrint.forEach(obj => console.log(`${Object.entries(obj)[0]}`));
   //console.log(`\n`);
  //const shiftedStartPos = point(startPos.x + scaleX/2, startPos.y + scaleY/2); //scale centers around middle of element.
@@ -79,12 +102,20 @@ const Segment = ({startNode, endPoint}) => {
 }
   
   
-  const UserPath = ({segments}) => {
-    
+  const UserPath = ({segments, fades}) => {
+
+ //    console.log(segments[0].props);
     return (
-        <View >
-            {segments}
-        </View>
+      <View >
+        {segments.map((seg,i) =>
+            <Segment startNode={seg.startNode} endPoint={seg.endPoint} key={i}/>
+        )}
+        {fades.map((seg,i) =>
+            <Fade fade={true} onFade={()=> fades.pop()}  key={i}>
+            <Segment startNode={seg.startNode} endPoint={seg.endPoint}/>
+            </Fade>
+        )}
+      </View>
     );
   }
 
@@ -125,6 +156,27 @@ const Segment = ({startNode, endPoint}) => {
 
    );
   }
+
+  const CapSegment = ({color, end, visible, nodeDiameter}) => {
+   
+    
+    const opacity = visible ? 1 : 0;
+    
+    const height = 10;
+    const width = nodeDiameter / 6;
+    
+    const sidePadding = ( nodeDiameter - width) /2;
+  
+    return <View style={{
+      position: 'relative',
+      backgroundColor: color,
+      height: end ==='start' ? '25%' : '15%',
+      width: width,
+      marginHorizontal: sidePadding,
+      opacity: opacity,
+      transform: [{translateY: end ==='start' ? -nodeDiameter/6 : nodeDiameter/6}]
+    }}/>
+  }
   const styles  = StyleSheet.create({
     dot: {
         width:1,
@@ -132,7 +184,8 @@ const Segment = ({startNode, endPoint}) => {
         zIndex:0,
         top:0,
         left: 0,
-        position: 'absolute'
+        position: 'absolute',
+
       }
   });
-  export {Segment, UserPath, AnimatedSegment}
+  export {Segment, UserPath, Fade, CapSegment, calculateColor}

@@ -1,7 +1,9 @@
 import { Animated, View, StyleSheet, Easing, Text} from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 
-import { convertToLayout } from "./MathStuff";
+import { convertToLayout, point } from "./MathStuff";
+import { Segment, CapSegment } from "./PathViews";
+import { calculateColor } from "./GameLogic";
 const Node_Width = 60;
 
 const borderStyles = (colors) => {
@@ -47,7 +49,6 @@ const rotToTransform = (rot) =>{
     return {transform: [{rotate:`${degrees}deg`}]};
   }
 
-
 const NodeView = (props) => {
 
     const rotAnim = useRef(new Animated.Value(0)).current;
@@ -84,7 +85,6 @@ const NodeView = (props) => {
              }
    }}
 
-    {...testTouchHandlers}
        >
         <Text style={styles.symbol}> {props.node.symbol} </Text>
       </Animated.View>
@@ -143,6 +143,55 @@ const NodeView = (props) => {
   
   }
 
+  const GridView = (props) => {
+    const translateYAnim = useRef(new Animated.Value(-props.height)).current;
+    useEffect(()=> {
+      console.log("COMING IN HOT");
+      Animated.timing(translateYAnim, {
+        toValue: 0,
+        duration: 2500,
+        useNativeDriver: true,
+        easing: Easing.ease
+      }).start();
+      }, []);
+  
+    const flat = props.board.grid.reduce((flat, row) => [...flat, ...row]);
+  
+    const nodes = flat.map((node,ndx)=>  
+     <NodeView node={node}
+    key={ndx}
+    afterUpdate = {props.board.getCurrentNode() === node ? props.afterUpdate : null }
+    />
+    );
+  
+    const bottomRow = props.board.grid[props.board.grid.length - 1];
+    const topRow = props.board.grid[0];
+
+    const startCaps = bottomRow.map((node, i) =>
+      <CapSegment color={node.colors[2]}
+        end={'start'} 
+        visible={props.board.start === node} 
+        nodeDiameter={node.diameter} 
+        key={i} />);
+    
+    const finishCaps = topRow.map((node, i) =>
+      <CapSegment color={props.wonColor || calculateColor(node, point(node.pos.x, node.pos.y-100))}
+        end={'finish'} 
+        visible={props.board.finish === node} 
+        nodeDiameter={node.diameter} 
+        key={i} />);
+    return (
+    <Animated.View style= {[styles.board, {
+      transform: [{translateY: translateYAnim}]
+    }]}  >
+        {finishCaps}
+        {nodes}
+        {startCaps}
+   
+    </Animated.View>);
+  }
+  
+
   const styles = StyleSheet.create({
     nodeSize: {
       position: "absolute",
@@ -162,7 +211,19 @@ const NodeView = (props) => {
     },
     symbol: {
       fontSize: 30
+    },
+    board: {
+      flex: 1,
+      justifyContent: "space-between",
+      flexDirection: "row",
+      alignItems: "center",
+      flexWrap: "wrap",
+      paddingHorizontal: 5
+      
     }
 });
+/**     <Segment startNode={props.board.start} endPoint={startPoint}/>
+        <Segment startNode={props.board.finish} endPoint={finishPoint} fixedColor={fixedColor}/>
+         */
 const nodeSize = styles.nodeSize;
-  export {NodeView, Pulse, dynamicNodeSize, dynamicNodeSizeNoPosition};
+  export {NodeView, Pulse, GridView, dynamicNodeSize, dynamicNodeSizeNoPosition};

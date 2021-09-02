@@ -165,10 +165,6 @@ const rotateColors = (colors, rot) => {
         const compNodeRotatedColors = rotateColors(node.colors, node.rot);
         const myNodeRotatedColors = rotateColors(this.colors, this.rot);
         
-        /*console.log(`next node top color: ${compNodeRotatedColors[0]}`);
-        console.log(`current rot: ${this.rot}`);
-        console.log(`current bottom color: ${myNodeRotatedColors[2]}`);*/
-
         // node is a neighbor. must be above/below/left/right
             if(node.gridPos.row > this.gridPos.row ) {
                 // below current node. bottom == top
@@ -217,7 +213,7 @@ const rotateColors = (colors, rot) => {
     for (let i = 0; i < numRow; i++) { 
       grid[i] = []; 
       for (let j = 0; j < numCol; j++) { 
-        grid[i][j] = new Node(MyMath.gridPos(i,j), MyMath.point(0,0), diameter, getColors(colorScheme5)); 
+        grid[i][j] = new Node(MyMath.gridPos(i,j), MyMath.point(0,0), diameter, getColors(colorScheme1)); 
 
       } 
     } 
@@ -244,6 +240,23 @@ const getNeighbors =  (i,j, numRow, numCol) => {
     return potentials.filter(neighbor => isInBounds(neighbor, numRow, numCol));
   
 }
+const setStart = (grid,numRow,numCol,prevFinish) =>{ 
+
+      if(!prevFinish) { // random start position
+        const randGridPos = MyMath.gridPos(numRow-1,MyMath.randInt(0,numCol));
+        return grid[randGridPos.row][randGridPos.col];
+
+      }else{ // fixed start position and color
+        // start is same col as prevFinish 
+        const start = grid[numRow-1][prevFinish.gridPos.col];
+
+        // the top/botom colors match
+        while(start.colors[2] !== prevFinish.colors[0]){
+          start.colors = rotateColors(start.colors, 1);
+        }
+        return start;
+      }
+}
 // returns a 2d array. 
 //Each element contains a list of the row/col positions of neighboring nodes. 
 const getAllNeighbors = (numRow, numCol)  => {
@@ -265,15 +278,16 @@ const getAllNeighbors = (numRow, numCol)  => {
 
 class Board {
 
-    constructor (numRow, numCol, start, finish, windowWidth) {
+    constructor (numRow, numCol, windowWidth, prevFinish) {
         console.log("new board");
 
         //this.grid = setupGrid(numRow, numCol, windowWidth, windowHeight);
         this.grid = setupGridFlex(numRow,numCol, .21 * windowWidth);
         this.setupNeighbors(numRow, numCol);
         
-        this.start = this.grid[start.row][start.col];
+        const finish = MyMath.gridPos(0,MyMath.randInt(0,numCol));
         this.finish =  this.grid[finish.row][finish.col];
+        this.start = setStart(this.grid, numRow, numCol, prevFinish);
         this.start.fixed = true;
         
         this.visitedNodes = [this.start];
@@ -282,7 +296,7 @@ class Board {
         setupGridSolution(this);
         //this.initialSetup = this.grid.map(this.row.map(node=> {return {...node};}));
     }
-
+ 
     setupNeighbors(numRow, numCol){
         const neighborGridPosArray2d = getAllNeighbors(numRow, numCol);
         
@@ -382,6 +396,5 @@ class Board {
 
 const ZeroNode = {pos: MyMath.point(0,0), diameter: Default_Node_Width, colors: getColors(colorScheme1) };
 const testObj = {property:1, func: function() {console.log(this.property); this.property += 1000;}};
-
 
 export {Board, calculateColor, toDegrees, ZeroNode, rotateColors};
