@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, forwardRef } from 'react'
 import {StyleSheet, View, Animated,Easing} from 'react-native'
 
-import { distance, centerOnNode } from './MathStuff';
-import { rotateColors } from './GameLogic';
+import { distance, centerOnNode,rotateColors } from './MathStuff';
+import {  } from './BoardLogic';
 
 import { convertToLayout, point } from "./MathStuff";
 
@@ -64,6 +64,7 @@ const Fade = (props) => {
      {props.children}
     </Animated.View>
 }
+
 const Segment = ({startNode, endPoint, fixedColor}) => {
 
   if (startNode === null  || endPoint === null){
@@ -157,26 +158,28 @@ const Segment = ({startNode, endPoint, fixedColor}) => {
    );
   }
 
-  const CapSegment = ({color, end, visible, nodeDiameter}) => {
-   
+  const CapSegment = ({color, end, visible, nodeDiameter, fixedHeight}) => {
     
     const opacity = visible ? 1 : 0;
     
-    const height = 10;
     const width = nodeDiameter / 6;
     
     const sidePadding = ( nodeDiameter - width) /2;
-  
+    const height = fixedHeight || (end ==='start' ? '15%' : '15%');
     return <View style={{
       position: 'relative',
       backgroundColor: color,
-      height: end ==='start' ? '25%' : '15%',
+      height: height,
       width: width,
-      marginHorizontal: sidePadding,
+      marginHorizontal: sidePadding + nodeDiameter/12,
       opacity: opacity,
-      transform: [{translateY: end ==='start' ? -nodeDiameter/6 : nodeDiameter/6}]
+      transform: [{translateY: end ==='start' ? -nodeDiameter/3 : nodeDiameter/3},
+                   {scaleY: end === 'start' ? 1 : 1.5}]
+
     }}/>
   }
+  //      transform: [{translateY: end ==='start' ? -nodeDiameter/5 : nodeDiameter/5}, {}]
+
   const styles  = StyleSheet.create({
     dot: {
         width:1,

@@ -20,19 +20,20 @@ const Cursor = (props) => {
         onMoveShouldSetPanResponder: () => true,
   
         onPanResponderGrant: (evt, gestureState) => {
-         // console.log("granting");
+         //console.log("granting");
           
           const centeredEndPoint = MyMath.point(gestureState.x0, gestureState.y0);
           setEndPoint(centeredEndPoint);
           
           mostRecentPoint.current = centeredEndPoint;
-          props.pulseTrigger.current += 1;
+          props.triggerPulser(Math.random(5));
 
           pan.setOffset({
             x: pan.x._value,
             y: pan.y._value
           });
         },
+
         onPanResponderMove: (evt, gestureState) => {
        
           const point =  MyMath.point( gestureState.moveX,gestureState.moveY );

@@ -66,6 +66,22 @@ const rotateArray = (arr, rot) => {
     })
   }
 
+  const rotateColors = (colors, rot) => {
+    return colors.map((val, i) => {
+      if (rot < 0) { // reverse case
+        const rot2 = rot  % 4;
+        if (i + rot2 < 0) {// wrap around 
+          return colors[colors.length + i + rot2];
+        }
+        else{  // no wrap
+          return colors[i+rot2];
+        }
+      }
+      else {
+        return colors[(i + rot) % 4]
+      }
+    })
+  }
 const logColors  = (colors) => {
  //   logGridPos('    node', gridPos);
     console.log(`     top: ${colors[0]}`);
@@ -85,4 +101,4 @@ const logColors  = (colors) => {
 const randInt = (min,max)  => {
     return Math.floor(Math.random() * (max - min)) + min;
 }
-export {gridPos, point, distance, centerOnNode, pointInCircle, logPoint, logGridPos,compareGridPos, rotateArray, logColors, randInt, convertToLayout};
+export {gridPos, point, distance, centerOnNode, pointInCircle, logPoint, logGridPos,compareGridPos, rotateArray, logColors, randInt, convertToLayout, rotateColors};

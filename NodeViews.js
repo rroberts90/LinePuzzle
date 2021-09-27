@@ -1,9 +1,11 @@
-import { Animated, View, StyleSheet, Easing, Text} from "react-native";
+import { Animated, View, StyleSheet, Easing, Text, Image, useWindowDimensions} from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 
 import { convertToLayout, point } from "./MathStuff";
 import { Segment, CapSegment } from "./PathViews";
-import { calculateColor } from "./GameLogic";
+import { calculateColor } from "./BoardLogic";
+import {Arrow, Symbol, Special} from './SymbolViews'
+
 const Node_Width = 60;
 
 const borderStyles = (colors) => {
@@ -17,7 +19,8 @@ const borderStyles = (colors) => {
 
   const dynamicNodeSize = (diameter, margin) => {
       return {
-        marginTop:  diameter /6 ,
+        marginVertical:  diameter /6 ,
+        marginHorizontal: diameter /12,
         width: diameter,
         height: diameter,
         borderRadius: diameter / 2,
@@ -26,6 +29,7 @@ const borderStyles = (colors) => {
         zIndex: 10,
         justifyContent: 'center',
         alignItems: 'center',
+        flexGrow: 1
       };
   }
   const dynamicNodeSizeNoPosition = (diameter) => {
@@ -49,6 +53,31 @@ const rotToTransform = (rot) =>{
     return {transform: [{rotate:`${degrees}deg`}]};
   }
 
+const shouldAddArrow = (node, neighbor) => {
+ 
+  if(node.links.includes(neighbor)){
+    // if link exists and node has no symbol always draw link. 
+    if(!node.symbol){
+      return true;
+    }
+    if(node.symbol !== neighbor.symbol) { // matches symbols already tells user nodes are linked.
+      return true;
+    } else {
+      return false;
+    }
+
+  }else{
+    return false;
+  }
+}
+
+const Frozen = ({node}) => {
+  return ((node.frozen > 0) ? 
+  <View style={{backgroundColor: 'dimgrey', opacity:.5, width:node.diameter,
+   height:node.diameter, position:'absolute', borderWidth: node.diameter/6,
+    borderRadius: node.diameter/2, borderColor:'darkgrey'}}/>: null);
+}
+
 const NodeView = (props) => {
 
     const rotAnim = useRef(new Animated.Value(0)).current;
@@ -64,10 +93,8 @@ const NodeView = (props) => {
     },[props.node.rot]);
 
     const colorStyles = borderStyles(props.node.colors);
-
-    const testTouchHandlers = {onStartShouldSetResponder: ()=> true, onResponderGrant: ()=> {
-      props.node.rotate();
-    }};
+   const arrowNodes = props.node.neighbors.filter(neighbor=> shouldAddArrow(props.node, neighbor) );
+    
     return (
       <Animated.View style={[
       dynamicNodeSize(props.node.diameter),
@@ -84,29 +111,35 @@ const NodeView = (props) => {
                props.afterUpdate();
              }
    }}
-
        >
-        <Text style={styles.symbol}> {props.node.symbol} </Text>
+     <Special node={props.node}/>
+     <Symbol group= {props.node.symbol} diameter ={props.node.diameter} />
+     <Frozen node={props.node}/>
+      {arrowNodes.map((neighbor,i)=> <Arrow node={props.node} linkedNode= {neighbor} key={i} rotAnim={rotAnim} />)}
       </Animated.View>
     );
   } 
-  
+  /**   {//props.node.links.filter(node=> props.node.neighbors.includes(node))
+     .map((node,i) => <Arrow node= {props.node} linkedNode= {node} key={i} />)}
+      */
   const Pulse = (props) => {
-    const fadeAnim = useRef(new Animated.Value(1)).current;
+    const fadeAnim = useRef(new Animated.Value(0)).current;
     const sizeAnim = useRef(new Animated.Value(1)).current;
     
-   
+
     const colorStyles = borderStyles(props.colors);
-    const duration = 1000;
+    const duration = 500;
     useEffect(() => {
 
+      if(props.GOGOGO > 0){
+
+        //console.log("pulsing");
       fadeAnim.setValue(1);
       sizeAnim.setValue(1);
       
-  
       Animated.parallel([
         Animated.timing(sizeAnim, {
-          toValue: 1.5,
+          toValue: 1.35,
           duration: duration,
           useNativeDriver: true,
           easing: Easing.linear
@@ -125,6 +158,7 @@ const NodeView = (props) => {
   
         }
       });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.GOGOGO]);
   
@@ -145,15 +179,17 @@ const NodeView = (props) => {
 
   const GridView = (props) => {
     const translateYAnim = useRef(new Animated.Value(-props.height)).current;
-    useEffect(()=> {
-      console.log("COMING IN HOT");
+    const screenHeight = useWindowDimensions().height;
+   /* useEffect(()=> {
+
       Animated.timing(translateYAnim, {
         toValue: 0,
         duration: 2500,
         useNativeDriver: true,
         easing: Easing.ease
       }).start();
-      }, []);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, []);*/
   
     const flat = props.board.grid.reduce((flat, row) => [...flat, ...row]);
   
@@ -166,29 +202,34 @@ const NodeView = (props) => {
   
     const bottomRow = props.board.grid[props.board.grid.length - 1];
     const topRow = props.board.grid[0];
+    const boardHeight = bottomRow[0].pos.y - topRow[0].pos.y + topRow[0].diameter;
+    const endHeight =  (screenHeight- boardHeight) / 2;
+    const startHeight = (screenHeight- boardHeight) / 2;
+
+
 
     const startCaps = bottomRow.map((node, i) =>
       <CapSegment color={node.colors[2]}
         end={'start'} 
         visible={props.board.start === node} 
         nodeDiameter={node.diameter} 
-        key={i} />);
+        key={i} fixedHeight= {startHeight}/>);
     
     const finishCaps = topRow.map((node, i) =>
       <CapSegment color={props.wonColor || calculateColor(node, point(node.pos.x, node.pos.y-100))}
         end={'finish'} 
         visible={props.board.finish === node} 
         nodeDiameter={node.diameter} 
+        fixedHeight={endHeight}
         key={i} />);
+
     return (
-    <Animated.View style= {[styles.board, {
-      transform: [{translateY: translateYAnim}]
-    }]}  >
+    <View style= {[styles.board]}  >
         {finishCaps}
         {nodes}
         {startCaps}
    
-    </Animated.View>);
+    </View>);
   }
   
 
@@ -209,16 +250,18 @@ const NodeView = (props) => {
       backgroundColor: "darkgrey",
       zIndex: 0
     },
-    symbol: {
+    textSymbol: {
       fontSize: 30
     },
+  
     board: {
       flex: 1,
       justifyContent: "space-between",
       flexDirection: "row",
       alignItems: "center",
       flexWrap: "wrap",
-      paddingHorizontal: 5
+      paddingHorizontal: 5,
+      height:'100%'
       
     }
 });

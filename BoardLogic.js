@@ -1,67 +1,9 @@
 
 import * as MyMath from './MathStuff.js';
-import {setupGrid as setupGridSolution } from './Pathing';
+import {setupGrid as setupGridSolution } from './PathLogic';
+import colorScheme from './ColorSchemes';
+
 const Default_Node_Width = 75;
-
-const colorScheme1 =
-{
-  one: "rgba(231, 48, 110,1)", // magenta
-  two: "rgba(47, 127, 183,1)", // blue
-  three: "rgba(255, 167, 53,1)", // orange
-  four: "rgba(103, 142, 66,1)" // lime green
-}
-
-const colorScheme2 =
-{
-  one: "rgba(255, 86, 154,1)", // magenta
-  two: "rgba(91, 224, 255,1)", // blue
-  three: "rgba(255, 170, 86,1)", // orange
-  four: "rgba(141, 255, 164,1)" // lime green
-}
-
-// brighter version
-const colorScheme3 = 
-{
-    one:"rgba(226, 84, 132,1)", // magenta
-    two: "rgba(140, 197, 245,1)", // blue
-    three:  "rgba(255, 200, 95,1)",  //"rgba(255, 187, 95,1)", // orange
-    four: "rgba(144, 200, 105,1)" // lime green
-}
-
-// better brighter version 
-const colorScheme4 = 
-{
-  one:"rgba(255, 15, 96,1)", // magenta
-  two: "rgba(30, 162, 255,1)", // blue
-  three:  "rgba(255, 151, 15,1)",  // orange
-  four: "rgba(132, 255, 15,1)" // lime green darker version: 69, 142, 0
-}
-
-// easier to read colors in printouts
-const colorScheme5 = 
-{
-  one:'magenta', // magenta
-  two: 'skyblue', // blue
-  three:  'orange',  // orange
-  four: 'forestgreen' // lime green darker version: 69, 142, 0
-}
-
-const rotateColors = (colors, rot) => {
-  return colors.map((val, i) => {
-    if (rot < 0) { // reverse case
-      const rot2 = rot  % 4;
-      if (i + rot2 < 0) {// wrap around 
-        return colors[colors.length + i + rot2];
-      }
-      else{  // no wrap
-        return colors[i+rot2];
-      }
-    }
-    else {
-      return colors[(i + rot) % 4]
-    }
-  })
-}
 
   const toDegrees = (angle) =>{
     return angle * (180 / Math.PI);
@@ -77,7 +19,7 @@ const rotateColors = (colors, rot) => {
     const yDir = Math.sign(endPoint.y - center.y)
    
     let color;
-    const computedColors = rotateColors(node.colors, node.rot);
+    const computedColors = MyMath.rotateColors(node.colors, node.rot);
     if(xDir == 1 &&  angle < 45) {
       color = computedColors[1];
     }
@@ -97,8 +39,6 @@ const rotateColors = (colors, rot) => {
     return color;
   }
 
-  const testColors = [colorScheme1.one, colorScheme1.four, colorScheme1.two, colorScheme1.three];
-  const testColors2 = [colorScheme2.one, colorScheme2.four, colorScheme2.two, colorScheme2.three];
   
   const getColors = (colorSet) => {
     return Object.entries(colorSet).map((arr)=> arr[1]);
@@ -121,13 +61,15 @@ const rotateColors = (colors, rot) => {
         this.direction = direction || -1; // rotation direction
         this.fixed = false; // if node is in visited nodes list can't rotate
         this.symbol = null;
+        this.special = null;
+        this.frozen = 0; // frozen zero times
       }
 
 
       // if the node is rotatable (not in the line's path) change colors + direction
       rotate(reverse){
         const direction = reverse ? -this.direction : this.direction;
-        if(!this.fixed) {
+        if(!this.fixed && this.frozen == 0) {
           this.rot += direction;
         }
       }
@@ -162,8 +104,8 @@ const rotateColors = (colors, rot) => {
         let match = null;
         
         // get computed colors
-        const compNodeRotatedColors = rotateColors(node.colors, node.rot);
-        const myNodeRotatedColors = rotateColors(this.colors, this.rot);
+        const compNodeRotatedColors = MyMath.rotateColors(node.colors, node.rot);
+        const myNodeRotatedColors = MyMath.rotateColors(this.colors, this.rot);
         
         // node is a neighbor. must be above/below/left/right
             if(node.gridPos.row > this.gridPos.row ) {
@@ -184,6 +126,10 @@ const rotateColors = (colors, rot) => {
             }
         return match;
       }
+
+       toString(){
+        return `Node: (row: ${this.gridPos.row}, col:${this.gridPos.col} )`;
+      }
   }
 
   const setupGrid = (numRow, numCol, windowWidth, windowHeight) =>{ 
@@ -200,7 +146,7 @@ const rotateColors = (colors, rot) => {
       y = margin*2 + diameter * i + margin * i + topMargin;
       for (let j = 0; j < numCol; j++) { 
         x = margin/2 + diameter * j + margin * j;
-        grid[i][j] = new Node(MyMath.gridPos(i,j), MyMath.point(x,y), diameter, testColors); 
+        grid[i][j] = new Node(MyMath.gridPos(i,j), MyMath.point(x,y), diameter, getColors(colorScheme)); 
       } 
     } 
     return grid; 
@@ -213,7 +159,7 @@ const rotateColors = (colors, rot) => {
     for (let i = 0; i < numRow; i++) { 
       grid[i] = []; 
       for (let j = 0; j < numCol; j++) { 
-        grid[i][j] = new Node(MyMath.gridPos(i,j), MyMath.point(0,0), diameter, getColors(colorScheme1)); 
+        grid[i][j] = new Node(MyMath.gridPos(i,j), MyMath.point(0,0), diameter, getColors(colorScheme)); 
 
       } 
     } 
@@ -240,7 +186,8 @@ const getNeighbors =  (i,j, numRow, numCol) => {
     return potentials.filter(neighbor => isInBounds(neighbor, numRow, numCol));
   
 }
-const setStart = (grid,numRow,numCol,prevFinish) =>{ 
+
+const setStart = (grid,numRow,numCol,prevFinish, finalColor) =>{ 
 
       if(!prevFinish) { // random start position
         const randGridPos = MyMath.gridPos(numRow-1,MyMath.randInt(0,numCol));
@@ -249,13 +196,31 @@ const setStart = (grid,numRow,numCol,prevFinish) =>{
       }else{ // fixed start position and color
         // start is same col as prevFinish 
         const start = grid[numRow-1][prevFinish.gridPos.col];
+        // make top/botom colors match
+        //const computedColors = rotateColors(prevFinish.colors, prevFinish.rot);
 
-        // the top/botom colors match
-        while(start.colors[2] !== prevFinish.colors[0]){
-          start.colors = rotateColors(start.colors, 1);
+        if(finalColor) {
+          while(start.colors[2] !== finalColor){
+            start.colors = MyMath.rotateColors(start.colors, 1);
+           }
         }
+        
         return start;
       }
+}
+
+const copyBoardData = (prevGrid) => { 
+    return prevGrid.map( row =>
+    row.map(node=> {
+    return  new Node(MyMath.gridPos(node.gridPos.row, node.gridPos.col),
+             MyMath.point(node.pos.x, node.pos.y),
+             node.diameter,
+             node.colors);  
+
+    }
+              
+      ));     
+
 }
 // returns a 2d array. 
 //Each element contains a list of the row/col positions of neighboring nodes. 
@@ -268,7 +233,7 @@ const getAllNeighbors = (numRow, numCol)  => {
             const potentials = [MyMath.gridPos( i,j+1), //right
               MyMath.gridPos( i,j-1), //left
               MyMath.gridPos( i-1,j), // bottom
-              MyMath. gridPos(i+1,j)];// top
+              MyMath.gridPos(i+1,j)];// top
             grid[i][j] =  potentials.filter(neighbor => isInBounds(neighbor, numRow, numCol));
         }
     }
@@ -276,27 +241,39 @@ const getAllNeighbors = (numRow, numCol)  => {
     return grid;
 }
 
+const NodeWidth = .2
 class Board {
 
-    constructor (numRow, numCol, windowWidth, prevFinish) {
-        console.log("new board");
+    constructor (numRow, numCol, windowWidth, prevBoard) {
 
-        //this.grid = setupGrid(numRow, numCol, windowWidth, windowHeight);
-        this.grid = setupGridFlex(numRow,numCol, .21 * windowWidth);
+        if(!prevBoard) {
+          console.log("new board");
+          this.grid = setupGridFlex(numRow,numCol, NodeWidth * windowWidth);
+          this.start = setStart(this.grid, numRow, numCol);
+
+        }
+        else {
+          console.log("new board with prevBoard");
+          this.grid = copyBoardData(prevBoard.grid);
+          this.start = setStart(this.grid, numRow, numCol, prevBoard.finish, prevBoard.finalColor);
+        }
+
         this.setupNeighbors(numRow, numCol);
-        
+
         const finish = MyMath.gridPos(0,MyMath.randInt(0,numCol));
         this.finish =  this.grid[finish.row][finish.col];
-        this.start = setStart(this.grid, numRow, numCol, prevFinish);
+        
         this.start.fixed = true;
-        
-        this.visitedNodes = [this.start];
-        
+        this.visitedNodes = [this.start]; 
+        //console.log(`  startColors[2]: ${this.start.colors[2]}`);
+
         // rotate nodes properly
         setupGridSolution(this);
+ 
+
         //this.initialSetup = this.grid.map(this.row.map(node=> {return {...node};}));
     }
- 
+    
     setupNeighbors(numRow, numCol){
         const neighborGridPosArray2d = getAllNeighbors(numRow, numCol);
         
@@ -348,6 +325,7 @@ class Board {
     visitNode(nextNode) {
       const curr = this.visitedNodes[this.visitedNodes.length-1];
       if(curr === nextNode) {//can't visit myself
+
         return null;
       }
       if(this.isPathOpen(curr, nextNode)) {
@@ -357,7 +335,18 @@ class Board {
         nextNode.fixed = true; 
       //  MyMath.logGridPos('next: ', nextNode.gridPos);
        // MyMath.logGridPos('  links: ', nextNode.links[0].gridPos);
-        nextNode.rotateLinked();
+        if(!nextNode.special) {
+          nextNode.rotateLinked();
+        } else if (nextNode.special === 'freezer'){
+          console.log('freezing');
+          // don't rotate links, instead add a freeze
+          nextNode.links.forEach(node=> node.frozen++);
+
+        } else if (nextNode.special === 'rotateCC') {
+          nextNode.links.forEach(node=> node.direction = 1);
+          nextNode.rotateLinked();
+
+        }
         return nextNode;
       } 
       else {
@@ -372,13 +361,29 @@ class Board {
       }
       const current = this.visitedNodes.pop();
   
-      // if current is not in visited list a second time, remove fixed
+      // if current is not in visited list a second time,
       const isStillThere = this.visitedNodes.find(node=> node === current);
-      current.fixed = isStillThere ? true : false;
+      current.fixed = (isStillThere) ? true : false;
 
+      // if node is a freeze-node, and it is not in visitedNodes list a second time, 
+      // remove a freeze from its links
+      if(current.special == 'freezer' && !isStillThere ) {
+        // if the node is frozen two or more times,
+        // both freezes need to be removed before the node rotates again.
+        current.links.forEach(node=> node.frozen--);
+        // don't reverse rotate linked nodes if node is a freeze
+      } else if(current.special !== 'freezer') {
+        current.rotateLinked(true); // reverse rotate
+
+      } 
+
+      if(current.special === 'rotateCC' && !isStillThere ){
+        // change direction, after rotating
+         current.links.forEach(node=> node.direction = -1);
+        
+      }
       const prev = this.visitedNodes[this.visitedNodes.length-1];
       
-      current.rotateLinked(true); // reverse rotate
 
       return prev;
 
@@ -391,10 +396,31 @@ class Board {
     }
     }
 
+    /**
+     * user requests hint. 
+     * compare visitedNodes to solution. 
+     * when visitedNodes[i] !== solution[i]. stop. 
+     * remove all nodes after i from visitedNodes. Add solution[i] to visited nodes
+     */
+    hint(){
+      let ndx = 0;
+      const solution = this.solution.map(node=>node.toString()).join('\n');
+      const visitedNodes = this.visitedNodes.map(node=>node.toString()).join('\n');
+
+      while(this.visitedNodes[ndx] === this.solution[ndx]) {
+        ndx++;
+      }
+
+      const removeCount = this.visitedNodes.filter((node, i)=> i>=ndx).length;
+
+      const nextNode = this.solution[ndx];
+
+      return {removeCount, nextNode};
+
+    }
+
 }
 
 
-const ZeroNode = {pos: MyMath.point(0,0), diameter: Default_Node_Width, colors: getColors(colorScheme1) };
-const testObj = {property:1, func: function() {console.log(this.property); this.property += 1000;}};
 
-export {Board, calculateColor, toDegrees, ZeroNode, rotateColors};
+export {Board, calculateColor, toDegrees};
