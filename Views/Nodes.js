@@ -1,10 +1,10 @@
 import { Animated, View, StyleSheet, Easing, Text, Image, useWindowDimensions} from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 
-import { convertToLayout, point } from "./MathStuff";
-import { Segment, CapSegment } from "./PathViews";
-import { calculateColor } from "./BoardLogic";
-import {Arrow, Symbol, Special} from './SymbolViews'
+import { convertToLayout, point } from '../Utils';
+import { Segment, CapSegment } from './Paths';
+import { calculateColor } from '../Gameplay/Board';
+import {Arrow, Symbol, Special} from './Symbols'
 
 const Node_Width = 60;
 
@@ -40,14 +40,16 @@ const borderStyles = (colors) => {
         borderWidth: diameter / 6
       };
   }
+
   const pulseSize = (diameter) => {
     return {
-            width: diameter,
+      width: diameter,
       height: diameter,
       borderRadius: diameter / 2,
       borderWidth: diameter / 2
     };
 }
+
 const rotToTransform = (rot) =>{
     const degrees = rot * -90; // negative because colors are rotated counter clockwise by default
     return {transform: [{rotate:`${degrees}deg`}]};
@@ -70,12 +72,46 @@ const shouldAddArrow = (node, neighbor) => {
     return false;
   }
 }
+//        <View style={{width:node.diameter + node.diameter/12 -2, height: 4, backgroundColor:'black', position:'absolute', top: '55%', borderRadius:2}}/>
 
-const Frozen = ({node}) => {
-  return ((node.frozen > 0) ? 
-  <View style={{backgroundColor: 'dimgrey', opacity:.5, width:node.diameter,
-   height:node.diameter, position:'absolute', borderWidth: node.diameter/6,
-    borderRadius: node.diameter/2, borderColor:'darkgrey'}}/>: null);
+const Frozen = ({node, rotAnim}) => {
+
+  const width = (node.diameter- node.diameter/12 - 10) /2;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (node.frozen === 0) {
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 1000,
+        useNativeDriver: true,
+        easing: Easing.Quad
+      }).start();
+    }
+    else if(node.frozen > 0) {
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+        easing: Easing.Quad
+      }).start();
+    }
+  }, [node.frozen]);
+  return (
+  <Animated.View style={{position:'absolute', opacity: fadeAnim, transform: [{rotate:rotAnim.interpolate({
+    inputRange: [0,360],
+    outputRange:['0deg', '-360deg']
+})}]}}>
+     <View style={{width:width , height: 3, backgroundColor:'rgb(36,36,36)', position:'absolute',alignSelf:
+     'flex-start', top: '55%', borderRadius:2}}/>
+      <View style={{alignSelf:'flex-end',width:width, height: 3, backgroundColor:'rgb(36,36,36)', position:'absolute', top: '55%', borderRadius:2}}/>
+    <Image style={styles.lock} source={require('../Icons/Lock1.png')}/>
+
+  <View style={{backgroundColor: 'dimgrey', opacity:.4, width:node.diameter+3,
+   height:node.diameter+3, borderWidth: node.diameter/6,
+    borderRadius: node.diameter/2, borderColor:'dimgrey'}}>
+    </View>
+
+    </Animated.View>);
 }
 
 const NodeView = (props) => {
@@ -113,8 +149,8 @@ const NodeView = (props) => {
    }}
        >
      <Special node={props.node}/>
-     <Symbol group= {props.node.symbol} diameter ={props.node.diameter} />
-     <Frozen node={props.node}/>
+     <Symbol group= {props.node.symbol} diameter ={props.node.diameter} frozen ={props.node.frozen} />
+     <Frozen node={props.node} rotAnim={rotAnim}/>
       {arrowNodes.map((neighbor,i)=> <Arrow node={props.node} linkedNode= {neighbor} key={i} rotAnim={rotAnim} />)}
       </Animated.View>
     );
@@ -206,28 +242,28 @@ const NodeView = (props) => {
     const endHeight =  (screenHeight- boardHeight) / 2;
     const startHeight = (screenHeight- boardHeight) / 2;
 
-
-
-    const startCaps = bottomRow.map((node, i) =>
-      <CapSegment color={node.colors[2]}
+    const startCap = 
+      <CapSegment 
         end={'start'} 
-        visible={props.board.start === node} 
-        nodeDiameter={node.diameter} 
-        key={i} fixedHeight= {startHeight}/>);
+        node={props.board.start} 
+        fixedHeight= {startHeight}/>;
     
-    const finishCaps = topRow.map((node, i) =>
-      <CapSegment color={props.wonColor || calculateColor(node, point(node.pos.x, node.pos.y-100))}
-        end={'finish'} 
-        visible={props.board.finish === node} 
-        nodeDiameter={node.diameter} 
-        fixedHeight={endHeight}
-        key={i} />);
-
+        const finishCap = 
+        <CapSegment 
+          end={'finish'} 
+          node={props.board.finish} 
+          fixedHeight= {endHeight}
+          won={props.won}/>;
+      
     return (
     <View style= {[styles.board]}  >
-        {finishCaps}
+        <View style={{width:'100%'}}>
+        {finishCap}
+        </View>
         {nodes}
-        {startCaps}
+        <View style={{width:'100%'}}>
+        {startCap}
+        </View>
    
     </View>);
   }
@@ -263,6 +299,20 @@ const NodeView = (props) => {
       paddingHorizontal: 5,
       height:'100%'
       
+    }, 
+    horizontalLine:{
+      position: 'absolute',
+      width:'100%'
+    },
+    lock:{
+      position: 'absolute',
+
+      width: '60%',
+      height: '60%',
+      alignSelf: 'center',
+      top: '20%', //TEMPORARY MAY ALIGN WEIRD ON DIFFERENT SCREEN SIZES
+      opacity:1,
+
     }
 });
 /**     <Segment startNode={props.board.start} endPoint={startPoint}/>

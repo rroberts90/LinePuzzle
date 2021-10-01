@@ -1,10 +1,8 @@
 import React, { useEffect, useRef, forwardRef } from 'react'
 import {StyleSheet, View, Animated,Easing} from 'react-native'
 
-import { distance, centerOnNode,rotateColors } from './MathStuff';
-import {  } from './BoardLogic';
+import { distance, centerOnNode,rotateColors,convertToLayout, point } from '../Utils';
 
-import { convertToLayout, point } from "./MathStuff";
 
 const toDegrees = (angle) =>{
     return angle * (180 / Math.PI);
@@ -74,7 +72,7 @@ const Segment = ({startNode, endPoint, fixedColor}) => {
     const color = fixedColor || calculateColor(startNode, endPoint );
     
     const startPos = centerOnNode(startNode.pos,  startNode.diameter);
-    const endPos  = endPoint; //centerEndPoint ? centerOnNode(endPoint, startNode.diameter): endPoint;
+    const endPos  = endPoint; 
     
     const scaleX = distance(endPos.x - startPos.x, endPos.y - startPos.y);
     const scaleY = startNode.diameter / 5; // line width
@@ -85,17 +83,14 @@ const Segment = ({startNode, endPoint, fixedColor}) => {
 
     const rotate = `${angle}deg`;
     
- // toPrint.forEach(obj => console.log(`${Object.entries(obj)[0]}`));
-  //console.log(`\n`);
- //const shiftedStartPos = point(startPos.x + scaleX/2, startPos.y + scaleY/2); //scale centers around middle of element.
     return (<View style={[styles.dot, 
                          convertToLayout(startPos),
                         { backgroundColor: color,
                          transform: [ 
-                          {rotate: rotate},
-                          {translateX: scaleX/2},
-                             { scaleX: scaleX}, 
-                             { scaleY: scaleY},
+                          { rotate: rotate },
+                          { translateX: scaleX/2 },
+                             { scaleX: scaleX }, 
+                             { scaleY: scaleY },
 
                              ] }]}/>
 
@@ -120,63 +115,77 @@ const Segment = ({startNode, endPoint, fixedColor}) => {
     );
   }
 
-  const AnimatedSegment = ({startNode, panX, panY})=>{
-    if(startNode === null) {
-      console.log("no segment yet");
-      return null;
-    }
-    const endPos = point(panX._value, panY._value);
-    const color = calculateColor(startNode, endPos );
-    
-    const startPos = centerOnNode(startNode.pos,  startNode.diameter);
-    
-    const distance = distance(endPos.x - startPos.x, endPos.y - startPos.y);
-    const magicNumber = panX._value !== 0 ? d / panX._value : 0; 
-    const scaleX = Animated.multiply(panX, magicNumber);
-    const scaleY = Animated.divide(startNode.diameter / 5); // line width
-
-    const opp = endPoint.y - startPos.y;
-    const xDir = Math.sign(endPoint.x - startPos.x);
-    const angle = xDir > 0 ? toDegrees(Math.asin(opp/ scaleX)) : 180 - toDegrees(Math.asin(opp/ scaleX)); // scaleX is also hypotenuse
-
-    const rotate = `${angle}deg`;
-    
-
- // toPrint.forEach(obj => console.log(`${Object.entries(obj)[0]}`));
-  //console.log(`\n`);
- //const shiftedStartPos = point(startPos.x + scaleX/2, startPos.y + scaleY/2); //scale centers around middle of element.
-    return (<Animated.View style={[styles.dot, 
-                         convertToLayout(startPos),
-                        { backgroundColor: color,
-                         transform: [ 
-                          {translateX: Animated.divide(scaleX,2)},
-                             { scaleX: scaleX}, 
-                             { scaleY: scaleY},
-
-                             ] }]}/>
-
-   );
+const calcOpacity = (end) => {
+  if(end ==='start') {
+    return 1;
   }
+  else {
+    return .5;
+  }
+}
 
-  const CapSegment = ({color, end, visible, nodeDiameter, fixedHeight}) => {
-    
-    const opacity = visible ? 1 : 0;
-    
-    const width = nodeDiameter / 6;
-    
-    const sidePadding = ( nodeDiameter - width) /2;
+const triangleStyles = (width, height, color) => {
+  return {
+    borderTopWidth: 0,
+    borderRightWidth: width/2.0,
+    borderBottomWidth: width/1.5,
+    borderLeftWidth: width/2.0,
+    borderTopColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderBottomColor: color,
+    borderLeftColor: 'transparent',
+  }
+}
+  const CapSegment = ({end,node, fixedHeight, won}) => {
+    let color;
+    const defaultFinishColor = 'rgba(248,248,255,1)';
+    if(end === 'finish') {
+     color = won ? rotateColors(node.colors, node.rot)[0] : defaultFinishColor;
+    }else{
+      color = node.colors[2];
+    }
+    const fadeAnim = useRef(new Animated.Value(.5)).current;
+
+    useEffect(() => {
+      if ((won === true && end === 'finish')) {
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 600,
+          useNativeDriver: true,
+          easing: Easing.Quad
+        }).start(finished=> setTimeout(()=>fadeAnim.setValue(.5),1500))
+      }
+      if(end==='start'){
+        fadeAnim.setValue(1);
+      }
+    }, [won]);
+
+    const width = node.diameter / 6;
+    const border = end !== 'start' && color==defaultFinishColor ? 3: 0;
+  //  const sidePadding = ( node.diameter - width) /2;
     const height = fixedHeight || (end ==='start' ? '15%' : '15%');
-    return <View style={{
+    const left = node.pos.x + node.diameter/2 - width + 2;
+    const triangles = end !== 'start' && color===defaultFinishColor ? [1,1,1,1,1].map((_,i)=><View style={triangleStyles(node.diameter/6-6, fixedHeight/10, 'black')} key={i}/>): [];
+    return <Animated.View style={{
       position: 'relative',
+      alignSelf: 'left',
       backgroundColor: color,
       height: height,
       width: width,
-      marginHorizontal: sidePadding + nodeDiameter/12,
-      opacity: opacity,
-      transform: [{translateY: end ==='start' ? -nodeDiameter/3 : nodeDiameter/3},
-                   {scaleY: end === 'start' ? 1 : 1.5}]
+      left: left,
+      opacity: fadeAnim,
+      borderWidth: border,
+      borderColor: 'black',
+      transform: [{translateY: end ==='start' ? -node.diameter/3 : node.diameter/3},
+                   {scaleY: end === 'start' ? 1 : 1.5}],
+      flexDirection: 'column',
+      justifyContent: 'space-evenly',
+      alignItems: 'center'
 
-    }}/>
+
+    }}>
+      {triangles}
+      </Animated.View>
   }
   //      transform: [{translateY: end ==='start' ? -nodeDiameter/5 : nodeDiameter/5}, {}]
 

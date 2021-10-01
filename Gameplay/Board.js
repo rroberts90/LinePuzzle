@@ -1,6 +1,6 @@
 
-import * as MyMath from './MathStuff.js';
-import {setupGrid as setupGridSolution } from './PathLogic';
+import * as MyMath from '../Utils.js';
+import {setupGrid as setupGridSolution } from './Pathing';
 import colorScheme from './ColorSchemes';
 
 const Default_Node_Width = 75;
@@ -338,14 +338,12 @@ class Board {
         if(!nextNode.special) {
           nextNode.rotateLinked();
         } else if (nextNode.special === 'freezer'){
-          console.log('freezing');
           // don't rotate links, instead add a freeze
           nextNode.links.forEach(node=> node.frozen++);
 
         } else if (nextNode.special === 'rotateCC') {
           nextNode.links.forEach(node=> node.direction = 1);
           nextNode.rotateLinked();
-
         }
         return nextNode;
       } 

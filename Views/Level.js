@@ -1,13 +1,11 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { View, StyleSheet, useWindowDimensions, Vibration, Button} from 'react-native'
 
-import { NodeView, Pulse, GridView} from './NodeViews';
-import {Board, calculateColor, ZeroNode} from './BoardLogic.js';
-import {Cursor} from './UserInput.js';
-import {gridPos, point, centerOnNode, logPoint,logGridPos, compareGridPos,rotateColors} from './MathStuff.js';
+import { Pulse, GridView} from './Nodes';
+import {Cursor} from './UserInput';
+import {point, centerOnNode,logGridPos,rotateColors} from '../Utils';
 import ButtonsBar from './ButtonsBar';
-import { Segment, UserPath, Fade } from './PathViews';
-import {Arrows} from './SymbolViews'
+import { UserPath } from './Paths';
 
 const displaySolution = (solution) => {
   return solution.slice(1).map((node,i)=> {
@@ -32,18 +30,23 @@ const Level = ({onWin, l, getBoard}) => {
   const [pulser, triggerPulser] = useState(()=>0); // triggers pulse animation
 
   useEffect(()=>{
-    console.log(`Level ${l} start color: ${getBoard().start.colors[2]}\n`);
+    console.log(`---------------\nLevel ${l} start color: ${getBoard().start.colors[2]}\n`);
     logGridPos('    start',getBoard().start.gridPos);
+    if (l !== 0) {
     resetCurrentNode(1500);
-
+    }
     lineSegments.current = [];
     setWin(false);
+
     //logGridPos('currentNode:', getBoard().getCurrentNode().gridPos);
   },[l]);
 
+  
+
   // sets the endPointto the CurrentNode position after it's position is measurable.
-   const updateAfterLayout = () => {
-    resetCurrentNode(1);
+  const updateAfterLayout = () => {
+    resetCurrentNode(100);
+
   }
 
   /** 
@@ -62,16 +65,15 @@ const Level = ({onWin, l, getBoard}) => {
 };
    lineSegments.current  = [...lineSegments.current, seg];
 
-   triggerPulser(pulser+1);
+   triggerPulser(currentValue => currentValue+1);
   
    if(next === getBoard().finish) {
     console.log('got to finish node. ');
     setWin(true);
-    
-    onWin(l+1);
+   
+    setTimeout(()=>onWin(currentLevel=> currentLevel+1), 500);
+
     Vibration.vibrate();
-
-
    }
     //console.log(`visited nodes length: ${getBoard().visitedNodes.length}`);
     //console.log(getBoard().visitedNodes);
@@ -84,7 +86,7 @@ const Level = ({onWin, l, getBoard}) => {
   const node = getBoard().getCurrentNode();
   //logGridPos('current: ', node.gridPos);
   
-   const {candidate, matchColor} = node.matchPoint(point);
+   const {candidate} = node.matchPoint(point);
   // logGridPos('candidate Node: ', candidate && candidate.gridPos);
    
 
@@ -109,15 +111,19 @@ const Level = ({onWin, l, getBoard}) => {
     setCurrentNode(getBoard().getCurrentNode());
 
     if(!makePulseWait) {
-        triggerPulser(pulser+1);
+        triggerPulser(currentValue => currentValue+1);
     }else{
-        setTimeout( ()=>    triggerPulser(pulser+1)
+        setTimeout( ()=>  triggerPulser(currentValue => currentValue+1)
         ,makePulseWait);
     }
 
   }
 
-  function onHint() {
+  const timeout = async() =>{ //pass a time in milliseconds to this function
+    return new Promise(resolve => setTimeout(resolve, 2000));
+  }
+   
+  async function onHint() {
     const board = getBoard();
 
     const {removeCount, nextNode}  = getBoard().hint();
@@ -127,18 +133,16 @@ const Level = ({onWin, l, getBoard}) => {
     Array.from({ length: removeCount }, (x, i) => {
         onUndo();
     });
- 
      const prev = getBoard().getCurrentNode();
      const next = getBoard().visitNode(nextNode);
-   
+
      if(next === null) {
        throw 'solution is not accurate';
      }
-
       updateNodeBundle(next, prev);
-      resetCurrentNode();
+      //await timeout();
+      //resetCurrentNode();
   }
-
 
   function onUndo() {
 
@@ -163,19 +167,18 @@ const Level = ({onWin, l, getBoard}) => {
   
   const finishCenter = centerOnNode(getBoard().finish.pos, getBoard().finish.diameter);
   const finishPoint = point(finishCenter.x, finishCenter.y-250);
-  const fixedColor = win ? null : 'grey';
 
   return ( 
 
     <View style={[styles.container]} >
 
-        <UserPath segments={lineSegments.current} fades={fadeSegments.current} />
+      <UserPath segments={lineSegments.current} fades={fadeSegments.current} />
          
       <Pulse pos={currPosF} colors={rotateColors(currentNode.colors, currentNode.rot)} GOGOGO={pulser} diameter = {currentNode.diameter} />
-      <Cursor node={currentNode} currX={currX} currY ={currY} triggerPulser={triggerPulser} detectMatch = {detectMatch}  />
+      <Cursor node={currentNode} currPoint={point(currX, currY)} triggerPulser={triggerPulser} detectMatch = {detectMatch}  />
 
-      <GridView board={getBoard()} afterUpdate={updateAfterLayout} height={height} wonColor={fixedColor}/>
-    <ButtonsBar onRestart = {onRestart} onUndo = {onUndo} onHint={()=> onHint()}/>
+      <GridView board={getBoard()} afterUpdate={updateAfterLayout} height={height} won={win}/>
+    <ButtonsBar onRestart = {onRestart} onUndo = {onUndo} onHint={onHint}/>
     </View>
   );
 }
@@ -187,7 +190,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     height: '100%',
-    backgroundColor: "rgba(248,248,255,1)"
+    backgroundColor: 'rgba(248,248,255,1)'
 
   },
   spacer: {

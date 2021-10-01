@@ -1,8 +1,8 @@
 import React, {useRef, useState } from "react";
 import { Animated, PanResponder, StyleSheet, View} from "react-native";
-import {dynamicNodeSizeNoPosition} from './NodeViews';
-import {  Segment } from "./PathViews";
-import * as MyMath from './MathStuff';
+import {dynamicNodeSizeNoPosition} from './Nodes';
+import {  Segment } from "./Paths";
+import * as MyMath from '../Utils';
 
 const Cursor = (props) => {
     const mostRecentPoint = useRef(null);
@@ -26,7 +26,7 @@ const Cursor = (props) => {
           setEndPoint(centeredEndPoint);
           
           mostRecentPoint.current = centeredEndPoint;
-          props.triggerPulser(Math.random(5));
+          props.triggerPulser(current=> current+1);
 
           pan.setOffset({
             x: pan.x._value,
@@ -71,8 +71,8 @@ const Cursor = (props) => {
     style={[{
       transform: [{ translateX: pan.x }, { translateY: pan.y }],
       position: "absolute",
-      top: props.currY,
-      left: props.currX,
+      top: props.currPoint.y,
+      left: props.currPoint.x,
       margin: 0,
       zIndex: 11
     }, dynamicNodeSizeNoPosition(props.node.diameter,0), styles.cursor]}

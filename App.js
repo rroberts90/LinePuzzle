@@ -1,19 +1,17 @@
 import React, {useState, useEffect, useRef} from 'react';
 import { Button, StyleSheet, View, Animated, useWindowDimensions, Easing } from 'react-native';
-import {Board} from './BoardLogic.js';
+import {Board} from './Gameplay/Board';
 
-import Level from './Level.js';
-import { logGridPos } from './MathStuff.js';
+import Level from './Views/Level';
+import { logGridPos } from './Utils';
 const Duration = 1500;
 
 const App = () => {
   const [level, setLevel] = useState(0);
 
-
   const height =  useWindowDimensions().height;
   const width = useWindowDimensions().width;
   
-
   const getBoard = (ref, prevBoard) =>{  //garuntees board exists at all times
     
     if(ref.current === null && !prevBoard) {
@@ -54,7 +52,6 @@ const App = () => {
        
         console.log(` level: ${level} `);
      
-     
         Animated.parallel([Animated.timing(translateYAnim0, {
           toValue: end0 ,
           duration: Duration,
@@ -68,7 +65,11 @@ const App = () => {
           easing: Easing.ease
         })
       ]).start(finished=> {
-
+           if(finished){
+             console.log('  level animations finished.');
+           }else{
+             throw 'Level Animation did not finish';
+           }
            if(level % 2 !== 0) { // board0 is offscreen. reset
 
             getBoard(board0, board1.current);
@@ -92,17 +93,16 @@ const App = () => {
 const onWin = (lev)=> {
 
   console.log(`onWin: currentLevel: ${level} nextLevel: ${lev} \n`);
-  const nextLevel = level +1;
   setLevel(lev);
 } 
 
   return (<>
     <Animated.View style={{ position: 'absolute', height: '100%', transform: [{ translateY: translateYAnim1 }] }}>
-      <Level onWin={onWin} getBoard={() => getBoard(board1)} l={getBoard(board1).level} />
+      <Level onWin={setLevel} getBoard={() => getBoard(board1)} l={getBoard(board1).level} />
     </Animated.View>
 
     <Animated.View style={{ position: 'absolute', height: '100%', transform: [{ translateY: translateYAnim0 }] }}>
-      <Level onWin={onWin} getBoard={() => getBoard(board0)} l={getBoard(board0).level} />
+      <Level onWin={setLevel} getBoard={() => getBoard(board0)} l={getBoard(board0).level} />
     </Animated.View>
 
   </>

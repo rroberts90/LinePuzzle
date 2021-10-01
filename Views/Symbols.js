@@ -1,22 +1,22 @@
 import React, { useEffect, useRef, forwardRef } from 'react'
 import {StyleSheet, View, Animated,Easing, Image} from 'react-native'
 
-import { distance, centerOnNode, point, convertToLayout } from './MathStuff'
+import { distance, centerOnNode, point, convertToLayout } from '../Utils'
 
 const getSymbolSource = (group)=> {
     let icon = '';
     switch (group){
       case 1: 
-        icon = require('./Icons/Viper1.png');
+        icon = require('../Icons/Viper1.png');
         break;
       case 2: 
-        icon = require('./Icons/Glyph1.png');
+        icon = require('../Icons/Glyph1.png');
         break;
       case 3: 
-        icon = require('./Icons/Reeds1.png');
+        icon = require('../Icons/Reeds1.png');
         break;
       case 4: 
-        icon = require('./Icons/Horus1.png');
+        icon = require('../Icons/Horus1.png');
         break;
       
     }
@@ -28,33 +28,35 @@ const getSymbolSource = (group)=> {
     let source = '';
     switch(arrow)  {
       case 0: 
-        source = require('./Icons/ArrowUp1.png');
+        source = require('../Icons/ArrowUp1.png');
         break;
       case 1:
-        source = require('./Icons/ArrowRight1.png');
+        source = require('../Icons/ArrowRight1.png');
         break;
       case 2:
-          source = require('./Icons/ArrowDown1.png');
+          source = require('../Icons/ArrowDown1.png');
           break;  
       case 3:
-          source = require('./Icons/ArrowLeft1.png');
+          source = require('../Icons/ArrowLeft1.png');
           break;  
       case 4: // bidirectional horizontal
-        source = require('./Icons/ArrowBiHorizontal1.png');
+        source = require('../Icons/ArrowBiHorizontal1.png');
         break; 
       case 5: // bidirectional vertical
-        source = require('./Icons/ArrowBiVertical1.png');
+        source = require('../Icons/ArrowBiVertical1.png');
         break; 
     }
     return source;
   }
   
-  const Symbol = ({group, diameter}) => {
+  const Symbol = ({group, diameter, frozen}) => {
     const sourceFile = getSymbolSource(group);
+    const opacity = frozen > 0 ? .3 : 1;
     return( sourceFile !== '' ? 
-    <Image style={symbolStyles(diameter)} source={sourceFile} /> : null );
+    <Image style={[symbolStyles(diameter), {opacity: opacity}]} source={sourceFile} /> : null );
   }
   
+  const ArrowPadding = 2;
   // absolutely positioned relative to parent (node)
   const positionArrow = (startNode, endNode, width, height) => {
     const diameter = startNode.diameter
@@ -66,19 +68,19 @@ const getSymbolSource = (group)=> {
     if(startNode.gridPos.row === endNode.gridPos.row) {
         // use middleX
         if(startNode.gridPos.col < endNode.gridPos.col) {  // right arrow
-            pos = point(middleX, -height/2);
+            pos = point(middleX+ArrowPadding, -height/2);
             type = 1;
         }else { // left arrow
-            pos = point(-middleX-(width),-height/2);
+            pos = point(-middleX-(width) - ArrowPadding,-height/2);
             type = 3;
         }
     } else {
         // use middleY
         if(startNode.gridPos.row > endNode.gridPos.row) {  // down arrow
-            pos = point(-width/2, -middleY - height);
+            pos = point(-width/2, -middleY - height - ArrowPadding/2);
             type = 0;
         }else { // up arrow
-            pos = point(-width/2, middleY);
+            pos = point(-width/2, middleY +ArrowPadding/2);
             type = 2;
         }
     }
@@ -98,11 +100,11 @@ const getSymbolSource = (group)=> {
     let height;
     const thickness = startNode.diameter / 3;
     if( startNode.gridPos.row !== endNode.gridPos.row) { // vertical
-        height =  Math.abs(Math.abs(startNode.pos.y - endNode.pos.y)- startNode.diameter) ;
+        height =  Math.abs(Math.abs(startNode.pos.y - endNode.pos.y)- startNode.diameter) -ArrowPadding;
         width = thickness;
 
     }else { // horizontal
-        width= Math.abs(Math.abs(startNode.pos.x - endNode.pos.x )- startNode.diameter) ;
+        width= Math.abs(Math.abs(startNode.pos.x - endNode.pos.x )- startNode.diameter) -ArrowPadding *2;
         height =  thickness;
 
     }
@@ -195,10 +197,10 @@ else{
 
   const Special = ({node}) => {
       if(node.special === 'freezer') {
-          const source = require('./Icons/freezePattern4.jpeg');
-          return <Image style={[styles.special, {borderRadius: node.diameter/2}]} source={source}/>
+          const source = require('../Icons/freezePattern5.png');
+          return <Image style={[styles.special, styles.freezePattern, {borderRadius: node.diameter/2}]} source={source}/>
       }else if(node.special === 'rotateCC') {
-        const source = require('./Icons/rotateCC1.png');
+        const source = require('../Icons/rotateCC1.png');
         return <Image style={[styles.special, {borderRadius: node.diameter/2}]} source={source}/>;
 
       }
@@ -214,8 +216,7 @@ else{
   const styles = StyleSheet.create({
     symbol: {
         height: 45,
-        width: 45,
-        padding:1
+        width: 45
       }, 
       arrow: {
           opacity: 0,
@@ -223,7 +224,7 @@ else{
           width:0,
           resizeMode:'stretch',
           borderColor: 'black',
-          borderWidth:0,
+          borderWidth:0
       },
       arrowWrapper: {
           position:'absolute'
@@ -232,7 +233,10 @@ else{
           position: 'absolute',
           height:'100%',
           width:'100%',
-          opacity:.5,
+          opacity:.5
+      },
+      freezePattern: {
+        opacity: .25
       }
 
   });
