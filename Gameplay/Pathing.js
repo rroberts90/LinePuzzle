@@ -1,7 +1,8 @@
 import {  rotateArray, randInt, rotateColors, logGridPos} from '../Utils';
+//const fs = require('react-native-fs');
 
 let nodesVisited = 0;
-
+let logger = [];
 const randomizeColors = (colors) => {
     const ndxArr = colors.map((val, ndx) => ndx);
     return colors.map(() => {
@@ -98,10 +99,10 @@ const getCriteria = (difficulty) => {
     let criteria;
     switch(difficulty) {
         case 0:
-            criteria = {group: .3, directLinks: .3, freezer: 0, rotateCC: 0, falsePaths: 3, minLength: 3, maxLength: 13};
+            criteria = {group: .3, directLinks: .3, freezer: 0, rotateCC: 0, falsePaths: 0, minLength: 3, maxLength: 13};
         break;
         case 1:
-         criteria = {group: .5, directLinks: .3, freezer: .1, rotateCC: .1, falsePaths: 2, minLength: 9, maxLength: 15, circles: true};
+         criteria = {group: .5, directLinks: .3, freezer: .1, rotateCC: .1, falsePaths: 2, minLength: 9, maxLength: 20, maxFalsePathLength: 4, circles:false};
          break;
         case 2:
             criteria = {group: .4, directLinks: .4, freezer: .1, rotateCC: .1, falsePaths: 2, minLength: 12, maxLength: 20};
@@ -114,7 +115,7 @@ const getCriteria = (difficulty) => {
 }
 
 const setupSpecialNodes = (board, criteria) => {
-    const outcomes = [0];
+    const outcomes = [1];
     const dist = makeRandomDistribution(criteria.freezer, outcomes );
     const rotateCCDist = makeRandomDistribution(criteria.rotateCC, outcomes);
     board.grid.forEach((row) => row.forEach(node => {
@@ -178,16 +179,52 @@ const neighboring = (row, col, node)=> {
 }
 
 // returns a random node !== to board.finish or its neighbors
-const getFalseFinish = (board)  => {
-       // random node !== finish
-       let finishRow = randInt(0, board.grid.length);
-       let finishCol = randInt(0, board.grid[0].length);
-       while(neighboring(finishRow, finishCol,board.finish)) {
-            finishRow = randInt(0, board.grid.length);
-            finishCol= randInt(0, board.grid[0].length);
-       }
+const isInGrid = (grid, row, col) => {
+    if(row < 0 || col < 0){
+        return false;
+    }
+    else if(row >= grid.length || col >= grid[0].length) {
+        return false;
+    }else{
+        return true;
+    }
+}
+const distance = (gPos1, gPos2) => {
+    return Math.abs(gPos2.col - gPos1.col) + Math.abs(gPos2.row - gPos1.row);
+}
 
+const getFalseFinish = (board, maxLength)  => {
+       let finishRow = -1;
+       let finishCol = -1;
+    if (maxLength) {
+        // pick a node where noderow = startrow+x and nodecol = startcol +y where x+y < maxLength
+        const start = board.start;
+        while(!isInGrid(board.grid, finishRow, finishCol) || neighboring(finishRow, finishCol, board.finish)  ) {
+
+            const colOffset = randInt(-board.grid[0].length, board.grid[0].length);
+            let rowOffset =  (maxLength - Math.abs(colOffset));
+           
+            if(randInt(0,2) === 0) {
+                rowOffset = rowOffset * -1;
+            }
+
+            finishRow = board.start.gridPos.row + rowOffset;
+            finishCol = board.start.gridPos.col + colOffset;
+        }
+        
+    }
+    else { // random finish anywhere not adjacent to actual finish
+         finishRow = randInt(0, board.grid.length);
+         finishCol = randInt(0, board.grid[0].length);
+        while (neighboring(finishRow, finishCol, board.finish)) {
+            finishRow = randInt(0, board.grid.length);
+            finishCol = randInt(0, board.grid[0].length);
+        }
+    }
        const falseFinish = board.grid[finishRow][finishCol];
+       logGridPos('False start: ', board.start.gridPos);
+       logGridPos('False finish: ', falseFinish.gridPos);
+       console.log(`distance: ${distance(board.start.gridPos, falseFinish.gridPos)}`)
 
        return falseFinish;
 }
@@ -201,23 +238,21 @@ const getFalseStart = (board) => {
 const setupFalsePaths = (board, criteria) => { 
     
     const {start, finish} = board;
+    criteria.minLength = criteria.maxFalsePathLength; // false paths should hop-step towards their finish
     Array.from({length: criteria.falsePaths}, ()=> {
         const falseStart = getFalseStart(board); 
-        const falseFinish = getFalseFinish(board);
-       
         board.start = falseStart;
+
+        const falseFinish = getFalseFinish(board, criteria.maxFalsePathLength);
         board.finish = falseFinish;
 
-        pathFinder(board);
+        pathFinder(board, criteria);
         board.start = start;
         board.finish = finish;
        resetGrid(board);
 
     });
 
-
-
-    board.finish = finish;
 }
 /**
  * Pathing rules: 
@@ -227,7 +262,7 @@ const setupFalsePaths = (board, criteria) => {
  * path a > b is closed. and vice versa.
  */
 const setupGrid = (board) => {
-    const criteria = getCriteria(0); 
+    const criteria = getCriteria(1); 
     const t1 = Date.now();
    
     setupSymbols(board, criteria);
@@ -236,8 +271,11 @@ const setupGrid = (board) => {
 
     board.solution = [];
    let count = 0;
-   while(board.solution.length < criteria.minLength || board.solution.length > criteria.maxLength){
+   const MaxTries = 5;
+  while((board.solution.length < criteria.minLength || board.solution.length > criteria.maxLength) && count < MaxTries){
         count++;
+        console.log('-------------\nStarting Solution pathFinder');
+        
         pathFinder(board, criteria);
        
         // copy visited nodes and save it as solution 
@@ -247,7 +285,7 @@ const setupGrid = (board) => {
         const finalNode = board.solution[board.solution.length -1];
         board.finalColor = rotateColors(finalNode.colors, finalNode.rot )[0];
         resetGrid(board);
-    }
+   }
 
     setupFalsePaths(board, criteria);
 
@@ -258,6 +296,8 @@ const setupGrid = (board) => {
 }
 
 const visit = (board, visitedNodes, candidate, criteria) => {
+    //console.log(`visiting node: ${candidate.toString()}`);
+
     board.visitedNodes = [...visitedNodes, candidate];
     candidate.fixed = true;
     if(candidate.special == 'freezer'){
@@ -283,16 +323,19 @@ const visit = (board, visitedNodes, candidate, criteria) => {
  * @returns 
  */
 const selectCandidates = (curr, criteria, finish, visitedNodes) => {
+    //console.log('----------');
+    //logGridPos('CurrentNode', curr.gridPos);
     let candidates; //= [...curr.neighbors];
     let extras = [];
-
+    //console.log(`current: ${curr.gridPos.row} ${curr.gridPos.col}`);
     candidates = curr.neighbors.map(node => {
         if (node.gridPos.row > curr.gridPos.row) {
             extras = [...extras,node];
         }
         return node;
     });
-
+    candidates = [...extras, ...candidates];
+    const logStr = 'candidates:\n' +candidates.map(node=> node.toString()).join('\n') + '\n';
     const closestRow = Math.sign(finish.gridPos.row - curr.gridPos.row) + curr.gridPos.row; 
     const closestCol = Math.sign(finish.gridPos.col - curr.gridPos.col ) + curr.gridPos.col;
     
@@ -339,6 +382,9 @@ const selectCandidates = (curr, criteria, finish, visitedNodes) => {
 const pathFinder = (board, criteria) => {
     const { visitedNodes, finish } = board;
     const curr = visitedNodes[visitedNodes.length - 1];
+   // fs.writeFile('../Logs/108.txt', JSON.stringify(logger), (err)=>{if(err){console.log(err)}});
+    logger = [];
+   // console.log(`current: ${curr.gridPos.row} ${curr.gridPos.col}`);
 
     //logGridPos('current node', curr.gridPos);
 
@@ -352,7 +398,7 @@ const pathFinder = (board, criteria) => {
         while (candidates.length > 0) {
             const randomIndex = Math.floor(Math.random() * candidates.length);
             const candidate = candidates[randomIndex];
-
+            //console.log(`checking candidate: ${candidate.toString()}`);
             if (board.isPathOpen(curr, candidate)) {
 
                 // if candidate already matches, great. No need to meddle.
@@ -398,6 +444,7 @@ const pathFinder = (board, criteria) => {
         // if while loop finishes, no candidates are left.
         // no candidates left and board not finished. 
         // take this sorry-ass good for nothing node off the list.
+        //console.log(`rejecting current node`);
         const reject = visitedNodes.pop();
         
         // only remove freeze if reject is not still in visitedNodes

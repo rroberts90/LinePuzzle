@@ -200,14 +200,14 @@ else{
           const source = require('../Icons/freezePattern5.png');
           return <Image style={[styles.special, styles.freezePattern, {borderRadius: node.diameter/2}]} source={source}/>
       }else if(node.special === 'rotateCC') {
-        const source = require('../Icons/rotateCC1.png');
+        const source = require('../Icons/rotateCC3.png');
         return <Image style={[styles.special, {borderRadius: node.diameter/2}]} source={source}/>;
 
       }
       return null;
   }
   const symbolStyles = (diameter) => {
-    const percentageSize = .85;
+    const percentageSize = .80;
     return {height:diameter * percentageSize, 
             width: diameter * percentageSize,
             padding:1};
