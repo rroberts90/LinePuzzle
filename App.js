@@ -39,7 +39,7 @@ const App = () => {
   const board1 = useRef(null);
 
   if(board0.current === null) {
-    console.clear();
+    //console.clear();
 
     getBoard(board0);
     getBoard(board1, board0.current);
@@ -98,11 +98,11 @@ const onWin = (lev)=> {
 
   return (<>
     <Animated.View style={{ position: 'absolute', height: '100%', transform: [{ translateY: translateYAnim1 }] }}>
-      <Level onWin={setLevel} getBoard={() => getBoard(board1)} l={getBoard(board1).level} />
+      <Level onWin={setLevel} getBoard={() => getBoard(board1)} l={getBoard(board1).level} currentLevel={level} translateAnim={translateYAnim1}/>
     </Animated.View>
 
     <Animated.View style={{ position: 'absolute', height: '100%', transform: [{ translateY: translateYAnim0 }] }}>
-      <Level onWin={setLevel} getBoard={() => getBoard(board0)} l={getBoard(board0).level} />
+      <Level onWin={setLevel} getBoard={() => getBoard(board0)} l={getBoard(board0).level} currentLevel={level} translateAnim={translateYAnim0} />
     </Animated.View>
 
   </>

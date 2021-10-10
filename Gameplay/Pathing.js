@@ -34,14 +34,6 @@ const rotateUntilMatched = (curr, nextNode) => {
     }
 }
 
-const testLinks = (board) => {
-
-    board.grid.forEach((row) => row.forEach(node => {
-        const randomNeighbor = randInt(0, node.neighbors.length);
-
-        node.links = [node.neighbors[randomNeighbor]];
-    }));
-}
 
 // returns an array where  if a random element is chosen,
 // there is is chance% that element will be a randomly selected element of outcomes
@@ -99,7 +91,7 @@ const getCriteria = (difficulty) => {
     let criteria;
     switch(difficulty) {
         case 0:
-            criteria = {group: .3, directLinks: .3, freezer: 0, rotateCC: 0, falsePaths: 0, minLength: 3, maxLength: 13};
+            criteria = {group: .3, directLinks: .3, freezer: 0, rotateCC: 0, falsePaths: 0, minLength: 7, maxLength: 13};
         break;
         case 1:
          criteria = {group: .5, directLinks: .3, freezer: .1, rotateCC: .1, falsePaths: 2, minLength: 9, maxLength: 20, maxFalsePathLength: 4, circles:false};
@@ -222,9 +214,6 @@ const getFalseFinish = (board, maxLength)  => {
         }
     }
        const falseFinish = board.grid[finishRow][finishCol];
-       logGridPos('False start: ', board.start.gridPos);
-       logGridPos('False finish: ', falseFinish.gridPos);
-       console.log(`distance: ${distance(board.start.gridPos, falseFinish.gridPos)}`)
 
        return falseFinish;
 }
@@ -274,8 +263,7 @@ const setupGrid = (board) => {
    const MaxTries = 5;
   while((board.solution.length < criteria.minLength || board.solution.length > criteria.maxLength) && count < MaxTries){
         count++;
-        console.log('-------------\nStarting Solution pathFinder');
-        
+        //console.log('-------------\nStarting Solution pathFinder');
         pathFinder(board, criteria);
        
         // copy visited nodes and save it as solution 

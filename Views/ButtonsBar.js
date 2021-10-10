@@ -1,14 +1,26 @@
 // butttons bar
-import React, {useState} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 
-import { View, StyleSheet, Button, TouchableOpacity, Image } from 'react-native';
+import { View, StyleSheet, Button, TouchableOpacity, Image, Animated, Easing} from 'react-native';
 
 
-const ButtonsBar = ({ onUndo, onRestart, onHint }) => {
+const ButtonsBar = ({ onUndo, onRestart, onHint, isCurrent, translateAnim }) => {
+    console.log('HELLO');
     const [disabled, toggleDisabled]= useState(false);
-
+    const followAnim =  useRef(new Animated.Value(0)).current;
+    useEffect(()=> {
+        console.log('firing');
+        Animated.timing(followAnim, {
+            toValue: Animated.multiply(translateAnim,-1),
+            duration: 0,
+            useNativeDriver: false,
+            easing: Easing.ease
+          }).start();
+            },[isCurrent]);
+    // two effects: visibilty 
+    useEffect(()=> console.log(`isCurrent: ${isCurrent}`));
     return (
-        <View style={styles.buttonsBar}>
+        <Animated.View style={[styles.buttonsBar, {transform:[{translateY: followAnim}]}]} >
             <TouchableOpacity style={styles.button} onPress={onUndo}>
                 <Image style={styles.icon} source={require('../Icons/undo2.png')} />
             </TouchableOpacity>
@@ -22,7 +34,7 @@ const ButtonsBar = ({ onUndo, onRestart, onHint }) => {
                 }} disabled={disabled}>
                 <Image style={styles.icon} source={require('../Icons/lightbulb.png')} />
             </TouchableOpacity>
-        </View>
+        </Animated.View>
 
     );
 };
