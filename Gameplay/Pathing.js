@@ -263,7 +263,6 @@ const setupGrid = (board) => {
    const MaxTries = 5;
   while((board.solution.length < criteria.minLength || board.solution.length > criteria.maxLength) && count < MaxTries){
         count++;
-        //console.log('-------------\nStarting Solution pathFinder');
         pathFinder(board, criteria);
        
         // copy visited nodes and save it as solution 
@@ -355,12 +354,12 @@ const selectCandidates = (curr, criteria, finish, visitedNodes) => {
         }
         extras = [...extras, ...neighbors, ...neighbors];
         //console.log(`   added in ${extras.length} nodes closer to finish\n---------\n`);
-    }else if(criteria && criteria.circles && false) {
+    }else if(criteria && criteria.circles) {
         console.log('increase chance of loopdeloops');
         const fixedNeighbors = curr.neighbors.filter(node=> node.fixed);
         console.log(`   found ${fixedNeighbors.length} fixed neighbors`);
 
-        extras = [...fixedNeighbors, ...fixedNeighbors, ...fixedNeighbors];
+        extras = [...fixedNeighbors];
     }
     candidates = [...candidates, ...extras];
 

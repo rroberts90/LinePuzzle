@@ -2,7 +2,8 @@ import { Animated, View, StyleSheet, Easing, Text, Image, useWindowDimensions} f
 import React, { useEffect, useRef, useState } from "react";
 
 import { convertToLayout, point } from '../Utils';
-import { CapSegment } from './Paths';
+import { Segment, CapSegment } from './Paths';
+import { calculateColor } from '../Gameplay/Board';
 import {Arrow, Symbol, Special} from './Symbols'
 
 const Node_Width = 60;

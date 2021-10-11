@@ -5,22 +5,18 @@ import { View, StyleSheet, Button, TouchableOpacity, Image, Animated, Easing} fr
 
 
 const ButtonsBar = ({ onUndo, onRestart, onHint, isCurrent, translateAnim }) => {
-    console.log('HELLO');
     const [disabled, toggleDisabled]= useState(false);
     const followAnim =  useRef(new Animated.Value(0)).current;
+
     useEffect(()=> {
-        console.log('firing');
-        Animated.timing(followAnim, {
+         Animated.timing(followAnim, {
             toValue: Animated.multiply(translateAnim,-1),
             duration: 0,
-            useNativeDriver: false,
-            easing: Easing.ease
-          }).start();
-            },[isCurrent]);
-    // two effects: visibilty 
-    useEffect(()=> console.log(`isCurrent: ${isCurrent}`));
+            useNativeDriver: false
+              }).start(finished=>console.log(`finished: ${finished}`));
+            },[]);
     return (
-        <Animated.View style={[styles.buttonsBar, {transform:[{translateY: followAnim}]}]} >
+        <Animated.View style={[styles.buttonsBar, { transform:[{translateY: followAnim}, {translateY: isCurrent? 0: 200}]}]} >
             <TouchableOpacity style={styles.button} onPress={onUndo}>
                 <Image style={styles.icon} source={require('../Icons/undo2.png')} />
             </TouchableOpacity>
@@ -58,10 +54,9 @@ const styles = StyleSheet.create({
     button: {
         marginLeft: 0,
         marginBottom: 30,
-        backgroundColor: 'rgba(137, 148, 153,.4)',
         paddingHorizontal: 5,
-        paddingVertical: 5,
-        borderRadius: 10    },
+        borderRadius: 10  
+      },
     lightbulb: {
         paddingBottom: 1
     }

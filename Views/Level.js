@@ -14,7 +14,7 @@ const displaySolution = (solution) => {
   });
 }
 
-const Level = ({onWin, l, getBoard, currentLevel, translateAnim}) => {
+const Level = ({onWin, l, getBoard, currentLevel, translateAnim, current}) => {
   const windowWidth = useWindowDimensions().width; 
   const height = useWindowDimensions().height; 
 
@@ -125,7 +125,6 @@ const Level = ({onWin, l, getBoard, currentLevel, translateAnim}) => {
    
   async function onHint() {
     const board = getBoard();
-    console.log(`currentLevel of button: ${l}`);
     const {removeCount, nextNode}  = getBoard().hint();
 
 
@@ -167,7 +166,6 @@ const Level = ({onWin, l, getBoard, currentLevel, translateAnim}) => {
   
   const finishCenter = centerOnNode(getBoard().finish.pos, getBoard().finish.diameter);
   const finishPoint = point(finishCenter.x, finishCenter.y-250);
-
   return ( 
 
     <View style={[styles.container]} >
@@ -178,7 +176,7 @@ const Level = ({onWin, l, getBoard, currentLevel, translateAnim}) => {
       <Cursor node={currentNode} currPoint={point(currX, currY)} triggerPulser={triggerPulser} detectMatch = {detectMatch}  />
 
       <GridView board={getBoard()} afterUpdate={updateAfterLayout} height={height} won={win}/>
-    <ButtonsBar onRestart = {onRestart} onUndo = {onUndo} onHint={onHint} isCurrent={l===currentLevel} translateAnim={translateAnim}/>
+    <ButtonsBar onRestart = {onRestart} onUndo = {onUndo} onHint={onHint} isCurrent={current} translateAnim={translateAnim}/>
     </View>
   );
 }

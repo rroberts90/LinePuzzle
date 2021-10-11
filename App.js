@@ -12,6 +12,9 @@ const App = () => {
   const height =  useWindowDimensions().height;
   const width = useWindowDimensions().width;
   
+  const [board0Current, setBoard0Current] = useState(true);
+  const [board1Current, setBoard1Current] = useState(false);
+
   const getBoard = (ref, prevBoard) =>{  //garuntees board exists at all times
     
     if(ref.current === null && !prevBoard) {
@@ -71,17 +74,22 @@ const App = () => {
              throw 'Level Animation did not finish';
            }
            if(level % 2 !== 0) { // board0 is offscreen. reset
-
             getBoard(board0, board1.current);
 
             translateYAnim0.setValue(-height);
             translateYAnim1.setValue(0);
+            setBoard1Current(true);
+            setBoard0Current(false);
 
            }
            else { // board1 is offscreen. reset
+
            getBoard(board1, board0.current);
             translateYAnim1.setValue(-height);  
             translateYAnim0.setValue(0);
+            setBoard0Current(true);
+            setBoard1Current(false);
+
            }
 
         });
@@ -97,12 +105,13 @@ const onWin = (lev)=> {
 } 
 
   return (<>
+
     <Animated.View style={{ position: 'absolute', height: '100%', transform: [{ translateY: translateYAnim1 }] }}>
-      <Level onWin={setLevel} getBoard={() => getBoard(board1)} l={getBoard(board1).level} currentLevel={level} translateAnim={translateYAnim1}/>
+      <Level onWin={setLevel} getBoard={() => getBoard(board1)} l={getBoard(board1).level} currentLevel={level} translateAnim={translateYAnim1} current={board1Current}/>
     </Animated.View>
 
     <Animated.View style={{ position: 'absolute', height: '100%', transform: [{ translateY: translateYAnim0 }] }}>
-      <Level onWin={setLevel} getBoard={() => getBoard(board0)} l={getBoard(board0).level} currentLevel={level} translateAnim={translateYAnim0} />
+      <Level onWin={setLevel} getBoard={() => getBoard(board0)} l={getBoard(board0).level} currentLevel={level} translateAnim={translateYAnim0} current ={board0Current} />
     </Animated.View>
 
   </>
