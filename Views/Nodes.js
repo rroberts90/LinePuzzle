@@ -166,7 +166,7 @@ const NodeView = (props) => {
     const colorStyles = borderStyles(props.colors);
     const duration = 500;
     useEffect(() => {
-
+     // console.log(`Pulsing. gogogo: ${props.GOGOGO}`)
       if(props.GOGOGO > 0){
 
         //console.log("pulsing");
@@ -297,8 +297,8 @@ const NodeView = (props) => {
       alignItems: "center",
       flexWrap: "wrap",
       paddingHorizontal: 5,
-      height:'100%'
-      
+      height:'100%',
+      marginBottom: 10
     }, 
     horizontalLine:{
       position: 'absolute',

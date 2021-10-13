@@ -86,7 +86,7 @@ const Default_Node_Width = 75;
         if(neighbor) {
            //console.log(`inside neighbor:`);
            //console.log(` ${neighbor.pos.x} ${neighbor.pos.y}`);
-        
+
         const matchColor = this.isMatch(neighbor);
         if(neighbor && matchColor){
             return {candidate: neighbor,matchColor: matchColor} ;
@@ -342,13 +342,15 @@ class Board {
           nextNode.links.forEach(node=> node.frozen++);
 
         } else if (nextNode.special === 'rotateCC') {
-          nextNode.links.forEach(node=> node.direction = 1);
-          nextNode.rotateLinked();
+          this.grid.forEach((row) => row.forEach(node => {
+            node.direction = 1;
+        }));
+                  nextNode.rotateLinked();
         }
-        return nextNode;
+        return {next: nextNode, prev: null};
       } 
       else {
-        return null;
+        return {next: null, prev: nextNode};
       }
       
     }
@@ -374,11 +376,12 @@ class Board {
         current.rotateLinked(true); // reverse rotate
 
       } 
-
-      if(current.special === 'rotateCC' && !isStillThere ){
+      const ccRemaining = this.visitedNodes.find(node=> node.special==='rotateCC');
+      if(current.special === 'rotateCC' && !ccRemaining ){
         // change direction, after rotating
-         current.links.forEach(node=> node.direction = -1);
-        
+        this.grid.forEach((row) => row.forEach(node => {
+          node.direction = -1;
+      }));        
       }
       const prev = this.visitedNodes[this.visitedNodes.length-1];
       

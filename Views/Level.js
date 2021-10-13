@@ -6,6 +6,7 @@ import {Cursor} from './UserInput';
 import {point, centerOnNode,logGridPos,rotateColors} from '../Utils';
 import ButtonsBar from './ButtonsBar';
 import { UserPath } from './Paths';
+import useInterval from './useInterval.js';
 
 const displaySolution = (solution) => {
   return solution.slice(1).map((node,i)=> {
@@ -29,20 +30,51 @@ const Level = ({onWin, l, getBoard, currentLevel, translateAnim, current}) => {
 //  setTimeout(()=> {lineSegments.current = displaySolution(getBoard().solution)}, 500);
   const [pulser, triggerPulser] = useState(()=>0); // triggers pulse animation
 
+  const intervalId = useRef(null);
+  const [hintAllowed, toggleHint] = useState(true);
+
+  const [defaultPulser, setDefaultPulser] = useState(0);
+
   useEffect(()=>{
-    console.log(`---------------\nLevel ${l} start color: ${getBoard().start.colors[2]}\n`);
-    logGridPos('    start',getBoard().start.gridPos);
+    //console.log(`---------------\nLevel ${l} start color: ${getBoard().start.colors[2]}\n`);
+    //logGridPos('    start',getBoard().start.gridPos);
     if (l !== 0) {
     resetCurrentNode(1500);
     }
     lineSegments.current = [];
     setWin(false);
+    setDefaultPulser(0);
 
     //logGridPos('currentNode:', getBoard().getCurrentNode().gridPos);
   },[l]);
 
   
+  useInterval(() => {
+    
+    if(getBoard().getCurrentNode() === getBoard().start){
+    triggerPulser(currentValue=> currentValue+1);
+    }
+    setDefaultPulser(defaultPulser + 1);
 
+  }, 5000);
+  /*useEffect(()=>{
+    if(current){
+    //console.log('is current');
+    if(intervalId.current){
+      clearInterval(intervalId.current);
+    }
+    async function starterPulse () {
+      //console.log(`current pulser: ${pulser}`);
+      //const _ = pulser +1;
+     // await sleep(500);
+
+      triggerPulser(currentValue=> currentValue+1);
+    }
+    intervalId.current = setInterval(starterPulse, 3000);
+    }
+  }, [current]);*/
+
+  
   // sets the endPointto the CurrentNode position after it's position is measurable.
   const updateAfterLayout = () => {
     resetCurrentNode(100);
@@ -75,8 +107,15 @@ const Level = ({onWin, l, getBoard, currentLevel, translateAnim, current}) => {
 
     Vibration.vibrate();
    }
-    //console.log(`visited nodes length: ${getBoard().visitedNodes.length}`);
-    //console.log(getBoard().visitedNodes);
+  /* const oneAway = next.neighbors.find(neighbor=> {
+     return neighbor === getBoard().finish && next.isMatch(neighbor)
+   });
+
+   if(oneAway){
+     console.log('one away no hints');
+    toggleHint(false);
+   }*/
+
   };
 
   function detectMatch(point) {
@@ -86,19 +125,24 @@ const Level = ({onWin, l, getBoard, currentLevel, translateAnim, current}) => {
   const node = getBoard().getCurrentNode();
   //logGridPos('current: ', node.gridPos);
   
+
    const {candidate} = node.matchPoint(point);
   // logGridPos('candidate Node: ', candidate && candidate.gridPos);
    
+    if (candidate) {
+      const { next, prev } = getBoard().visitNode(candidate);
+      if (next) {
+        updateNodeBundle(next, node);
+        return {newNode: next, prevPoint: null};
+      }
+      else if (prev) {
+        onUndo();
+        return {newNode: null, prevPoint: prev.pos};
+      }
+    } else {
+      return {newNode: null, prevPoint:null};
+    }
 
-   const next = candidate ? getBoard().visitNode(candidate) : null;
-    if(next){
-      updateNodeBundle(next,node);
-      return true;
-    }
-    else{
-      return false;
-    }
-    
   }
 
   const currPosF =  currentNode.pos;
@@ -119,28 +163,34 @@ const Level = ({onWin, l, getBoard, currentLevel, translateAnim, current}) => {
 
   }
 
-  const timeout = async() =>{ //pass a time in milliseconds to this function
-    return new Promise(resolve => setTimeout(resolve, 2000));
+  function sleep(ms) {
+    return new Promise(resolve=> setTimeout(resolve,ms));
   }
    
   async function onHint() {
+    console.log(`hint allowed? ${hintAllowed}`);
+    if(!hintAllowed) {
+      return;
+    }
+
+    toggleHint(false);
     const board = getBoard();
     const {removeCount, nextNode}  = getBoard().hint();
 
-
-    const duration = 500;
-    Array.from({ length: removeCount }, (x, i) => {
+    const duration = 300;
+    for(var i =0; i< removeCount;i++){
         onUndo();
-    });
+        await sleep(duration);
+    }
+
      const prev = getBoard().getCurrentNode();
-     const next = getBoard().visitNode(nextNode);
+     const {next} = getBoard().visitNode(nextNode);
 
      if(next === null) {
        throw 'solution is not accurate';
      }
       updateNodeBundle(next, prev);
-      //await timeout();
-      //resetCurrentNode();
+      toggleHint(true);
   }
 
   function onUndo() {
@@ -173,10 +223,10 @@ const Level = ({onWin, l, getBoard, currentLevel, translateAnim, current}) => {
       <UserPath segments={lineSegments.current} fades={fadeSegments.current} />
          
       <Pulse pos={currPosF} colors={rotateColors(currentNode.colors, currentNode.rot)} GOGOGO={pulser} diameter = {currentNode.diameter} />
-      <Cursor node={currentNode} currPoint={point(currX, currY)} triggerPulser={triggerPulser} detectMatch = {detectMatch}  />
+      <Cursor node={currentNode} currPoint={point(currX, currY)} triggerPulser={triggerPulser} detectMatch = {detectMatch} intervalId={intervalId} />
 
       <GridView board={getBoard()} afterUpdate={updateAfterLayout} height={height} won={win}/>
-    <ButtonsBar onRestart = {onRestart} onUndo = {onUndo} onHint={onHint} isCurrent={current} translateAnim={translateAnim}/>
+    <ButtonsBar onRestart = {onRestart} onUndo = {onUndo} onHint={onHint} isCurrent={current} translateAnim={translateAnim} hintAllowed={hintAllowed}/>
     </View>
   );
 }

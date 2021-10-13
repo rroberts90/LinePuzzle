@@ -83,12 +83,12 @@ const App = () => {
 
            }
            else { // board1 is offscreen. reset
+            setBoard0Current(true);
+            setBoard1Current(false);
 
            getBoard(board1, board0.current);
             translateYAnim1.setValue(-height);  
             translateYAnim0.setValue(0);
-            setBoard0Current(true);
-            setBoard1Current(false);
 
            }
 

@@ -54,16 +54,17 @@ const getRandomElement = (randomDist) => {
 }
 
 const setupSymbols = (board, criteria) => {
+   
     // randomize board colors. add random linked groups
     const symbolDict = {1:[],2:[], 3:[],4:[]}; // don't want to loop through array 3 times 
     const groupDist = makeRandomDistribution(criteria.group, [1,2,3,4] )
+   
     board.grid.forEach((row) => row.forEach(node => {
         if(board.start !== node){
             node.colors = randomizeColors(node.colors);
         }
         const symbol = getRandomElement(groupDist);
 
-        // symbol 0 is the non group. don't display it, shouldn't rotate any nodes
         if(symbol !== null) {
             node.symbol = symbol;
             symbolDict[node.symbol] = [...symbolDict[node.symbol], node];
@@ -75,6 +76,9 @@ const setupSymbols = (board, criteria) => {
       // Node adds all nodes with same symbol to links but doesn't add itself.
       if(node.symbol) {
           node.links = symbolDict[node.symbol].filter(otherNode=> node !== otherNode );
+          if(node.links.length === 0) { // if there is only 1 symbol on grid, it won't rotate anything. Just clutter.
+              node.symbol = null; 
+          }
       }
 
     }));
@@ -94,10 +98,13 @@ const getCriteria = (difficulty) => {
             criteria = {group: .3, directLinks: .3, freezer: 0, rotateCC: 0, falsePaths: 0, minLength: 7, maxLength: 13};
         break;
         case 1:
-         criteria = {group: .5, directLinks: .3, freezer: .1, rotateCC: .1, falsePaths: 2, minLength: 9, maxLength: 20, maxFalsePathLength: 4, circles:false};
-         break;
+            criteria = {group: .4, directLinks: .3, freezer: .1, rotateCC: .1, falsePaths: 2, minLength: 9, maxLength: 15, maxFalsePathLength: 3, circles:false};
+            break;
         case 2:
-            criteria = {group: .4, directLinks: .4, freezer: .1, rotateCC: .1, falsePaths: 2, minLength: 12, maxLength: 20};
+         criteria = {group: .5, directLinks: .3, freezer: .1, rotateCC: .1, falsePaths: 2, minLength: 9, maxLength: 20, maxFalsePathLength: 4, circles:true};
+         break;
+        case 3:
+            criteria = {group: .4, directLinks: .4, freezer: .1, rotateCC: .1, falsePaths: 2, minLength: 12, maxLength: 20, circles: true};
             break;
         case 10: // supringly hard 
          criteria = {group: .4, directLinks: .7, freezer: .1, rotateCC: .1, falsePaths: 3, minLength: 12, maxLength: 20};
@@ -115,11 +122,13 @@ const setupSpecialNodes = (board, criteria) => {
             const freezer = getRandomElement(dist);
             if (freezer) {
                 node.special = 'freezer';
-            }else{
-                const rotateCC = getRandomElement(rotateCCDist);
-                if(rotateCC) {
-                    node.special = 'rotateCC';
-                }
+            }
+        }
+        if (node !== board.start && node !== board.finish && node.special !== 'freezer' && node.symbol === null )
+        {
+            const rotateCC = getRandomElement(rotateCCDist);
+            if(rotateCC) {
+                node.special = 'rotateCC';
             }
         }
     }));
@@ -277,8 +286,8 @@ const setupGrid = (board) => {
     setupFalsePaths(board, criteria);
 
     const t2 = Date.now();
-    console.log(`---------\ntotal time to setup grid: ${t2- t1} milliseconds`);
-    console.log(`Took ${count} tries to create path\n-----------`);
+   // console.log(`---------\ntotal time to setup grid: ${t2- t1} milliseconds`);
+   // console.log(`Took ${count} tries to create path\n-----------`);
 
 }
 
@@ -292,7 +301,10 @@ const visit = (board, visitedNodes, candidate, criteria) => {
 
     }else {
         if(candidate.special === 'rotateCC') {
-            candidate.links.forEach(node=> node.direction = 1);
+            board.grid.forEach((row) => row.forEach(node => {
+                node.direction = 1;
+            }));
+
         }
         candidate.rotateLinked();
     }
@@ -353,11 +365,8 @@ const selectCandidates = (curr, criteria, finish, visitedNodes) => {
                 ||(node.gridPos.col === curr.gridPos.col && node.gridPos.row === closestRow)  );
         }
         extras = [...extras, ...neighbors, ...neighbors];
-        //console.log(`   added in ${extras.length} nodes closer to finish\n---------\n`);
-    }else if(criteria && criteria.circles) {
-        console.log('increase chance of loopdeloops');
+    }else if(criteria && criteria.circles && visitedNodes.length < criteria.minLength) {
         const fixedNeighbors = curr.neighbors.filter(node=> node.fixed);
-        console.log(`   found ${fixedNeighbors.length} fixed neighbors`);
 
         extras = [...fixedNeighbors];
     }
@@ -385,13 +394,11 @@ const pathFinder = (board, criteria) => {
         while (candidates.length > 0) {
             const randomIndex = Math.floor(Math.random() * candidates.length);
             const candidate = candidates[randomIndex];
-            //console.log(`checking candidate: ${candidate.toString()}`);
+
             if (board.isPathOpen(curr, candidate)) {
 
                 // if candidate already matches, great. No need to meddle.
                 if (curr.isMatch(candidate)) {
-                    // logGridPos('    candidate:', candidate.gridPos);
-                    // console.log('   is a match!');
 
                     const isGoodCandidate = visit(board, visitedNodes, candidate, criteria);
                     if (!isGoodCandidate) {
@@ -442,9 +449,11 @@ const pathFinder = (board, criteria) => {
             reject.rotateLinked(true);
 
         } 
-        if(reject.special === 'rotateCC' &&!visitedNodes.find(node => node === reject) ) { 
-            reject.links.forEach(node=> node.direction=-1);
-
+        if(reject.special === 'rotateCC' && !visitedNodes.find(node=> node.special==='rotateCC')
+        ) { 
+            board.grid.forEach((row) => row.forEach(node => {
+                node.direction = -1;
+            }));
         }
         if (!visitedNodes.find(node => node === reject)) { // ok to set fixed to false
             reject.fixed = false;

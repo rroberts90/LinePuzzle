@@ -20,8 +20,7 @@ const Cursor = (props) => {
         onMoveShouldSetPanResponder: () => true,
   
         onPanResponderGrant: (evt, gestureState) => {
-         //console.log("granting");
-          
+          clearInterval(props.intervalId.current);
           const centeredEndPoint = MyMath.point(gestureState.x0, gestureState.y0);
           setEndPoint(centeredEndPoint);
           
@@ -40,8 +39,12 @@ const Cursor = (props) => {
           setEndPoint(point);
          
           // check for intersections with other nodes
-          const onNewNode = props.detectMatch(point);
-          if(onNewNode){
+          const {newNode, prevPoint} = props.detectMatch(point);
+          if(prevPoint){
+            // rolled back to previous node 
+            //mostRecentPoint.current = prevPoint;
+          }
+          else if(newNode){
             mostRecentPoint.current = point;
             
           }
@@ -65,6 +68,7 @@ const Cursor = (props) => {
         }
       })
     ).current;
+
     const segment =   <Segment startNode= {props.node} endPoint={endPoint}/>
     return (<>   
       <Animated.View
