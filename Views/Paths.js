@@ -137,6 +137,7 @@ const triangleStyles = (width, height, color) => {
   }
 }
   const CapSegment = ({end,node, fixedHeight, won}) => {
+
     let color;
     const defaultFinishColor = 'rgba(248,248,255,1)';
     if(end === 'finish') {
@@ -159,29 +160,28 @@ const triangleStyles = (width, height, color) => {
         fadeAnim.setValue(1);
       }
     }, [won]);
-
+ 
     const width = node.diameter / 6;
     const border = end !== 'start' && color==defaultFinishColor ? 3: 0;
   //  const sidePadding = ( node.diameter - width) /2;
-    const height = fixedHeight || (end ==='start' ? '15%' : '15%');
+    const height = fixedHeight || (end ==='start' ? 100: 100);
     const left = node.pos.x + node.diameter/2 - width + 2;
     const triangles = end !== 'start' && color===defaultFinishColor ? [1,1,1,1,1].map((_,i)=><View style={triangleStyles(node.diameter/6-6, fixedHeight/10, 'black')} key={i}/>): [];
     return <Animated.View style={{
-      position: 'relative',
       alignSelf: 'left',
       backgroundColor: color,
-      height: height,
       width: width,
+      height: height,
       left: left,
       opacity: fadeAnim,
-      borderWidth: border,
+      borderLeftWidth: border,
+      borderRightWidth: border, 
       borderColor: 'black',
       transform: [{translateY: end ==='start' ? -node.diameter/3 : node.diameter/3},
-                   {scaleY: end === 'start' ? 1 : 1.5}],
+                   {scaleY: end === 'start' ? 1 : 1.8}],
       flexDirection: 'column',
       justifyContent: 'space-evenly',
       alignItems: 'center'
-
 
     }}>
       {triangles}

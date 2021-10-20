@@ -5,6 +5,7 @@ import { convertToLayout, point } from '../Utils';
 import { Segment, CapSegment } from './Paths';
 import { calculateColor } from '../Gameplay/Board';
 import {Arrow, Symbol, Special} from './Symbols'
+import { useLinkProps } from "@react-navigation/native";
 
 const Node_Width = 60;
 
@@ -17,10 +18,10 @@ const borderStyles = (colors) => {
     }
   }
 
-  const dynamicNodeSize = (diameter, margin) => {
+  const dynamicNodeSize = (diameter, gameType) => {
+      
       return {
-        marginVertical:  diameter /6 ,
-        marginHorizontal: diameter /12,
+        marginVertical:  diameter /6,
         width: diameter,
         height: diameter,
         borderRadius: diameter / 2,
@@ -29,7 +30,7 @@ const borderStyles = (colors) => {
         zIndex: 10,
         justifyContent: 'center',
         alignItems: 'center',
-        flexGrow: 1
+        alignSelf: 'center'
       };
   }
   const dynamicNodeSizeNoPosition = (diameter) => {
@@ -40,15 +41,6 @@ const borderStyles = (colors) => {
         borderWidth: diameter / 6
       };
   }
-
-  const pulseSize = (diameter) => {
-    return {
-      width: diameter,
-      height: diameter,
-      borderRadius: diameter / 2,
-      borderWidth: diameter / 2
-    };
-}
 
 const rotToTransform = (rot) =>{
     const degrees = rot * -90; // negative because colors are rotated counter clockwise by default
@@ -133,7 +125,7 @@ const NodeView = (props) => {
     
     return (
       <Animated.View style={[
-      dynamicNodeSize(props.node.diameter),
+      dynamicNodeSize(props.node.diameter, props.gameType),
         colorStyles,
         {transform: [{rotate:rotAnim.interpolate({
                 inputRange: [0,360],
@@ -216,31 +208,23 @@ const NodeView = (props) => {
   const GridView = (props) => {
     const translateYAnim = useRef(new Animated.Value(-props.height)).current;
     const screenHeight = useWindowDimensions().height;
-   /* useEffect(()=> {
 
-      Animated.timing(translateYAnim, {
-        toValue: 0,
-        duration: 2500,
-        useNativeDriver: true,
-        easing: Easing.ease
-      }).start();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, []);*/
-  
     const flat = props.board.grid.reduce((flat, row) => [...flat, ...row]);
   
     const nodes = flat.map((node,ndx)=>  
      <NodeView node={node}
     key={ndx}
     afterUpdate = {props.board.getCurrentNode() === node ? props.afterUpdate : null }
+    gameType= {props.gameType}
     />
     );
   
     const bottomRow = props.board.grid[props.board.grid.length - 1];
     const topRow = props.board.grid[0];
+
     const boardHeight = bottomRow[0].pos.y - topRow[0].pos.y + topRow[0].diameter;
-    const endHeight =  (screenHeight- boardHeight) / 2;
-    const startHeight = (screenHeight- boardHeight) / 2;
+    const endHeight =  (screenHeight- boardHeight) / 2.5;
+    const startHeight = screenHeight - endHeight - boardHeight;// (screenHeight- boardHeight) / 2;
 
     const startCap = 
       <CapSegment 
@@ -256,7 +240,7 @@ const NodeView = (props) => {
           won={props.won}/>;
       
     return (
-    <View style= {[styles.board]}  >
+    <Animated.View style= {[styles.board]}  >
         <View style={{width:'100%'}}>
         {finishCap}
         </View>
@@ -265,7 +249,7 @@ const NodeView = (props) => {
         {startCap}
         </View>
    
-    </View>);
+    </Animated.View>);
   }
   
 
@@ -292,14 +276,12 @@ const NodeView = (props) => {
   
     board: {
       flex: 1,
-      justifyContent: "space-between",
+      justifyContent: "space-evenly",
       flexDirection: "row",
       alignItems: "center",
       flexWrap: "wrap",
-      paddingHorizontal: 5,
-      height:'100%',
-      marginBottom: 10
-    }, 
+      paddingHorizontal: 5
+        },
     horizontalLine:{
       position: 'absolute',
       width:'100%'

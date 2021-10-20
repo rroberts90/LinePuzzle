@@ -12,7 +12,7 @@ const ButtonsBar = ({ onUndo, onRestart, onHint, isCurrent, translateAnim, hintA
          Animated.timing(followAnim, {
             toValue: Animated.multiply(translateAnim,-1),
             duration: 0,
-            useNativeDriver: false
+            useNativeDriver: true
               }).start(finished=>console.log(`finished: ${finished}`));
             },[]);
     return (

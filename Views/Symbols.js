@@ -7,16 +7,16 @@ const getSymbolSource = (group)=> {
     let icon = '';
     switch (group){
       case 1: 
-        icon = require('../Icons/Viper1.png');
+        icon = require('../Icons/rhombus1.png');
         break;
       case 2: 
-        icon = require('../Icons/Glyph1.png');
+        icon = require('../Icons/square3.png');
         break;
       case 3: 
-        icon = require('../Icons/Reeds1.png');
+        icon = require('../Icons/triangle4.png');
         break;
       case 4: 
-        icon = require('../Icons/Horus1.png');
+        icon = require('../Icons/hexagon3.png');
         break;
       
     }
@@ -53,7 +53,7 @@ const getSymbolSource = (group)=> {
     const sourceFile = getSymbolSource(group);
     const opacity = frozen > 0 ? .3 : 1;
     return( sourceFile !== '' ? 
-    <Image style={[symbolStyles(diameter), {opacity: opacity}]} source={sourceFile} /> : null );
+    <Image style={[symbolStyles(diameter), {opacity: opacity, alignSelf:'center'}]} source={sourceFile} /> : null );
   }
   
   const ArrowPadding = 2;
@@ -68,10 +68,10 @@ const getSymbolSource = (group)=> {
     if(startNode.gridPos.row === endNode.gridPos.row) {
         // use middleX
         if(startNode.gridPos.col < endNode.gridPos.col) {  // right arrow
-            pos = point(middleX+ArrowPadding, -height/2);
+            pos = point(middleX+ArrowPadding/2, -height/2);
             type = 1;
         }else { // left arrow
-            pos = point(-middleX-(width) - ArrowPadding,-height/2);
+            pos = point(-middleX-(width) - ArrowPadding/2,-height/2);
             type = 3;
         }
     } else {
@@ -104,7 +104,7 @@ const getSymbolSource = (group)=> {
         width = thickness;
 
     }else { // horizontal
-        width= Math.abs(Math.abs(startNode.pos.x - endNode.pos.x )- startNode.diameter) -ArrowPadding *2;
+        width= Math.abs(Math.abs(startNode.pos.x - endNode.pos.x )- startNode.diameter) -ArrowPadding;
         height =  thickness;
 
     }
@@ -200,14 +200,14 @@ else{
           const source = require('../Icons/freezePattern5.png');
           return <Image style={[styles.special, styles.freezePattern, {borderRadius: node.diameter/2}]} source={source}/>
       }else if(node.special === 'rotateCC') {
-        const source = require('../Icons/rotateCC3.png');
-        return <Image style={[styles.special, {borderRadius: node.diameter/2}]} source={source}/>;
+        const source = require('../Icons/rotateCC4.png');
+        return <Image style={[styles.special, {height:'100%',width:'100%', opacity: 1}]} source={source}/>;
 
       }
       return null;
   }
   const symbolStyles = (diameter) => {
-    const percentageSize = .80;
+    const percentageSize = .7;
     return {height:diameter * percentageSize, 
             width: diameter * percentageSize,
             padding:1};
@@ -220,11 +220,12 @@ else{
       }, 
       arrow: {
           opacity: 0,
-          height:0,
-          width:0,
+          height:10,
+          width:10,
           resizeMode:'stretch',
           borderColor: 'black',
-          borderWidth:0
+          borderWidth:0,
+          zIndex:0
       },
       arrowWrapper: {
           position:'absolute'

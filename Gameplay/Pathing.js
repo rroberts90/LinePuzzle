@@ -3,6 +3,7 @@ import {  rotateArray, randInt, rotateColors, logGridPos} from '../Utils';
 
 let nodesVisited = 0;
 let logger = [];
+
 const randomizeColors = (colors) => {
     const ndxArr = colors.map((val, ndx) => ndx);
     return colors.map(() => {
@@ -91,20 +92,24 @@ const addLink = (node, otherNode) => {
     }
 }
 
-const getCriteria = (difficulty) => {
+const getCriteria = (level,gameType) => {
+    if (gameType === 'Puzzle'){
+    return {group: .5, directLinks: .3, freezer: .1, rotateCC: .05, falsePaths: 5,  minLength: 20,maxFalsePathLength: 10,maxLength: 100, circles: 2};
+    }
     let criteria;
-    switch(difficulty) {
+
+    switch(level) {
         case 0:
             criteria = {group: .3, directLinks: .3, freezer: 0, rotateCC: 0, falsePaths: 0, minLength: 7, maxLength: 13};
         break;
         case 1:
-            criteria = {group: .4, directLinks: .3, freezer: .1, rotateCC: .1, falsePaths: 2, minLength: 9, maxLength: 15, maxFalsePathLength: 3, circles:false};
+            criteria = {group: .5, directLinks: .5, freezer: .1, rotateCC: 0, falsePaths: 3, minLength: 12, maxLength: 25, maxFalsePathLength: 6, circles:1};
             break;
         case 2:
-         criteria = {group: .5, directLinks: .3, freezer: .1, rotateCC: .1, falsePaths: 2, minLength: 9, maxLength: 20, maxFalsePathLength: 4, circles:true};
+         criteria = {group: .5, directLinks: .3, freezer: .1, rotateCC: .1, falsePaths: 2, minLength: 9, maxLength: 20, maxFalsePathLength: 4, circles:1};
          break;
         case 3:
-            criteria = {group: .4, directLinks: .4, freezer: .1, rotateCC: .1, falsePaths: 2, minLength: 12, maxLength: 20, circles: true};
+            criteria = {group: .4, directLinks: .4, freezer: .1, rotateCC: .1, falsePaths: 2, minLength: 12, maxLength: 20, circles: 1};
             break;
         case 10: // supringly hard 
          criteria = {group: .4, directLinks: .7, freezer: .1, rotateCC: .1, falsePaths: 3, minLength: 12, maxLength: 20};
@@ -117,6 +122,7 @@ const setupSpecialNodes = (board, criteria) => {
     const outcomes = [1];
     const dist = makeRandomDistribution(criteria.freezer, outcomes );
     const rotateCCDist = makeRandomDistribution(criteria.rotateCC, outcomes);
+    let addedRotateCC = false;
     board.grid.forEach((row) => row.forEach(node => {
         if (node.links.length > 0 && node !== board.start && node !== board.finish) {
             const freezer = getRandomElement(dist);
@@ -124,11 +130,13 @@ const setupSpecialNodes = (board, criteria) => {
                 node.special = 'freezer';
             }
         }
+
         if (node !== board.start && node !== board.finish && node.special !== 'freezer' && node.symbol === null )
         {
             const rotateCC = getRandomElement(rotateCCDist);
-            if(rotateCC) {
+            if(rotateCC && !addedRotateCC) {
                 node.special = 'rotateCC';
+                addedRotateCC = true;
             }
         }
     }));
@@ -201,7 +209,7 @@ const getFalseFinish = (board, maxLength)  => {
         // pick a node where noderow = startrow+x and nodecol = startcol +y where x+y < maxLength
         const start = board.start;
         while(!isInGrid(board.grid, finishRow, finishCol) || neighboring(finishRow, finishCol, board.finish)  ) {
-
+ 
             const colOffset = randInt(-board.grid[0].length, board.grid[0].length);
             let rowOffset =  (maxLength - Math.abs(colOffset));
            
@@ -228,7 +236,7 @@ const getFalseFinish = (board, maxLength)  => {
 }
 // random node between start or finish
 const getFalseStart = (board) => {
-    const firstHalf = board.solution.length / 2;
+    const firstHalf = board.solution.length - 2;
     return board.solution[randInt(1,firstHalf)];
 }
 
@@ -236,20 +244,26 @@ const getFalseStart = (board) => {
 const setupFalsePaths = (board, criteria) => { 
     
     const {start, finish} = board;
-    criteria.minLength = criteria.maxFalsePathLength; // false paths should hop-step towards their finish
+    const maxLength  = criteria.maxFalsePathLength || 5;
+
     Array.from({length: criteria.falsePaths}, ()=> {
+      //console.log('\n--------------------\nstarting false path');
         const falseStart = getFalseStart(board); 
         board.start = falseStart;
 
-        const falseFinish = getFalseFinish(board, criteria.maxFalsePathLength);
-        board.finish = falseFinish;
-
+        //logGridPos('False Start', board.start.gridPos);
+        criteria.onFalsePath = true;
+        criteria.steps = 0;
+        criteria.maxFalsePathLength = randInt(2, maxLength+1);
         pathFinder(board, criteria);
+        criteria.maxFalsePathLength = maxLength;
         board.start = start;
-        board.finish = finish;
-       resetGrid(board);
+        resetGrid(board);
+
+       // console.log(`finished false path\n--------------`)
 
     });
+    criteria.onFalsePath = false;
 
 }
 /**
@@ -259,13 +273,14 @@ const setupFalsePaths = (board, criteria) => {
  * can revisit nodes UNLESS if path exists from a > b then 
  * path a > b is closed. and vice versa.
  */
-const setupGrid = (board) => {
-    const criteria = getCriteria(1); 
+const setupGrid = (board, level, gameType) => {
+    const criteria = getCriteria(level, gameType); 
     const t1 = Date.now();
    
     setupSymbols(board, criteria);
     setupLinkedNeighbors(board, criteria);
     setupSpecialNodes(board, criteria);
+    mismatchLastNodes(board);
 
     board.solution = [];
    let count = 0;
@@ -282,12 +297,12 @@ const setupGrid = (board) => {
         board.finalColor = rotateColors(finalNode.colors, finalNode.rot )[0];
         resetGrid(board);
    }
-
+  // console.log(`tries: ${count} length: ${board.solution.length}`);
     setupFalsePaths(board, criteria);
 
     const t2 = Date.now();
    // console.log(`---------\ntotal time to setup grid: ${t2- t1} milliseconds`);
-   // console.log(`Took ${count} tries to create path\n-----------`);
+   //console.log(`Took ${count} tries to create path\n-----------`);
 
 }
 
@@ -327,18 +342,32 @@ const selectCandidates = (curr, criteria, finish, visitedNodes) => {
     let candidates; //= [...curr.neighbors];
     let extras = [];
     //console.log(`current: ${curr.gridPos.row} ${curr.gridPos.col}`);
-    candidates = curr.neighbors.map(node => {
-        if (node.gridPos.row > curr.gridPos.row) {
-            extras = [...extras,node];
-        }
-        return node;
-    });
-    candidates = [...extras, ...candidates];
-    const logStr = 'candidates:\n' +candidates.map(node=> node.toString()).join('\n') + '\n';
+
     const closestRow = Math.sign(finish.gridPos.row - curr.gridPos.row) + curr.gridPos.row; 
     const closestCol = Math.sign(finish.gridPos.col - curr.gridPos.col ) + curr.gridPos.col;
     
-    // add extras to candidates
+    candidates = curr.neighbors.filter(node => {
+        /*if (node.gridPos.row > curr.gridPos.row) {
+            extras = [...extras,node];
+
+        }*/
+        if(criteria && visitedNodes.length < criteria.minLength ) {
+            if(node.gridPos.row !== closestRow && node.gridPos.col !== closestCol){
+                extras = [...extras, node];
+            }
+        }
+        if(criteria && criteria.onFalsePath) {
+        if(node === finish || node.isNeighbor(finish)){
+            //console.log('no false path to finish')
+            return false;
+        }
+        }
+        return true;
+    });
+    
+    candidates = [...extras, ...candidates];
+    const logStr = 'candidates:\n' +candidates.map(node=> node.toString()).join('\n') + '\n';
+
     if(criteria && visitedNodes.length >= criteria.minLength ) {
         // time to hopstep to finish
         //console.log('hopstep to finishline');
@@ -365,16 +394,33 @@ const selectCandidates = (curr, criteria, finish, visitedNodes) => {
                 ||(node.gridPos.col === curr.gridPos.col && node.gridPos.row === closestRow)  );
         }
         extras = [...extras, ...neighbors, ...neighbors];
-    }else if(criteria && criteria.circles && visitedNodes.length < criteria.minLength) {
+    }else if(criteria && criteria.circles  && visitedNodes.length < criteria.minLength) {
         const fixedNeighbors = curr.neighbors.filter(node=> node.fixed);
+        if(criteria.circles === 2){
+        extras = [...fixedNeighbors, ...fixedNeighbors];
+        }else {
+            extras = [ ...fixedNeighbors];
 
-        extras = [...fixedNeighbors];
+        }
     }
     candidates = [...candidates, ...extras];
 
     return candidates;
 }
 
+const mismatchLastNodes = (board) => {
+    board.finish.neighbors.map(neighbor=> {
+        if(neighbor.isMatch(board.finish)) {
+            //console.log('rotating matches');
+            const tmpColor1 = neighbor.colors[0];
+            const tmpColor2 = neighbor.colors[1];
+            neighbor.colors[0] = neighbor.colors[2];
+            neighbor.colors[1] = neighbor.colors[3];
+            neighbor.colors[2] = tmpColor1;
+            neighbor.colors[3] = tmpColor2;
+        }
+    });
+}
 const pathFinder = (board, criteria) => {
     const { visitedNodes, finish } = board;
     const curr = visitedNodes[visitedNodes.length - 1];
@@ -383,8 +429,17 @@ const pathFinder = (board, criteria) => {
    // console.log(`current: ${curr.gridPos.row} ${curr.gridPos.col}`);
 
     //logGridPos('current node', curr.gridPos);
+    if(criteria && criteria.onFalsePath) {
+        criteria.steps++;
+        //console.log(`maxLength: ${criteria.maxFalsePathLength}`);
+
+        if(criteria.steps >= criteria.maxFalsePathLength) {
+            return true; 
+        }
+    }
 
     if (curr === finish) { // we are done here
+        //console.log('got to finish');
         return true;
     }
 
@@ -416,7 +471,7 @@ const pathFinder = (board, criteria) => {
                     //candidate.colors = randomizeColors(candidate.colors);
                     rotateUntilMatched(curr, candidate);
 
-                    const isGoodCandidate = visit(board, visitedNodes, candidate);
+                    const isGoodCandidate = visit(board, visitedNodes, candidate, criteria);
 
 
                     if (!isGoodCandidate) {
@@ -458,7 +513,9 @@ const pathFinder = (board, criteria) => {
         if (!visitedNodes.find(node => node === reject)) { // ok to set fixed to false
             reject.fixed = false;
         }
-
+        if(criteria && criteria.onFalsePath) {
+            criteria.steps--;
+        }
         return false;
     }
 

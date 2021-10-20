@@ -15,7 +15,7 @@ const displaySolution = (solution) => {
   });
 }
 
-const Level = ({onWin, l, getBoard, currentLevel, translateAnim, current}) => {
+const Level = ({onWin, l, getBoard, currentLevel, translateAnim, current, gameType}) => {
   const windowWidth = useWindowDimensions().width; 
   const height = useWindowDimensions().height; 
 
@@ -44,6 +44,7 @@ const Level = ({onWin, l, getBoard, currentLevel, translateAnim, current}) => {
     lineSegments.current = [];
     setWin(false);
     setDefaultPulser(0);
+    getBoard().restart();
 
     //logGridPos('currentNode:', getBoard().getCurrentNode().gridPos);
   },[l]);
@@ -168,7 +169,7 @@ const Level = ({onWin, l, getBoard, currentLevel, translateAnim, current}) => {
   }
    
   async function onHint() {
-    console.log(`hint allowed? ${hintAllowed}`);
+   //console.log(`hint allowed? ${hintAllowed}`);
     if(!hintAllowed) {
       return;
     }
@@ -225,12 +226,11 @@ const Level = ({onWin, l, getBoard, currentLevel, translateAnim, current}) => {
       <Pulse pos={currPosF} colors={rotateColors(currentNode.colors, currentNode.rot)} GOGOGO={pulser} diameter = {currentNode.diameter} />
       <Cursor node={currentNode} currPoint={point(currX, currY)} triggerPulser={triggerPulser} detectMatch = {detectMatch} intervalId={intervalId} />
 
-      <GridView board={getBoard()} afterUpdate={updateAfterLayout} height={height} won={win}/>
+      <GridView board={getBoard()} afterUpdate={updateAfterLayout} height={height} won={win} gameType={gameType}/>
     <ButtonsBar onRestart = {onRestart} onUndo = {onUndo} onHint={onHint} isCurrent={current} translateAnim={translateAnim} hintAllowed={hintAllowed}/>
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
