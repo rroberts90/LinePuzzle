@@ -142,7 +142,7 @@ const gameDims = () => {
         //console.log(`  startColors[2]: ${this.start.colors[2]}`);
 
         // rotate nodes properly
-        setupGridSolution(this, 10, game);
+        setupGridSolution(this, 1, game);
  
 
         //this.initialSetup = this.grid.map(this.row.map(node=> {return {...node};}));
@@ -269,6 +269,16 @@ const gameDims = () => {
     while(this.visitedNodes.length > 1){
       this.removeLast();
     }
+    }
+    resetGrid() {
+      this.grid.forEach((row) => row.forEach(node => {node.fixed = false; node.rot = 0}));
+      this.visitedNodes = [this.start];
+      
+      this.start.fixed = true;
+  
+      this.grid.forEach((row) => row.forEach(node =>  {
+          node.frozen = 0;
+          node.direction=-1;}));
     }
 
     /**

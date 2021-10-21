@@ -1,6 +1,7 @@
 import {  rotateArray, randInt, rotateColors, logGridPos} from '../Utils';
 //const fs = require('react-native-fs');
 
+import solutionChecker from './SolutionChecker'
 let nodesVisited = 0;
 let logger = [];
 
@@ -53,6 +54,12 @@ const makeRandomDistribution = (chance, outcomes) => {
 const getRandomElement = (randomDist) => {
     return randomDist[randInt(0,randomDist.length-1)];
 }
+const randomizeBoard = (board) => {
+    board.grid.forEach((row) => row.forEach(node => {
+        if(board.start !== node){
+            node.colors = randomizeColors(node.colors);
+        }}));
+}
 
 const setupSymbols = (board, criteria) => {
    
@@ -94,7 +101,8 @@ const addLink = (node, otherNode) => {
 
 const getCriteria = (level,gameType) => {
     if (gameType === 'Puzzle'){
-    return {group: .5, directLinks: .3, freezer: .1, rotateCC: .05, falsePaths: 5,  minLength: 20,maxFalsePathLength: 10,maxLength: 100, circles: 2};
+        console.log('puzzle');
+    return {group: .5, directLinks: .5, freezer: .1, rotateCC: .05, falsePaths: 5,  minLength: 18,maxFalsePathLength: 15,maxLength: 100, circles: 2};
     }
     let criteria;
 
@@ -103,7 +111,7 @@ const getCriteria = (level,gameType) => {
             criteria = {group: .3, directLinks: .3, freezer: 0, rotateCC: 0, falsePaths: 0, minLength: 7, maxLength: 13};
         break;
         case 1:
-            criteria = {group: .5, directLinks: .5, freezer: .1, rotateCC: 0, falsePaths: 3, minLength: 12, maxLength: 25, maxFalsePathLength: 6, circles:1};
+            criteria = {group: .5, directLinks: .5, freezer: .1, rotateCC: 0, falsePaths: 4, minLength: 12, maxLength: 25, maxFalsePathLength: 8, circles:1};
             break;
         case 2:
          criteria = {group: .5, directLinks: .3, freezer: .1, rotateCC: .1, falsePaths: 2, minLength: 9, maxLength: 20, maxFalsePathLength: 4, circles:1};
@@ -166,18 +174,6 @@ const setupLinkedNeighbors = (board, criteria) => {
 
 }
 
-const resetGrid = (board) => {
-    // reset board for player
-    board.grid.forEach((row) => row.forEach(node => {node.fixed = false; node.rot = 0}));
-    board.visitedNodes = [board.start];
-    
-    board.start.fixed = true;
-
-    board.grid.forEach((row) => row.forEach(node =>  {
-        node.frozen = 0;
-        node.direction=-1;}));
-
-}
 
 const neighboring = (row, col, node)=> {
     if(node.gridPos.row === row && node.gridPos.col === col){
@@ -254,11 +250,11 @@ const setupFalsePaths = (board, criteria) => {
         //logGridPos('False Start', board.start.gridPos);
         criteria.onFalsePath = true;
         criteria.steps = 0;
-        criteria.maxFalsePathLength = randInt(2, maxLength+1);
+        criteria.maxFalsePathLength = randInt(maxLength/2, maxLength+1);
         pathFinder(board, criteria);
         criteria.maxFalsePathLength = maxLength;
         board.start = start;
-        resetGrid(board);
+        board.resetGrid();
 
        // console.log(`finished false path\n--------------`)
 
@@ -275,6 +271,7 @@ const setupFalsePaths = (board, criteria) => {
  */
 const setupGrid = (board, level, gameType) => {
     const criteria = getCriteria(level, gameType); 
+    console.log(`difficulty: ${level}`);
     const t1 = Date.now();
    
     setupSymbols(board, criteria);
@@ -284,25 +281,31 @@ const setupGrid = (board, level, gameType) => {
 
     board.solution = [];
    let count = 0;
-   const MaxTries = 5;
-  while((board.solution.length < criteria.minLength || board.solution.length > criteria.maxLength) && count < MaxTries){
+   const MaxTries = 10;
+   let shortestSolution = 0;
+   
+  while((shortestSolution < criteria.minLength || board.solution.length > criteria.maxLength) && count < MaxTries){
         count++;
+        randomizeBoard(board);
+
         pathFinder(board, criteria);
        
         // copy visited nodes and save it as solution 
         board.solution = board.visitedNodes.map(node=> node);
-   
         // get final color
         const finalNode = board.solution[board.solution.length -1];
         board.finalColor = rotateColors(finalNode.colors, finalNode.rot )[0];
-        resetGrid(board);
+        board.resetGrid();
+        shortestSolution = solutionChecker(board);
+        console.log(`shortestSolution: ${shortestSolution}`)
    }
-  // console.log(`tries: ${count} length: ${board.solution.length}`);
-    setupFalsePaths(board, criteria);
 
+    setupFalsePaths(board, criteria);
+    solutionChecker(board);
+    board.resetGrid();
     const t2 = Date.now();
-   // console.log(`---------\ntotal time to setup grid: ${t2- t1} milliseconds`);
-   //console.log(`Took ${count} tries to create path\n-----------`);
+    console.log(`---------\ntotal time to setup grid: ${t2- t1} milliseconds`);
+   console.log(`Took ${count} tries to create path\n-----------`);
 
 }
 
