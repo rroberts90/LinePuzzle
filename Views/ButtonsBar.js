@@ -4,52 +4,62 @@ import React, {useState, useRef, useEffect} from 'react';
 import { View, StyleSheet, Button, TouchableOpacity, Image, Animated, Easing} from 'react-native';
 
 
-const ButtonsBar = ({ onUndo, onRestart, onHint, isCurrent, translateAnim, hintAllowed }) => {
+const ButtonsBar = ({ undoEl, restartEl, hintEl}) => {
     const [disabled, toggleDisabled]= useState(false);
-    const followAnim =  useRef(new Animated.Value(0)).current;
-  // console.log(`are hints allowed: ${hintAllowed}`);
-    useEffect(()=> {
-         Animated.timing(followAnim, {
-            toValue: Animated.multiply(translateAnim,-1),
-            duration: 0,
-            useNativeDriver: true
-              }).start(finished=>console.log(`finished: ${finished}`));
-            },[]);
+    
+    function handleOnHint() {
+        console.log('handling hint');
+        if (disabled || hintEl.current.onPress === null) {
+            console.log('hint is disabled');
+            return;
+        }
+
+        toggleDisabled(true);
+       hintEl.current.onPress()
+       .then(waitTime=> {
+        setTimeout(()=> toggleDisabled(false), 500);
+
+       })
+       .catch(error=> {
+           console.log(error);
+       })
+
+        //toggleDisabled(false);
+    }
+
     return (
-        <Animated.View style={[styles.buttonsBar, { transform:[{translateY: followAnim}, {translateY: isCurrent? 0: 200}]}]} >
+        <View style={[styles.buttonsBar]}>
             <View style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'flex-start', alignItems: 'center'}}>
              <View style={styles.bar}/>        
             </View>
-            <TouchableOpacity style={styles.button} onPress={onUndo}>
+            <TouchableOpacity ref={undoEl} style={styles.button} onPress={()=> undoEl.current.onPress()} >
                 <Image style={styles.icon} source={require('../Icons/undo2.png')} />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={onRestart}>
+            <TouchableOpacity ref={restartEl} style={[styles.button]} onPress={()=> restartEl.current.onPress()} >
                 <Image style={styles.icon} source={require('../Icons/restart2.png')} />
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.button, styles.lightbulb]} onPress={()=>{
-                toggleDisabled(true);
-                onHint(); 
-                 setTimeout(()=> toggleDisabled(false), 500);
-                }} disabled={!hintAllowed || disabled}>
+            <TouchableOpacity ref={hintEl} style={[styles.button, styles.lightbulb, {opacity: disabled? .5: .8 }]} onPress={handleOnHint} disabled={disabled}>
                 <Image style={styles.icon} source={require('../Icons/lightbulb.png')} />
             </TouchableOpacity>
-        </Animated.View>
+        </View>
 
     );
 };
 
 const styles = StyleSheet.create({
     buttonsBar: {
+        width: '100%',
+        position: 'absolute',
+        bottom: 0,
         flexDirection: 'row',
         justifyContent: 'space-evenly',
         backgroundColor: 'rgba(248,248,255,1)',
-
         paddingTop: 10,
 
     },
     icon: {
-        width: 50,
-        height: 50,
+        width: 45,
+        height: 45,
         opacity: .8
 
         },
@@ -60,7 +70,6 @@ const styles = StyleSheet.create({
         borderRadius: 10
       },
     lightbulb: {
-        paddingBottom: 1,
         opacity: .8
     }, 
     bar: {

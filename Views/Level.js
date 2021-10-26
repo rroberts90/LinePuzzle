@@ -15,7 +15,7 @@ const displaySolution = (solution) => {
   });
 }
 
-const Level = ({onWin, l, getBoard, currentLevel, translateAnim, current, gameType}) => {
+const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, gameType}) => {
   const windowWidth = useWindowDimensions().width; 
   const height = useWindowDimensions().height; 
 
@@ -23,17 +23,15 @@ const Level = ({onWin, l, getBoard, currentLevel, translateAnim, current, gameTy
 
   const [currentNode, setCurrentNode] = useState(()=>{return getBoard().getCurrentNode()});
 
-  //const currentNode = getBoard().getCurrentNode();
-
   const lineSegments = useRef([]);
   const fadeSegments = useRef([]);
-//  setTimeout(()=> {lineSegments.current = displaySolution(getBoard().solution)}, 500);
   const [pulser, triggerPulser] = useState(()=>0); // triggers pulse animation
 
   const intervalId = useRef(null);
-  const [hintAllowed, toggleHint] = useState(true);
 
   const [defaultPulser, setDefaultPulser] = useState(0);
+
+  const [loading, toggleLoading] = useState(true);
 
   useEffect(()=>{
     //console.log(`---------------\nLevel ${l} start color: ${getBoard().start.colors[2]}\n`);
@@ -46,8 +44,8 @@ const Level = ({onWin, l, getBoard, currentLevel, translateAnim, current, gameTy
     setDefaultPulser(0);
     getBoard().restart();
 
-    //logGridPos('currentNode:', getBoard().getCurrentNode().gridPos);
   },[l]);
+
 
   
   useInterval(() => {
@@ -58,27 +56,11 @@ const Level = ({onWin, l, getBoard, currentLevel, translateAnim, current, gameTy
     setDefaultPulser(defaultPulser + 1);
 
   }, 5000);
-  /*useEffect(()=>{
-    if(current){
-    //console.log('is current');
-    if(intervalId.current){
-      clearInterval(intervalId.current);
-    }
-    async function starterPulse () {
-      //console.log(`current pulser: ${pulser}`);
-      //const _ = pulser +1;
-     // await sleep(500);
-
-      triggerPulser(currentValue=> currentValue+1);
-    }
-    intervalId.current = setInterval(starterPulse, 3000);
-    }
-  }, [current]);*/
-
   
   // sets the endPointto the CurrentNode position after it's position is measurable.
   const updateAfterLayout = () => {
-    resetCurrentNode(100);
+    resetCurrentNode(1);
+    setTimeout(()=>toggleLoading(false), 300);
 
   }
 
@@ -102,33 +84,21 @@ const Level = ({onWin, l, getBoard, currentLevel, translateAnim, current, gameTy
   
    if(next === getBoard().finish) {
     console.log('got to finish node. ');
-    setWin(true);
-   
+    setWin(true); // triggers end line fade in 
+    hintEl.current.onPress = null;
     setTimeout(()=>onWin(currentLevel=> currentLevel+1), 500);
 
     Vibration.vibrate();
    }
-  /* const oneAway = next.neighbors.find(neighbor=> {
-     return neighbor === getBoard().finish && next.isMatch(neighbor)
-   });
-
-   if(oneAway){
-     console.log('one away no hints');
-    toggleHint(false);
-   }*/
 
   };
 
   function detectMatch(point) {
-   // console.log(getBoard().getCurrentNode().gridPos);
-  //  console.log(currentNode.gridPos);
-  /// console.log('');
+
   const node = getBoard().getCurrentNode();
-  //logGridPos('current: ', node.gridPos);
   
 
    const {candidate} = node.matchPoint(point);
-  // logGridPos('candidate Node: ', candidate && candidate.gridPos);
    
     if (candidate) {
       const { next, prev } = getBoard().visitNode(candidate);
@@ -169,12 +139,7 @@ const Level = ({onWin, l, getBoard, currentLevel, translateAnim, current, gameTy
   }
    
   async function onHint() {
-   //console.log(`hint allowed? ${hintAllowed}`);
-    if(!hintAllowed) {
-      return;
-    }
 
-    toggleHint(false);
     const board = getBoard();
     const {removeCount, nextNode}  = getBoard().hint();
 
@@ -191,7 +156,7 @@ const Level = ({onWin, l, getBoard, currentLevel, translateAnim, current, gameTy
        throw 'solution is not accurate';
      }
       updateNodeBundle(next, prev);
-      toggleHint(true);
+      return removeCount * duration + 500;
   }
 
   function onUndo() {
@@ -212,11 +177,20 @@ const Level = ({onWin, l, getBoard, currentLevel, translateAnim, current, gameTy
     setWin(false);
   }
 
+  useEffect(()=> {
+    if(current) {
+    hintEl.current.onPress = onHint;
+    undoEl.current.onPress = onUndo;
+    restartEl.current.onPress = onRestart;
+    }
+  }, [current]);
+
   const startCenter = centerOnNode(getBoard().start.pos, getBoard().start.diameter);
   const startPoint = point(startCenter.x, startCenter.y+250);
   
   const finishCenter = centerOnNode(getBoard().finish.pos, getBoard().finish.diameter);
   const finishPoint = point(finishCenter.x, finishCenter.y-250);
+  const loadingWall = loading ? <View style={{position: 'absolute', width:'100%', height:'100%', backgroundColor:'rgba(248,248,255,1)', zIndex: 20 }}/> : null;
   return ( 
 
     <View style={[styles.container]} >
@@ -227,7 +201,7 @@ const Level = ({onWin, l, getBoard, currentLevel, translateAnim, current, gameTy
       <Cursor node={currentNode} currPoint={point(currX, currY)} triggerPulser={triggerPulser} detectMatch = {detectMatch} intervalId={intervalId} />
 
       <GridView board={getBoard()} afterUpdate={updateAfterLayout} height={height} won={win} gameType={gameType}/>
-    <ButtonsBar onRestart = {onRestart} onUndo = {onUndo} onHint={onHint} isCurrent={current} translateAnim={translateAnim} hintAllowed={hintAllowed}/>
+      {loadingWall}
     </View>
   );
 }

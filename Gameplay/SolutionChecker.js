@@ -34,7 +34,7 @@ const pathFinder = (board, pathList) => {
     //logGridPos('Current', curr.gridPos);
 
     if (curr === finish) { // we are done here
-        //console.log('got to finish');
+        console.log('got to finish');
         pathList.push(visitedNodes.map(node=>node));
     }
 

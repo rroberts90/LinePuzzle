@@ -165,7 +165,7 @@ const triangleStyles = (width, height, color) => {
     const border = end !== 'start' && color==defaultFinishColor ? 3: 0;
   //  const sidePadding = ( node.diameter - width) /2;
     const height = fixedHeight || (end ==='start' ? 100: 100);
-    const left = node.pos.x + node.diameter/2 - width + 2;
+    const left = node.pos.x + node.diameter/2 - width;
     const triangles = end !== 'start' && color===defaultFinishColor ? [1,1,1,1,1].map((_,i)=><View style={triangleStyles(node.diameter/6-6, fixedHeight/10, 'black')} key={i}/>): [];
     return <Animated.View style={{
       alignSelf: 'left',

@@ -7,16 +7,16 @@ const getSymbolSource = (group)=> {
     let icon = '';
     switch (group){
       case 1: 
-        icon = require('../Icons/rhombus1.png');
+        icon = require('../Icons/diamond1.png');
         break;
       case 2: 
-        icon = require('../Icons/square3.png');
+        icon = require('../Icons/square1.png');
         break;
       case 3: 
-        icon = require('../Icons/triangle4.png');
+        icon = require('../Icons/hexagon1.png');
         break;
       case 4: 
-        icon = require('../Icons/hexagon3.png');
+        icon = require('../Icons/star1.png');
         break;
       
     }
@@ -200,7 +200,7 @@ else{
           const source = require('../Icons/freezePattern5.png');
           return <Image style={[styles.special, styles.freezePattern, {borderRadius: node.diameter/2}]} source={source}/>
       }else if(node.special === 'rotateCC') {
-        const source = require('../Icons/rotateCC4.png');
+        const source = require('../Icons/rotateCC1.png');
         return <Image style={[styles.special, {height:'100%',width:'100%', opacity: 1}]} source={source}/>;
 
       }

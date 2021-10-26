@@ -55,10 +55,14 @@ const getRandomElement = (randomDist) => {
     return randomDist[randInt(0,randomDist.length-1)];
 }
 const randomizeBoard = (board) => {
-    board.grid.forEach((row) => row.forEach(node => {
-        if(board.start !== node){
-            node.colors = randomizeColors(node.colors);
-        }}));
+    for (let i = 0; i < board.grid.length; i++) {
+        for (let j = 0; j < board.grid[0].length; j++) {
+            const node = board.grid[i][j];
+            if (board.start !== node) {
+                node.colors = randomizeColors(node.colors);
+            }
+        }
+    }
 }
 
 const setupSymbols = (board, criteria) => {
@@ -102,7 +106,7 @@ const addLink = (node, otherNode) => {
 const getCriteria = (level,gameType) => {
     if (gameType === 'Puzzle'){
         console.log('puzzle');
-    return {group: .5, directLinks: .5, freezer: .1, rotateCC: .05, falsePaths: 5,  minLength: 18,maxFalsePathLength: 15,maxLength: 100, circles: 2};
+    return {group: .4, directLinks: .3, freezer: .2, rotateCC: .1, falsePaths: 10,  minLength: 18,maxFalsePathLength: 15,maxLength: 100, circles: 2};
     }
     let criteria;
 
@@ -111,7 +115,7 @@ const getCriteria = (level,gameType) => {
             criteria = {group: .3, directLinks: .3, freezer: 0, rotateCC: 0, falsePaths: 0, minLength: 7, maxLength: 13};
         break;
         case 1:
-            criteria = {group: .5, directLinks: .5, freezer: .1, rotateCC: 0, falsePaths: 4, minLength: 12, maxLength: 25, maxFalsePathLength: 8, circles:1};
+            criteria = {group: .5, directLinks: .5, freezer: .1, rotateCC: 0, falsePaths: 6, minLength: 12, maxLength: 25, maxFalsePathLength: 12, circles:1};
             break;
         case 2:
          criteria = {group: .5, directLinks: .3, freezer: .1, rotateCC: .1, falsePaths: 2, minLength: 9, maxLength: 20, maxFalsePathLength: 4, circles:1};
@@ -292,12 +296,19 @@ const setupGrid = (board, level, gameType) => {
        
         // copy visited nodes and save it as solution 
         board.solution = board.visitedNodes.map(node=> node);
-        // get final color
-        const finalNode = board.solution[board.solution.length -1];
-        board.finalColor = rotateColors(finalNode.colors, finalNode.rot )[0];
+       
+      // get final color 
+      if (board.solution.length === 0) {
+          count--;
+          console.log('no possible solution');
+      } else {
+          const finalNode = board.solution[board.solution.length - 1];
+          board.finalColor = rotateColors(finalNode.colors, finalNode.rot)[0];
+          shortestSolution = solutionChecker(board);
+          console.log(`shortestSolution: ${shortestSolution}`)
+      }
         board.resetGrid();
-        shortestSolution = solutionChecker(board);
-        console.log(`shortestSolution: ${shortestSolution}`)
+
    }
 
     setupFalsePaths(board, criteria);
@@ -427,14 +438,9 @@ const mismatchLastNodes = (board) => {
 const pathFinder = (board, criteria) => {
     const { visitedNodes, finish } = board;
     const curr = visitedNodes[visitedNodes.length - 1];
-   // fs.writeFile('../Logs/108.txt', JSON.stringify(logger), (err)=>{if(err){console.log(err)}});
-    logger = [];
-   // console.log(`current: ${curr.gridPos.row} ${curr.gridPos.col}`);
 
-    //logGridPos('current node', curr.gridPos);
     if(criteria && criteria.onFalsePath) {
         criteria.steps++;
-        //console.log(`maxLength: ${criteria.maxFalsePathLength}`);
 
         if(criteria.steps >= criteria.maxFalsePathLength) {
             return true; 
@@ -468,10 +474,7 @@ const pathFinder = (board, criteria) => {
                 }
                 // the candidate can be mutated. Rotate the colors till it is a match
                 else if (!candidate.fixed && candidate.frozen == 0 && !board.solution.find(node=> node===candidate)) {
-                    //logGridPos('    candidate:', candidate.gridPos);
-                    //  console.log('   can be meddled with!');
 
-                    //candidate.colors = randomizeColors(candidate.colors);
                     rotateUntilMatched(curr, candidate);
 
                     const isGoodCandidate = visit(board, visitedNodes, candidate, criteria);
@@ -497,6 +500,7 @@ const pathFinder = (board, criteria) => {
         // no candidates left and board not finished. 
         // take this sorry-ass good for nothing node off the list.
         //console.log(`rejecting current node`);
+
         const reject = visitedNodes.pop();
         
         // only remove freeze if reject is not still in visitedNodes

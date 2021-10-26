@@ -3,15 +3,17 @@ import { View, Text, Button, Image, TouchableOpacity, StyleSheet } from 'react-n
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+import colorScheme from './Gameplay/ColorSchemes'
 import Game from './Game'
 
+const defaultBackground = 'rgba(248,248,255,1)';
 function HomeScreen({ navigation }) {
     const [disabled, toggleDisabled]= useState(false);
 
     return (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <View style={[styles.defaultBackground,{ flex: 1, alignItems: 'center', justifyContent: 'center' }]}>
             <TouchableOpacity
-                style={styles.menuButton}
+                style={[styles.menuButton, {borderColor: colorScheme.one}]}
                 onPress={() => {
                     toggleDisabled(true)
                     navigation.navigate('Endless');
@@ -20,10 +22,10 @@ function HomeScreen({ navigation }) {
                 }}
                 disabled={disabled}
             >
-            <Text style={styles.buttonText}>Endless </Text>
+            <Text style={styles.buttonText}>endless </Text>
             </TouchableOpacity>
             <TouchableOpacity
-                style={styles.menuButton}
+                style={[styles.menuButton, {borderColor: colorScheme.two}]}
 
                 onPress={() => {
                     toggleDisabled(true)
@@ -35,11 +37,11 @@ function HomeScreen({ navigation }) {
                 disabled={disabled}
 
             >      
-                        <Text style={styles.buttonText}>Puzzle </Text>
+                        <Text style={styles.buttonText}>puzzle </Text>
       </TouchableOpacity>
 
             <TouchableOpacity
-            style={styles.menuButton}
+            style={[styles.menuButton, {borderColor: colorScheme.three}]}
                 onPress={() => {
                     toggleDisabled(true)
 
@@ -53,7 +55,7 @@ function HomeScreen({ navigation }) {
                 disabled={disabled}
 
             >   
-              <Text style={styles.buttonText}>Settings </Text>
+              <Text style={styles.buttonText}>settings </Text>
        
               </TouchableOpacity>
 
@@ -62,22 +64,13 @@ function HomeScreen({ navigation }) {
 }
 function SettingsScreen() {
     return (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <View style={[styles.defaultBackground,{ flex: 1, alignItems: 'center', justifyContent: 'center' }]}>
             <Text>Settings</Text>
         </View>
     );
 }
 
 const Stack = createNativeStackNavigator();
-
-function LogoTitle() {
-    return (
-        <Image
-            style={{ width: 50, height: 50 }}
-            source={require('./Icons/Eye1.png')}
-        />
-    );
-}
 
 
 function App() {
@@ -86,17 +79,20 @@ function App() {
         <NavigationContainer>
             <Stack.Navigator screenOptions={{
                 headerBackImageSource: require('./Icons/previous.png'),
-                headerBackTitleVisible: false
-
+                headerBackTitleVisible: false,
+                headerStyle: {backgroundColor: defaultBackground}
             }}>
 
                 <Stack.Screen name="ColorFlush" component={HomeScreen} options={{
+                    gestureEnabled: false
                 }} />
                 <Stack.Screen name="Endless" component={Game} options={{
-                    headerShown: false
+                    headerShown: false,
+                    gestureEnabled: false
                 }} />
                 <Stack.Screen name="Puzzle" component={Game} options={{
-                    headerShown: false
+                    headerShown: false,
+                    gestureEnabled: false
                 }} />
                 <Stack.Screen name="Tutorial" component={Game} options={{
                     headerShown: false
@@ -111,22 +107,22 @@ function App() {
 
 const styles = StyleSheet.create({
     menuButton: {
-        backgroundColor:'lightgrey',
-        borderWidth: 1,
+        borderWidth: 7,
         alignItems:'center',
         alignSelf:'center',
         marginVertical: 20,
-        padding: 15,
+        padding: 5,
         paddingHorizontal: 30,
         borderRadius: 15,
-        width: '75%'
+        width: '60%'
 
     },
     buttonText: {
         color: 'black',
         fontSize: 40,
         fontWeight: 'bold'
-    }
+    },
+    defaultBackground: {backgroundColor:defaultBackground}
 });
 
 
