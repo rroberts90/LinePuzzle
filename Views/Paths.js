@@ -154,7 +154,7 @@ const triangleStyles = (width, height, color) => {
           duration: 600,
           useNativeDriver: true,
           easing: Easing.Quad
-        }).start(finished=> setTimeout(()=>fadeAnim.setValue(.5),1500))
+        }).start(finished=> setTimeout(()=>fadeAnim.setValue(.5),3000))
       }
       if(end==='start'){
         fadeAnim.setValue(1);

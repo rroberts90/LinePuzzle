@@ -18,10 +18,11 @@ const borderStyles = (colors) => {
     }
   }
 
-  const dynamicNodeSize = (diameter, gameType) => {
+  const dynamicNodeSize = (diameter, tutorial) => {
       
       return {
         marginVertical:  diameter /6,
+        marginHorizontal: tutorial ? '50%' : 0,
         width: diameter,
         height: diameter,
         borderRadius: diameter / 2,
@@ -125,7 +126,7 @@ const NodeView = (props) => {
     
     return (
       <Animated.View style={[
-      dynamicNodeSize(props.node.diameter, props.gameType),
+      dynamicNodeSize(props.node.diameter, props.tutorial),
         colorStyles,
         {transform: [{rotate:rotAnim.interpolate({
                 inputRange: [0,360],
@@ -206,16 +207,15 @@ const NodeView = (props) => {
   }
 
   const GridView = (props) => {
-    const translateYAnim = useRef(new Animated.Value(-props.height)).current;
     const screenHeight = useWindowDimensions().height;
-
+    const screenWidth =  useWindowDimensions().width;
     const flat = props.board.grid.reduce((flat, row) => [...flat, ...row]);
   
     const nodes = flat.map((node,ndx)=>  
      <NodeView node={node}
     key={ndx}
     afterUpdate = {props.board.getCurrentNode() === node ? props.afterUpdate : null }
-    gameType= {props.gameType}
+    tutorial= {props.tutorial}
     />
     );
   
@@ -225,6 +225,7 @@ const NodeView = (props) => {
     const boardHeight = bottomRow[0].pos.y - topRow[0].pos.y + topRow[0].diameter;
     const endHeight =  (screenHeight- boardHeight) / 2.5;
     const startHeight = screenHeight - endHeight - boardHeight;// (screenHeight- boardHeight) / 2;
+//    <Animated.View style= {!props.tutorial ? styles.board : {width: screenWidth, paddingHorizontal:5}}  >
 
     const startCap = 
       <CapSegment 
@@ -240,7 +241,7 @@ const NodeView = (props) => {
           won={props.won}/>;
       
     return (
-    <Animated.View style= {[styles.board]}  >
+    <Animated.View style= {styles.board}  >
         <View style={{width:'100%'}}>
         {finishCap}
         </View>
@@ -282,6 +283,10 @@ const NodeView = (props) => {
       flexWrap: "wrap",
       paddingHorizontal: 5
         },
+    tutorial: {
+      flex: 1
+        },
+
     horizontalLine:{
       position: 'absolute',
       width:'100%'

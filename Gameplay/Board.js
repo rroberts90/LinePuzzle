@@ -3,6 +3,7 @@ import * as MyMath from '../Utils.js';
 import {setupGrid as setupGridSolution } from './Pathing';
 import colorScheme from './ColorSchemes';
 
+import { getItem, storeItem } from '../Storage.js';
 import Node from './Node'
 
 const getColors = (colorSet) => {
@@ -109,17 +110,29 @@ const calcNodeWidth = (cols, width) => {
 }
 const gameDims = () => { 
   return  {
-  Tutorial: MyMath.gridPos(5, 1),
-  Endless: MyMath.gridPos(6,4),
-  Puzzle: MyMath.gridPos(7,5)
+  tutorial: MyMath.gridPos(6, 1),
+  endless: MyMath.gridPos(6,4),
+  timed: MyMath.gridPos(6,4),
+  puzzle: MyMath.gridPos(7,5)
 }}
+
+/*const tutorialBoard = (level) => {
+  switch(level) {
+    case -5:
+      return {
+          colors: [colorScheme.one,colorScheme.two, colorScheme.three, colorScheme.four],
+
+      }
+  }
+}*/
 
   class Board {
 
-    constructor (game, windowWidth, prevBoard) {
-        console.log(`new ${game} board`);
+    constructor (game, level, windowWidth, prevBoard) {
+        console.log(`new ${game} board.`);
         const {row: numRow, col: numCol} = gameDims()[game];
         const nodeWidth = calcNodeWidth(numCol, windowWidth);
+        this.gameType = game;
         if(!prevBoard) {
           //console.log("new board");
           this.grid = setupGridFlex(numRow,numCol, nodeWidth);
@@ -139,13 +152,10 @@ const gameDims = () => {
         
         this.start.fixed = true;
         this.visitedNodes = [this.start]; 
-        //console.log(`  startColors[2]: ${this.start.colors[2]}`);
 
-        // rotate nodes properly
-        setupGridSolution(this, 1, game);
- 
 
-        //this.initialSetup = this.grid.map(this.row.map(node=> {return {...node};}));
+        setupGridSolution(this, game, level);
+
     }
     
     setupNeighbors(numRow, numCol){
@@ -269,7 +279,10 @@ const gameDims = () => {
     while(this.visitedNodes.length > 1){
       this.removeLast();
     }
+    this.resetGrid();
+
     }
+
     resetGrid() {
       this.grid.forEach((row) => row.forEach(node => {node.fixed = false; node.rot = 0}));
       this.visitedNodes = [this.start];
@@ -289,8 +302,8 @@ const gameDims = () => {
      */
     hint(){
       let ndx = 0;
-      const solution = this.solution.map(node=>node.toString()).join('\n');
-      const visitedNodes = this.visitedNodes.map(node=>node.toString()).join('\n');
+      //const solution = this.solution.map(node=>node.toString()).join('\n');
+      //const visitedNodes = this.visitedNodes.map(node=>node.toString()).join('\n');
 
       while(this.visitedNodes[ndx] === this.solution[ndx]) {
         ndx++;
@@ -301,6 +314,12 @@ const gameDims = () => {
       const nextNode = this.solution[ndx];
 
       return {removeCount, nextNode};
+
+    }
+
+    toString(){
+      const nodes =  this.grid.reduce((flat, row) => [...flat, ...row]);
+      return nodes.map(node=>node.toString()).join(' ');
 
     }
 

@@ -126,7 +126,20 @@ const Default_Node_Width = 75;
       }
 
        toString(){
-        return `Node: (row: ${this.gridPos.row}, col:${this.gridPos.col} )`;
+        //return `Node: (row: ${this.gridPos.row}, col:${this.gridPos.col} )`;
+        return JSON.stringify({
+          gridPos: this.gridPos,
+          symbol: this.symbol,
+          colors: this.colors,
+          links: this.links.map(node=> node.gridPos)
+
+        });//{
+         // gridPos: JSON.stringify(this.gridPos),
+        //  links: JSON.stringify(this.links)
+
+
+        
+        //});
       }
   }
 

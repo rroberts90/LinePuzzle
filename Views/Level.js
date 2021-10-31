@@ -4,9 +4,9 @@ import { View, StyleSheet, useWindowDimensions, Vibration, Button} from 'react-n
 import { Pulse, GridView} from './Nodes';
 import {Cursor} from './UserInput';
 import {point, centerOnNode,logGridPos,rotateColors} from '../Utils';
-import ButtonsBar from './ButtonsBar';
 import { UserPath } from './Paths';
 import useInterval from './useInterval.js';
+import { levelUp, getItem} from '../Storage';
 
 const displaySolution = (solution) => {
   return solution.slice(1).map((node,i)=> {
@@ -15,7 +15,7 @@ const displaySolution = (solution) => {
   });
 }
 
-const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, gameType}) => {
+const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl}) => {
   const windowWidth = useWindowDimensions().width; 
   const height = useWindowDimensions().height; 
 
@@ -30,7 +30,6 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, gameType
   const intervalId = useRef(null);
 
   const [defaultPulser, setDefaultPulser] = useState(0);
-
   const [loading, toggleLoading] = useState(true);
 
   useEffect(()=>{
@@ -46,8 +45,6 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, gameType
 
   },[l]);
 
-
-  
   useInterval(() => {
     
     if(getBoard().getCurrentNode() === getBoard().start){
@@ -77,18 +74,25 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, gameType
   const seg = {
    startNode:prevNode,
    endPoint:updatedEndPoint,
-};
+  };
    lineSegments.current  = [...lineSegments.current, seg];
 
    triggerPulser(currentValue => currentValue+1);
   
    if(next === getBoard().finish) {
-    console.log('got to finish node. ');
+    //console.log('got to finish node. ');
+    levelUp(getBoard().gameType);  
+
     setWin(true); // triggers end line fade in 
     hintEl.current.onPress = null;
     setTimeout(()=>onWin(currentLevel=> currentLevel+1), 500);
-
-    Vibration.vibrate();
+ 
+    // check if vibrate is AOK with user
+    getItem('vibrate').then(vibrate=> {
+      if(vibrate){
+        Vibration.vibrate();
+      }
+    });
    }
 
   };
@@ -191,6 +195,7 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, gameType
   const finishCenter = centerOnNode(getBoard().finish.pos, getBoard().finish.diameter);
   const finishPoint = point(finishCenter.x, finishCenter.y-250);
   const loadingWall = loading ? <View style={{position: 'absolute', width:'100%', height:'100%', backgroundColor:'rgba(248,248,255,1)', zIndex: 20 }}/> : null;
+  const tutorial = getBoard().grid[0].length === 1 ? true: false;
   return ( 
 
     <View style={[styles.container]} >
@@ -200,7 +205,7 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, gameType
       <Pulse pos={currPosF} colors={rotateColors(currentNode.colors, currentNode.rot)} GOGOGO={pulser} diameter = {currentNode.diameter} />
       <Cursor node={currentNode} currPoint={point(currX, currY)} triggerPulser={triggerPulser} detectMatch = {detectMatch} intervalId={intervalId} />
 
-      <GridView board={getBoard()} afterUpdate={updateAfterLayout} height={height} won={win} gameType={gameType}/>
+      <GridView board={getBoard()} afterUpdate={updateAfterLayout} height={height} won={win} tutorial={tutorial}/>
       {loadingWall}
     </View>
   );

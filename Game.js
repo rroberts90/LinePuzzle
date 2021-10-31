@@ -1,15 +1,21 @@
 import React, {useState, useEffect, useRef} from 'react';
-import { Button, StyleSheet, View, Animated, useWindowDimensions, Easing, TouchableOpacity, Image} from 'react-native';
+import { Text, StyleSheet, View, Animated, useWindowDimensions, Easing, TouchableOpacity, Image} from 'react-native';
 import {Board} from './Gameplay/Board';
 
 import Level from './Views/Level';
 import ButtonsBar from './Views/ButtonsBar';
+import { storeItem } from './Storage';
 import { logGridPos } from './Utils';
+import * as FileSystem from 'expo-file-system';
+import Timer from './Views/Timer'
+
 const Duration = 1500;
+
+
+
 
 const Game = ({navigation, route}) => {
   const gameType = route.name;
-  console.log(gameType);
   const [level, setLevel] = useState(0);
 
   const height =  useWindowDimensions().height;
@@ -18,24 +24,21 @@ const Game = ({navigation, route}) => {
   const [board0Current, setBoard0Current] = useState(true);
   const [board1Current, setBoard1Current] = useState(false);
 
-  //const menuActions = useRef(null);
-
   const undoEl = useRef(null);
   const restartEl = useRef(null);
   const hintEl = useRef(null);
-
 
   const getBoard = (ref, prevBoard) =>{  //garuntees board exists at all times
     
     if(ref.current === null && !prevBoard) {
 
-      ref.current = new Board(gameType, width);
+      ref.current = new Board(gameType, 0, width);
       ref.current.level = 0;
       // problem is that both boards are initialized to 0
    }
    else if(prevBoard) { // not the first 
 
-     ref.current = new Board(gameType,width,prevBoard );
+     ref.current = new Board(gameType,prevBoard.level+1, width,prevBoard );
      ref.current.level = prevBoard.level+1;
 
    }
@@ -44,7 +47,6 @@ const Game = ({navigation, route}) => {
   
   }
 
-  
   const translateYAnim0 = useRef(new Animated.Value(0)).current;
   const translateYAnim1 = useRef(new Animated.Value(-height)).current;
 
@@ -58,14 +60,19 @@ const Game = ({navigation, route}) => {
     getBoard(board1, board0.current);
   }
 
-
     useEffect(()=> {
+      if(gameType === 'tutorial' && level === 6) {
+        storeItem('tutorialFinished',true);
+        setTimeout(()=>navigation.navigate('colorflush'), 1000);
+        return;
+      }
+
       if(level > 0) {
         const end0 = translateYAnim0._value + height;
         const end1 = translateYAnim1._value + height;
        
         console.log(` level: ${level} `);
-     
+        
         Animated.parallel([Animated.timing(translateYAnim0, {
           toValue: end0 ,
           duration: Duration,
@@ -109,16 +116,24 @@ const Game = ({navigation, route}) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [level]);
 
-const onWin = (lev)=> {
+const savePuzzle = ()=> {
+  const board = board0Current ? board0.current : board1.current;
 
-  console.log(`onWin: currentLevel: ${level} nextLevel: ${lev} \n`);
-  setLevel(lev);
-} 
+  const fileLoc = `${FileSystem.documentDirectory}/puzzles.txt`;
+  console.log(FileSystem.documentDirectory);
+  FileSystem.writeAsStringAsync(fileLoc, board.toString()).then(()=>console.log('success')).catch(e=> console.log(e));
+}
+
+const onTimerFinish = (highLevel) => {
+  storeItem('timedScore', highLevel);
+  navigation.navigate('colorflush');
+
+}
 
   return (<>
 
     <Animated.View style={{ position: 'absolute', height: '100%', transform: [{ translateY: translateYAnim1 }] }}>
-      <Level onWin={setLevel} getBoard={() => getBoard(board1)} l={getBoard(board1).level}  current={board1Current} undoEl={undoEl} restartEl={restartEl} hintEl={hintEl} />
+      <Level onWin={setLevel} getBoard={() => getBoard(board1)} l={getBoard(board1).level}  current={board1Current} undoEl={undoEl} restartEl={restartEl} hintEl={hintEl}  />
     </Animated.View>
 
     <Animated.View style={{ position: 'absolute', height: '100%', transform: [{ translateY: translateYAnim0 }] }}>
@@ -127,12 +142,21 @@ const onWin = (lev)=> {
 
     <ButtonsBar undoEl={undoEl} restartEl={restartEl} hintEl={hintEl} />
 
-    <TouchableOpacity
+    {gameType === 'timed' ? <Timer onFinish={onTimerFinish} completed={level} level={level}/> : null}
+    {gameType !=='tutorial' ? <TouchableOpacity
         style={{position:'absolute', top:25, left: 0}}
-        onPress={()=>navigation.navigate('ColorFlush')}
+        onPress={()=>navigation.navigate('colorflush')}
     >
         <Image style={{height:75, width:75, opacity: .7}} source={require('./Icons/backArrow2.png')}/>
-        </TouchableOpacity>
+        </TouchableOpacity> : null}
+  
+    {gameType ==='null' ? <TouchableOpacity
+        style={{position:'absolute', top:40, right: 40, backgroundColor:'grey'}}
+        onPress={()=>savePuzzle()}
+    >
+      <Text style={{fontSize:30}}> Save </Text>
+        </TouchableOpacity> : null}
+ 
   </>
     
 );

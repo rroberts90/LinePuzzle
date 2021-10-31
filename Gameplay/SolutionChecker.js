@@ -33,8 +33,8 @@ const pathFinder = (board, pathList) => {
     const curr = visitedNodes[visitedNodes.length - 1];
     //logGridPos('Current', curr.gridPos);
 
-    if (curr === finish) { // we are done here
-        console.log('got to finish');
+    if (curr === finish) { 
+        //console.log('got to finish');
         pathList.push(visitedNodes.map(node=>node));
     }
 
@@ -91,9 +91,6 @@ const pathFinder = (board, pathList) => {
 
         return false;
     }
-
-
-
 }
 
 const makeDeadends = (board, path) => {
@@ -116,10 +113,12 @@ const findMinLength = (l) => {
 }
 const solutionChecker = (board, resetGrid) => {
     let pathList = [];
+    board.resetGrid();
+
     pathFinder(board, pathList);
 
 
-    console.log('\n\n');
+    //console.log('\n\n');
 
     for(let i = 0; i < pathList.length;i++){
         makeDeadends(board, pathList[i]);
