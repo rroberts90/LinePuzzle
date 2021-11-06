@@ -7,45 +7,10 @@ import {getItem, initialize} from './Storage'
 import colorScheme from './Gameplay/ColorSchemes'
 import Game from './Game'
 import SettingsScreen from './Views/Settings'
-import ScoresScreen from './Views/Scores'
-
+import {ScoresScreen, AfterGameScreen} from './Views/Scores'
+import useSound from './Sounds';
+import { PlayButton, IconButton } from './Views/NavigationButtons';
 const defaultBackground = 'rgba(248,248,255,1)';
-
-  
-const PlayButton = ({navigation, title, disabled, toggleDisabled, borderColor})=> {
-    return (
-        <TouchableOpacity
-        style={[styles.menuButton, {borderColor: borderColor}]}
-        onPress={() => {
-            toggleDisabled(true)
-            navigation.navigate(title);
-            setTimeout(()=> toggleDisabled(false), 500);
-
-        }}
-        disabled={disabled}
-    >
-        <Image style={[styles.play, {tintColor:borderColor, opacity: .8}]} source = {require('./Icons/play1.png')}/>
-    <Text style={styles.buttonText}>{title} </Text>
-    </TouchableOpacity>
-    );
-}
-const IconButton = ({navigation, title, disabled, toggleDisabled, borderColor, icon})=> {
-    return (
-        <TouchableOpacity
-            style={[styles.iconButton,{ borderColor: borderColor }]}
-            onPress={() => {
-                toggleDisabled(true)
-                navigation.navigate(title);
-                setTimeout(() => toggleDisabled(false), 500);
-
-            }}
-            disabled={disabled}
-        >
-            <Image style={styles.icon} source={icon} />
-        </TouchableOpacity>
-    );
-}
-
 
 
 
@@ -123,8 +88,18 @@ function App() {
                     headerShown: false,
                     gestureEnabled: false
                 }} />
-                <Stack.Screen name="Settings" component={SettingsScreen} />
-                <Stack.Screen name="Achievements" component={ScoresScreen} />
+                <Stack.Screen name="Settings" component={SettingsScreen} options={{
+                    headerShown: false,
+                    gestureEnabled: false
+                }}/>
+                <Stack.Screen name="Achievements" component={ScoresScreen} options={{
+                    headerShown: false,
+                    gestureEnabled: false
+                }}/>
+                <Stack.Screen name="afterGame" component={AfterGameScreen} options={{
+                    headerShown: false,
+                    gestureEnabled: false
+                }}/>
 
 
             </Stack.Navigator>

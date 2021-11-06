@@ -3,12 +3,14 @@ import { Animated, PanResponder, StyleSheet, View} from "react-native";
 import {dynamicNodeSizeNoPosition} from './Nodes';
 import {  Segment } from "./Paths";
 import * as MyMath from '../Utils';
-
+import useSound from "../Sounds";
 const Cursor = (props) => {
     const mostRecentPoint = useRef(null);
     const [endPoint, setEndPoint] = useState(null);
 
     const pan = useRef(new Animated.ValueXY()).current;
+    const {play, reset} = useSound();
+
     
     const panResponder = useRef(
       PanResponder.create({
@@ -45,6 +47,7 @@ const Cursor = (props) => {
             //mostRecentPoint.current = prevPoint;
           }
           else if(newNode){
+            //play('connect');
             mostRecentPoint.current = point;
             
           }
@@ -64,7 +67,7 @@ const Cursor = (props) => {
           setEndPoint(null);
 
           pan.setValue({ x: 0, y: 0 });
-  
+          //reset();
         }
       })
     ).current;

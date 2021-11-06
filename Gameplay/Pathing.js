@@ -1,6 +1,7 @@
 import {  rotateArray, randInt, rotateColors, logGridPos} from '../Utils';
-import { getItem } from '../Storage';
+import { getItems } from '../Storage';
 import solutionChecker from './SolutionChecker'
+import getCriteria from './Criteria'
 let nodesVisited = 0;
 let logger = [];
 
@@ -104,64 +105,7 @@ const addLink = (node, otherNode) => {
     }
 }
 
-const getCriteria = (gameType, level) => {
-    console.log(`Difficulty Level: ${level}`);
-    if (gameType === 'puzzle' || gameType === 'timed'){
-        return { group: .5, 
-            directLinks: .4, 
-            freezer: .2, 
-            rotateCC: .1,
-             falsePaths: 7, 
-             minLength: 20, 
-             maxFalsePathLength: 15, 
-             maxLength: 100, 
-             circles: 2 };
-    }
 
-    let criteria = {group: .4, 
-                    directLinks: .2, 
-                    freezer: 0, 
-                    rotateCC: 0, 
-                    falsePaths: 1,
-                     minLength: 5, 
-                     maxLength: 25, 
-                     maxFalsePathLength: 5, 
-                     circles:1};
-    if(level <= 5){
-        // base criteria
-    }
-    else if(level > 5 && level<=10){
-        criteria.directLinks = .2
-    }
-    else if(level > 10 && level <= 20){
-        criteria.directLinks = .2
-        criteria.group = .4;
-        criteria.maxFalsePathLength = 8;
-        criteria.falsePaths = 3;
-    }
-    else if(level > 20 && level <=50){
-        criteria.directLinks = .2
-        criteria.group = .4;
-        criteria.maxFalsePathLength = 10;
-        criteria.falsePaths = 6;
-        criteria.freezer = .1;
-        criteria.minLength = 15;
-        criteria.circles = 2;
-
-    }
-    else if( level > 50) {
-        criteria.directLinks = .3
-        criteria.group = .5;
-        criteria.maxFalsePathLength = 10;
-        criteria.falsePaths = 6;
-        criteria.freezer = .1;
-        criteria.minLength = 15;
-        criteria.circles = 2;
-        criteria.rotateCC = .1;
-    }
-
-    return criteria;
-}
 
 const setupSpecialNodes = (board, criteria) => {
     const outcomes = [1];
@@ -210,7 +154,6 @@ const setupLinkedNeighbors = (board, criteria) => {
 
 
 }
-
 
 const neighboring = (row, col, node)=> {
     if(node.gridPos.row === row && node.gridPos.col === col){
@@ -355,17 +298,16 @@ const setupGrid = (board, gameType, level) => {
     }
     else if(gameType === 'endless'){ // get difficulty and level
         const defaultLevel = 1;
+        const defaultDifficulty = 2;
 
-       getItem('level').then(l=>{
-            if(l !== null) {
-            console.log(`level: ${l}`);
-             setupGame(board, getCriteria(gameType, l))
-            } else {
-             setupGame(board, getCriteria(gameType, defaultLevel))
-            }
+       getItems('level', 'difficulty').then(vals=>{
+            const diff =  parseInt(vals[1][1]);
+            const level =parseInt(vals[0][1]);
+            setupGame(board, getCriteria(gameType, level, diff) );
+
         }).catch(e=>{
           console.log('couldnt get user data');
-          setupGame(board, getCriteria(gameType, defaultLevel))} );
+          setupGame(board, getCriteria(gameType, defaultLevel, defaultDifficulty))} );
     }
     else{
         // timing and puzzle no level
@@ -395,9 +337,9 @@ const setupGame = (board, criteria) => {
    let shortestSolution = 0;
   while((shortestSolution < criteria.minLength || board.solution.length > criteria.maxLength) && count < MaxTries){
         count++;
+      
         randomizeBoard(board);
         pathFinder(board, criteria);
-
 
         // copy visited nodes and save it as solution 
         board.solution = board.visitedNodes.map(node=> node);

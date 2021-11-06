@@ -7,6 +7,7 @@ import {point, centerOnNode,logGridPos,rotateColors} from '../Utils';
 import { UserPath } from './Paths';
 import useInterval from './useInterval.js';
 import { levelUp, getItem} from '../Storage';
+import useSound from '../Sounds'
 
 const displaySolution = (solution) => {
   return solution.slice(1).map((node,i)=> {
@@ -32,6 +33,7 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl}) => {
   const [defaultPulser, setDefaultPulser] = useState(0);
   const [loading, toggleLoading] = useState(true);
 
+  const {play} = useSound();
   useEffect(()=>{
     //console.log(`---------------\nLevel ${l} start color: ${getBoard().start.colors[2]}\n`);
     //logGridPos('    start',getBoard().start.gridPos);
@@ -65,9 +67,9 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl}) => {
    Sets a new current node. 
    Adds segment to previous node
   */
-  const updateNodeBundle = (next,node) => {
+  const updateNodeBundle = (next,node, hint) => {
+   // play('connect');
    const prevNode = node;
-
    setCurrentNode(next);
    const updatedEndPoint = centerOnNode(next.pos, next.diameter);
 
@@ -81,18 +83,26 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl}) => {
   
    if(next === getBoard().finish) {
     //console.log('got to finish node. ');
-    levelUp(getBoard().gameType);  
+    levelUp(getBoard().gameType, l);  
 
     setWin(true); // triggers end line fade in 
     hintEl.current.onPress = null;
     setTimeout(()=>onWin(currentLevel=> currentLevel+1), 500);
  
     // check if vibrate is AOK with user
+    play('win');
+
     getItem('vibrate').then(vibrate=> {
       if(vibrate){
         Vibration.vibrate();
       }
+
     });
+
+
+   }else{
+    play(hint ? 'button' : 'connect');
+
    }
 
   };
@@ -107,6 +117,7 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl}) => {
     if (candidate) {
       const { next, prev } = getBoard().visitNode(candidate);
       if (next) {
+
         updateNodeBundle(next, node);
         return {newNode: next, prevPoint: null};
       }
@@ -159,14 +170,14 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl}) => {
      if(next === null) {
        throw 'solution is not accurate';
      }
-      updateNodeBundle(next, prev);
+      updateNodeBundle(next, prev, true);
       return removeCount * duration + 500;
   }
 
-  function onUndo() {
+  function onUndo(button) {
 
     if (getBoard().removeLast()) {
-
+      play(button ? 'button' : 'undo');
       const seg = lineSegments.current.pop();
       fadeSegments.current.push(seg);
       resetCurrentNode();

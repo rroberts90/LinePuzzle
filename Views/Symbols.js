@@ -1,22 +1,65 @@
-import React, { useEffect, useRef, forwardRef } from 'react'
+import React, { useEffect,useState, useRef, forwardRef } from 'react'
 import {StyleSheet, View, Animated,Easing, Image} from 'react-native'
 
 import { distance, centerOnNode, point, convertToLayout } from '../Utils'
+import {getItem} from '../Storage'
 
 const getSymbolSource = (group)=> {
     let icon = '';
     switch (group){
       case 1: 
-        icon = require('../Icons/diamond1.png');
+        icon = require('../Icons/shape1.png');
         break;
       case 2: 
-        icon = require('../Icons/square1.png');
+        icon = require('../Icons/shape2.png');
         break;
       case 3: 
-        icon = require('../Icons/hexagon1.png');
+        icon = require('../Icons/shape4.png');
         break;
       case 4: 
-        icon = require('../Icons/star1.png');
+        icon = require('../Icons/shape3.png');
+        break;
+      
+    }
+    return icon;
+  
+  }
+
+  const getImpossibleSource = (group)=> {
+    let icon = '';
+    switch (group){
+      case 1: 
+        icon = require('../Icons/impossible1.png');
+        break;
+      case 2: 
+        icon = require('../Icons/impossible6.png');
+        break;
+      case 3: 
+        icon = require('../Icons/impossible3.png');
+        break;
+      case 4: 
+        icon = require('../Icons/impossible7.png');
+        break;
+      
+    }
+    return icon;
+  
+  }
+
+  const getAnimalSource = (group)=> {
+    let icon = '';
+    switch (group){
+      case 1: 
+        icon = require('../Icons/seaAnimal1.png');
+        break;
+      case 2: 
+        icon = require('../Icons/seaAnimal2.png');
+        break;
+      case 3: 
+        icon = require('../Icons/seaAnimal3.png');
+        break;
+      case 4: 
+        icon = require('../Icons/seaAnimal4.png');
         break;
       
     }
@@ -24,6 +67,27 @@ const getSymbolSource = (group)=> {
   
   }
   
+  const getGlyphSource = (group)=> {
+    let icon = '';
+    switch (group){
+      case 1: 
+        icon = require('../Icons/glyph1.png');
+        break;
+      case 2: 
+        icon = require('../Icons/glyph2.png');
+        break;
+      case 3: 
+        icon = require('../Icons/glyph3.png');
+        break;
+      case 4: 
+        icon = require('../Icons/glyph4.png');
+        break;
+      
+    }
+    return icon;
+  
+  }
+
   const getArrowSource = (arrow) => { 
     let source = '';
     switch(arrow)  {
@@ -49,9 +113,32 @@ const getSymbolSource = (group)=> {
     return source;
   }
   
+  const defaultGroup = 'shapes';
+  
   const Symbol = ({group, diameter, frozen}) => {
-    const sourceFile = getSymbolSource(group);
+    //console.log(group);
+    const [sourceFile, setSource] = useState(()=>getSymbolSource(group)); //default
+    
+    useEffect(()=>{
+      getItem('display').then(display => {
+        //console.log(`getting display: ${display}`);
+        if (display === 'glyphs') {
+          setSource(getGlyphSource(group));
+        }
+        else if (display === 'impossible') {
+          setSource(getImpossibleSource(group));
+        }
+        else if (display === 'seaAnimal') {
+          setSource(getAnimalSource(group));
+        } else {
+          setSource(getSymbolSource(group));
+        }
+      }).catch(e => console.log(e));
+    }, [sourceFile, group]);
+
     const opacity = frozen > 0 ? .3 : 1;
+   // console.log(`sourceFile: ${sourceFile}`);
+
     return( sourceFile !== '' ? 
     <Image style={[symbolStyles(diameter), {opacity: opacity, alignSelf:'center'}]} source={sourceFile} /> : null );
   }
@@ -86,6 +173,7 @@ const getSymbolSource = (group)=> {
     }
     return {pos, type};
   }
+
   const topOrLeft = (pos) => {
     if(pos.x ===0) {
         return {top:pos.y}
@@ -206,8 +294,9 @@ else{
       }
       return null;
   }
+
   const symbolStyles = (diameter) => {
-    const percentageSize = .7;
+    const percentageSize = .9;
     return {height:diameter * percentageSize, 
             width: diameter * percentageSize,
             padding:1};
@@ -216,7 +305,7 @@ else{
   const styles = StyleSheet.create({
     symbol: {
         height: 45,
-        width: 45
+        width: 45,
       }, 
       arrow: {
           opacity: 0,
@@ -242,4 +331,4 @@ else{
 
   });
   
-  export {Arrow, Symbol, Special,Arrows};
+  export {Arrow, Symbol, Special,Arrows, getGlyphSource, getSymbolSource, getImpossibleSource, getAnimalSource};

@@ -8,7 +8,19 @@ import {Arrow, Symbol, Special} from './Symbols'
 import { useLinkProps } from "@react-navigation/native";
 
 const Node_Width = 60;
+const test = (ref, node, afterUpdate) => {
+  if(ref.current) {
+    ref.current.measureInWindow((x,y,width, height)=> {
+      node.pos = {x:x,y:y};
+      if(afterUpdate) {
+        afterUpdate();
+      }
+    });
 
+  }else{
+    throw 'measure node error'
+  }
+}
 const borderStyles = (colors) => {
     return {
       borderTopColor: colors[0],
@@ -65,12 +77,13 @@ const shouldAddArrow = (node, neighbor) => {
     return false;
   }
 }
-//        <View style={{width:node.diameter + node.diameter/12 -2, height: 4, backgroundColor:'black', position:'absolute', top: '55%', borderRadius:2}}/>
+//  <View style={{width:node.diameter + node.diameter/12 -2, height: 4, backgroundColor:'black', position:'absolute', top: '55%', borderRadius:2}}/>
 
 const Frozen = ({node, rotAnim}) => {
 
   const width = (node.diameter- node.diameter/12 - 10) /2;
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  
   useEffect(() => {
     if (node.frozen === 0) {
       Animated.timing(fadeAnim, {
@@ -89,19 +102,22 @@ const Frozen = ({node, rotAnim}) => {
       }).start();
     }
   }, [node.frozen]);
+
   return (
   <Animated.View style={{position:'absolute', opacity: fadeAnim, transform: [{rotate:rotAnim.interpolate({
     inputRange: [0,360],
     outputRange:['0deg', '-360deg']
 })}]}}>
-     <View style={{width:width , height: 3, backgroundColor:'rgb(36,36,36)', position:'absolute',alignSelf:
-     'flex-start', top: '55%', borderRadius:2}}/>
-      <View style={{alignSelf:'flex-end',width:width, height: 3, backgroundColor:'rgb(36,36,36)', position:'absolute', top: '55%', borderRadius:2}}/>
+
+     <View style={{width:width -1, height: 2, backgroundColor:'rgb(36,36,36)', position:'absolute',alignSelf:
+     'flex-start', top: '55%', left:1, borderRadius:5}}/>
+      <View style={{alignSelf:'flex-end',width:width-1, height: 2, backgroundColor:'rgb(36,36,36)', position:'absolute', top: '55%', right:1,borderRadius:2}}/>
     <Image style={styles.lock} source={require('../Icons/Lock1.png')}/>
 
-  <View style={{backgroundColor: 'dimgrey', opacity:.4, width:node.diameter+3,
+  <View style={{backgroundColor: 'dimgrey', opacity:.1, width:node.diameter+3,
    height:node.diameter+3, borderWidth: node.diameter/6,
     borderRadius: node.diameter/2, borderColor:'dimgrey'}}>
+   
     </View>
 
     </Animated.View>);
@@ -110,7 +126,7 @@ const Frozen = ({node, rotAnim}) => {
 const NodeView = (props) => {
 
     const rotAnim = useRef(new Animated.Value(0)).current;
-    
+    const measureRef = useRef(null);
     useEffect(()=>{
         Animated.timing(rotAnim, {
             toValue: props.node.rot * -90,
@@ -125,7 +141,7 @@ const NodeView = (props) => {
    const arrowNodes = props.node.neighbors.filter(neighbor=> shouldAddArrow(props.node, neighbor) );
     
     return (
-      <Animated.View style={[
+      <Animated.View ref={measureRef} style={[
       dynamicNodeSize(props.node.diameter, props.tutorial),
         colorStyles,
         {transform: [{rotate:rotAnim.interpolate({
@@ -135,10 +151,10 @@ const NodeView = (props) => {
         ]}
 
         onLayout={(event)=>{
-             props.node.pos = {x:event.nativeEvent.layout.x,y:event.nativeEvent.layout.y};
-             if(props.afterUpdate) {
-               props.afterUpdate();
-             }
+             test(measureRef, props.node, props.afterUpdate);
+             //props.node.pos = {x:event.nativeEvent.layout.x,y:event.nativeEvent.layout.y};
+             //console.log(`layout x: ${event.nativeEvent.layout.x}`);
+
    }}
        >
      <Special node={props.node}/>
@@ -171,6 +187,7 @@ const NodeView = (props) => {
           toValue: 1.35,
           duration: duration,
           useNativeDriver: true,
+          isInteraction: false,
           easing: Easing.linear
 
         }),
@@ -178,6 +195,7 @@ const NodeView = (props) => {
           toValue: 0,
           duration: duration,
           useNativeDriver: true,
+          isInteraction: false,
           easing: Easing.quad
         })
       ]).start(finished => {

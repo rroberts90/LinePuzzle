@@ -7,12 +7,13 @@ import ButtonsBar from './Views/ButtonsBar';
 import { storeItem } from './Storage';
 import { logGridPos } from './Utils';
 import * as FileSystem from 'expo-file-system';
-import Timer from './Views/Timer'
+import Timer from './Views/Timer';
+import Header from './Views/Header'
+import useSound  from './Sounds';
+import {BackButton} from './Views/NavigationButtons';
+
 
 const Duration = 1500;
-
-
-
 
 const Game = ({navigation, route}) => {
   const gameType = route.name;
@@ -27,7 +28,7 @@ const Game = ({navigation, route}) => {
   const undoEl = useRef(null);
   const restartEl = useRef(null);
   const hintEl = useRef(null);
-
+  const {play} = useSound();
   const getBoard = (ref, prevBoard) =>{  //garuntees board exists at all times
     
     if(ref.current === null && !prevBoard) {
@@ -58,6 +59,8 @@ const Game = ({navigation, route}) => {
 
     getBoard(board0);
     getBoard(board1, board0.current);
+
+    
   }
 
     useEffect(()=> {
@@ -67,6 +70,11 @@ const Game = ({navigation, route}) => {
         return;
       }
 
+      if(level === 1) { // special case give board1 positions
+        board1.current.grid.forEach((row,i ) => 
+        row.forEach((node, j) => node.pos = board0.current.grid[i][j].pos));
+
+      }
       if(level > 0) {
         const end0 = translateYAnim0._value + height;
         const end1 = translateYAnim1._value + height;
@@ -124,9 +132,8 @@ const savePuzzle = ()=> {
   FileSystem.writeAsStringAsync(fileLoc, board.toString()).then(()=>console.log('success')).catch(e=> console.log(e));
 }
 
-const onTimerFinish = (highLevel) => {
-  storeItem('timedScore', highLevel);
-  navigation.navigate('colorflush');
+const onFinish = (gameType,highLevel) => {
+  navigation.navigate('afterGame', {gameType:'timed', score: highLevel});
 
 }
 
@@ -142,21 +149,10 @@ const onTimerFinish = (highLevel) => {
 
     <ButtonsBar undoEl={undoEl} restartEl={restartEl} hintEl={hintEl} />
 
-    {gameType === 'timed' ? <Timer onFinish={onTimerFinish} completed={level} level={level}/> : null}
-    {gameType !=='tutorial' ? <TouchableOpacity
-        style={{position:'absolute', top:25, left: 0}}
-        onPress={()=>navigation.navigate('colorflush')}
-    >
-        <Image style={{height:75, width:75, opacity: .7}} source={require('./Icons/backArrow2.png')}/>
-        </TouchableOpacity> : null}
+    {gameType === 'timed' ? <Timer onFinish={onFinish} level={level}/> : <Header />}
+    {gameType !=='tutorial' ? <BackButton onPress={()=>{play('paper');navigation.navigate('colorflush')}} />  : null}
   
-    {gameType ==='null' ? <TouchableOpacity
-        style={{position:'absolute', top:40, right: 40, backgroundColor:'grey'}}
-        onPress={()=>savePuzzle()}
-    >
-      <Text style={{fontSize:30}}> Save </Text>
-        </TouchableOpacity> : null}
- 
+  
   </>
     
 );
@@ -164,3 +160,14 @@ const onTimerFinish = (highLevel) => {
 }
 
 export default Game;
+
+
+/**
+ *   {gameType ==='null' ? <TouchableOpacity
+        style={{position:'absolute', top:40, right: 40, backgroundColor:'grey'}}
+        onPress={()=>savePuzzle()}
+    >
+      <Text style={{fontSize:30}}> Save </Text>
+        </TouchableOpacity> : null}
+ 
+ */

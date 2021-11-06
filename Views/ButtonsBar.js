@@ -1,12 +1,14 @@
 // butttons bar
 import React, {useState, useRef, useEffect} from 'react';
 
-import { View, StyleSheet, Button, TouchableOpacity, Image, Animated, Easing} from 'react-native';
+import { View, StyleSheet, Button, TouchableOpacity, Image, SafeAreaView} from 'react-native';
 
+import useSound from '../Sounds';
 
 const ButtonsBar = ({ undoEl, restartEl, hintEl}) => {
     const [disabled, toggleDisabled]= useState(false);
-    
+    const {play}= useSound();
+
     function handleOnHint() {
         console.log('handling hint');
         if (disabled || hintEl.current.onPress === null) {
@@ -32,10 +34,10 @@ const ButtonsBar = ({ undoEl, restartEl, hintEl}) => {
             <View style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'flex-start', alignItems: 'center'}}>
              <View style={styles.bar}/>        
             </View>
-            <TouchableOpacity ref={undoEl} style={styles.button} onPress={()=> undoEl.current.onPress()} >
+            <TouchableOpacity ref={undoEl} style={styles.button} onPress={()=>{ undoEl.current.onPress(true)}} >
                 <Image style={styles.icon} source={require('../Icons/undo2.png')} />
             </TouchableOpacity>
-            <TouchableOpacity ref={restartEl} style={[styles.button]} onPress={()=> restartEl.current.onPress()} >
+            <TouchableOpacity ref={restartEl} style={[styles.button]} onPress={()=> {play('button'); restartEl.current.onPress()}} >
                 <Image style={styles.icon} source={require('../Icons/restart2.png')} />
             </TouchableOpacity>
             <TouchableOpacity ref={hintEl} style={[styles.button, styles.lightbulb, {opacity: disabled? .5: .8 }]} onPress={handleOnHint} disabled={disabled}>
@@ -50,12 +52,11 @@ const styles = StyleSheet.create({
     buttonsBar: {
         width: '100%',
         position: 'absolute',
-        bottom: 0,
+        bottom: -2,
         flexDirection: 'row',
         justifyContent: 'space-evenly',
         backgroundColor: 'rgba(248,248,255,1)',
-        paddingTop: 10,
-
+        paddingBottom: 25
     },
     icon: {
         width: 45,
@@ -64,9 +65,9 @@ const styles = StyleSheet.create({
 
         },
     button: {
-        marginLeft: 0,
-        marginBottom: 30,
+
         paddingHorizontal: 5,
+        paddingTop: 10,
         borderRadius: 10
       },
     lightbulb: {

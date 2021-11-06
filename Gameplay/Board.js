@@ -133,6 +133,7 @@ const gameDims = () => {
         const {row: numRow, col: numCol} = gameDims()[game];
         const nodeWidth = calcNodeWidth(numCol, windowWidth);
         this.gameType = game;
+        
         if(!prevBoard) {
           //console.log("new board");
           this.grid = setupGridFlex(numRow,numCol, nodeWidth);
@@ -251,8 +252,9 @@ const gameDims = () => {
 
       // if node is a freeze-node, and it is not in visitedNodes list a second time, 
       // remove a freeze from its links
-      if(current.special == 'freezer' && !isStillThere ) {
-        // if the node is frozen two or more times,
+      if(current.special == 'freezer'  ) {
+        // -------> I think this is wrong. frozen is ++ every time it is visited if -- each time as well will even out>
+        //if the node is frozen two or more times,
         // both freezes need to be removed before the node rotates again.
         current.links.forEach(node=> node.frozen--);
         // don't reverse rotate linked nodes if node is a freeze
