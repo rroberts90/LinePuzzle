@@ -43,15 +43,13 @@ const styles = StyleSheet.create({
         letterSpacing: 1,
         alignSelf: 'center',
         opacity: .6,
-        marginBottom: 5
 
     },
     timetext: {
-       fontSize: 25,
+       fontSize: 23,
        opacity: .7,
-       alignSelf: 'center',
- 
-       marginBottom: 5
+       alignSelf: 'center'
+     
     },
     bar: {
         width: '95%',

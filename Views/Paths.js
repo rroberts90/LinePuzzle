@@ -239,7 +239,7 @@ const Arrow = ({ moveAnim, width, offset, height }) => {
         animateArrow(triangleAnim3,fixedHeight,node.diameter/3 ),
         animateArrow(triangleAnim4,fixedHeight,node.diameter/3 )])
         .start();*/
-        animateArrow(triangleAnim1, fixedHeight*2, node.diameter/3).start()
+        animateArrow(triangleAnim1, fixedHeight, node.diameter/3).start()
       }
       
     },[won]);

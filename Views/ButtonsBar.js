@@ -56,16 +56,19 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-evenly',
         backgroundColor: 'rgba(248,248,255,1)',
-        paddingBottom: 25
+        height: '9%'
     },
     icon: {
-        width: 45,
-        height: 45,
+        height: '100%',
+        aspectRatio: 1,
+        alignSelf: 'center',
+        
         opacity: .8
 
         },
     button: {
-
+        width: '13.5%',
+        aspectRatio: 1,
         paddingHorizontal: 5,
         paddingTop: 10,
         borderRadius: 10

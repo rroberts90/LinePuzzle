@@ -38,7 +38,6 @@ const Timer = ({onFinish, level}) => {
     useInterval(()=>{
 
         setTime(t=> t-1);
-        console.log(time);
         if(time <= 0){
             return;
         }

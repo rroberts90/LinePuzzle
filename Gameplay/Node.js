@@ -56,7 +56,7 @@ const Default_Node_Width = 75;
         this.fixed = false; // if node is in visited nodes list can't rotate
         this.symbol = null;
         this.special = null;
-        this.frozen = 0; // frozen zero times
+        this.frozen = 0; 
       }
 
 

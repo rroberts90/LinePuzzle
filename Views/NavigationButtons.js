@@ -49,8 +49,8 @@ const BackButton = ({ onPress }) => {
     return (<SafeAreaView style={styles.backbutton}>
         <TouchableOpacity
             style={{
-                 height: 40, 
-                 width: 40
+                 height: 35, 
+                 width: 35
         }}
             onPress={onPress}
         >

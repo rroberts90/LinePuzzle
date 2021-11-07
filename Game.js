@@ -17,6 +17,7 @@ const Duration = 1500;
 
 const Game = ({navigation, route}) => {
   const gameType = route.name;
+  
   const [level, setLevel] = useState(0);
 
   const height =  useWindowDimensions().height;
@@ -28,7 +29,9 @@ const Game = ({navigation, route}) => {
   const undoEl = useRef(null);
   const restartEl = useRef(null);
   const hintEl = useRef(null);
+  
   const {play} = useSound();
+  
   const getBoard = (ref, prevBoard) =>{  //garuntees board exists at all times
     
     if(ref.current === null && !prevBoard) {

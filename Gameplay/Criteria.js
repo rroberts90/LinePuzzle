@@ -9,11 +9,15 @@ const puzzle1 = { group: .5,
      maxLength: 100, 
      circles: 2 
  }
+
  const puzzle2= {};
   Object.assign(puzzle2, puzzle1);
-puzzle2.minLength += 2;
+puzzle2.minLength += 3;
 puzzle2.group += .1;
+puzzle2.directLinks += .1;
+
 puzzle2.falsePaths +=1;
+puzzle2.maxFalsePathLength +=1;
 
 const getCriteria = (gameType, level, difficulty) => {
     console.log(` Progress level: ${level}`);

@@ -1,7 +1,8 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { View, StyleSheet, useWindowDimensions, Vibration, Button} from 'react-native'
 
-import { Pulse, GridView} from './Nodes';
+import { Pulse} from './Nodes';
+import GridView from './Grid';
 import {Cursor} from './UserInput';
 import {point, centerOnNode,logGridPos,rotateColors} from '../Utils';
 import { UserPath } from './Paths';
