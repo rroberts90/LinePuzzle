@@ -74,11 +74,8 @@ function useNotes() {
     const ndx = useRef(0);
 
     async function playSound() {
-        //console.log('Loading Sound');
         const nextNdx = getNextNoteNdx(ndx.current);
-       // console.log(nextNdx)
         ndx.current = nextNdx;
-       // const title = `${root}/${notes[nextNdx]}.wav`;
         const { sound } = await Audio.Sound.createAsync(
             notes[nextNdx]
         );

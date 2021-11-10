@@ -131,7 +131,7 @@ const savePuzzle = ()=> {
   const board = board0Current ? board0.current : board1.current;
 
   const fileLoc = `${FileSystem.documentDirectory}/puzzles.txt`;
-  console.log(FileSystem.documentDirectory);
+  //console.log(FileSystem.documentDirectory);
   FileSystem.writeAsStringAsync(fileLoc, board.toString()).then(()=>console.log('success')).catch(e=> console.log(e));
 }
 
@@ -139,20 +139,22 @@ const onFinish = (gameType,highLevel) => {
   navigation.navigate('afterGame', {gameType:'timed', score: highLevel});
 
 }
-
   return (<>
+    <Animated.View style={{ position: 'absolute', height: '100%', width:'100%', transform: [{ translateY: translateYAnim1 }] }}>
 
-    <Animated.View style={{ position: 'absolute', height: '100%', transform: [{ translateY: translateYAnim1 }] }}>
       <Level onWin={setLevel} getBoard={() => getBoard(board1)} l={getBoard(board1).level}  current={board1Current} undoEl={undoEl} restartEl={restartEl} hintEl={hintEl}  />
     </Animated.View>
+    
+    <Animated.View style={{ position: 'absolute', height: '100%',width:'100%', transform: [{ translateY: translateYAnim0 }] }}>
 
-    <Animated.View style={{ position: 'absolute', height: '100%', transform: [{ translateY: translateYAnim0 }] }}>
+
       <Level onWin={setLevel} getBoard={() => getBoard(board0)} l={getBoard(board0).level} current ={board0Current} undoEl={undoEl} restartEl={restartEl} hintEl={hintEl} />
+
     </Animated.View>
 
     <ButtonsBar undoEl={undoEl} restartEl={restartEl} hintEl={hintEl} />
 
-    {gameType === 'timed' ? <Timer onFinish={onFinish} level={level}/> : <Header />}
+    {gameType === 'timed' ? <Timer onFinish={onFinish} level={level}/>: <Header />}
     {gameType !=='tutorial' ? <BackButton onPress={()=>{play('paper');navigation.navigate('colorflush')}} />  : null}
   
   
@@ -165,7 +167,8 @@ const onFinish = (gameType,highLevel) => {
 export default Game;
 
 
-/**
+/**      <View style={{position:'absolute', width: '100%', height: '15%', backgroundColor:'red', bottom: '-7.5%', left:0}}/>
+
  *   {gameType ==='null' ? <TouchableOpacity
         style={{position:'absolute', top:40, right: 40, backgroundColor:'grey'}}
         onPress={()=>savePuzzle()}

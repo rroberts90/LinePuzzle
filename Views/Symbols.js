@@ -116,12 +116,10 @@ const getSymbolSource = (group)=> {
   const defaultGroup = 'shapes';
   
   const Symbol = ({group, diameter, frozen}) => {
-    //console.log(group);
     const [sourceFile, setSource] = useState(()=>getSymbolSource(group)); //default
     
     useEffect(()=>{
       getItem('display').then(display => {
-        //console.log(`getting display: ${display}`);
         if (display === 'glyphs') {
           setSource(getGlyphSource(group));
         }
@@ -137,7 +135,6 @@ const getSymbolSource = (group)=> {
     }, [sourceFile, group]);
 
     const opacity = frozen > 0 ? .3 : 1;
-   // console.log(`sourceFile: ${sourceFile}`);
 
     return( sourceFile !== '' ? 
     <Image style={[symbolStyles(diameter), {opacity: opacity, alignSelf:'center'}]} source={sourceFile} /> : null );
@@ -288,7 +285,7 @@ else{
           const source = require('../Icons/freezePattern5.png');
           return <Image style={[styles.special, styles.freezePattern, {borderRadius: node.diameter/2}]} source={source}/>
       }else if(node.special === 'rotateCC') {
-        const source = require('../Icons/rotateCC1.png');
+        const source = require('../Icons/rotateCC3.png');
         return <Image style={[styles.special, {height:'100%',width:'100%', opacity: 1}]} source={source}/>;
 
       }

@@ -9,13 +9,14 @@ import { UserPath } from './Paths';
 import useInterval from './useInterval.js';
 import { levelUp, getItem} from '../Storage';
 import useSound from '../Sounds'
-
+import Tooltip from './Tooltip'
 const displaySolution = (solution) => {
   return solution.slice(1).map((node,i)=> {
     const prevNode = solution[i];
     return {startNode: prevNode, endPoint: centerOnNode(node.pos, node.diameter) }
   });
 }
+
 
 const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl}) => {
   const windowWidth = useWindowDimensions().width; 
@@ -218,6 +219,8 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl}) => {
       <Cursor node={currentNode} currPoint={point(currX, currY)} triggerPulser={triggerPulser} detectMatch = {detectMatch} intervalId={intervalId} />
 
       <GridView board={getBoard()} afterUpdate={updateAfterLayout} height={height} won={win} tutorial={tutorial}/>
+      {/*getBoard().gameType==='tutorial' ? <Tooltip level={l}/> : null*/}
+
       {loadingWall}
     </View>
   );

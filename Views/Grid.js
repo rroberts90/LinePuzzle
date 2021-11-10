@@ -3,50 +3,45 @@ import React, { useEffect, useRef, useState } from "react";
 import { Segment, CapSegment } from './Paths';
 
 import { NodeView } from "./Nodes";
-const GridView = (props) => {
-    const screenHeight = useWindowDimensions().height;
-    const screenWidth =  useWindowDimensions().width;
-    const flat = props.board.grid.reduce((flat, row) => [...flat, ...row]);
-  
-    const nodes = flat.map((node,ndx)=>  
-     <NodeView node={node}
-    key={ndx}
-    afterUpdate = {props.board.getCurrentNode() === node ? props.afterUpdate : null }
-    tutorial= {props.tutorial}
-    />
-    );
-  
-    const bottomRow = props.board.grid[props.board.grid.length - 1];
-    const topRow = props.board.grid[0];
+const GridView = ({board, won, afterUpdate, tutorial}) => {
 
-    const boardHeight = bottomRow[0].pos.y - topRow[0].pos.y + topRow[0].diameter;
-    const endHeight =  (screenHeight- boardHeight) / 2;
-    const startHeight = screenHeight - endHeight - boardHeight;// (screenHeight- boardHeight) / 2;
-//    <Animated.View style= {!props.tutorial ? styles.board : {width: screenWidth, paddingHorizontal:5}}  >
+  const rows = board.grid.map((row, i) => {
 
-    const startCap = 
-      <CapSegment 
-        end={'start'} 
-        node={props.board.start} 
-        fixedHeight= {startHeight}/>;
-    
-        const finishCap = 
-        <CapSegment 
-          end={'finish'} 
-          node={props.board.finish} 
-          fixedHeight= {endHeight}
-          won={props.won}/>;
-      
     return (
-    <Animated.View style= {styles.board}  >
-        <View style={{width:'100%'}}>
-        {finishCap}
-        </View>
-        {nodes}
-        <View style={{width:'100%'}}>
-        {startCap}
-        </View>
-   
+      <View style={styles.row} key={i}>
+        {row.map((node, j) => <NodeView node={node}
+          key={j}
+          afterUpdate={board.getCurrentNode() === node ? afterUpdate : null}
+          tutorial={tutorial}
+    />)}
+      </View>
+    );
+
+  });
+
+  return (
+    <Animated.View style={styles.board2}  >
+
+
+     <View style={styles.cap}>
+       
+        <CapSegment
+          end={'finish'}
+          node={board.finish}
+          won={won} />        
+      </View>
+
+      <View style={styles.grid}>
+        {rows}
+      </View>
+    
+      <View style={styles.cap}>
+        <CapSegment
+          end={'start'}
+          node={board.start}
+          won={won} />      
+      </View>
+
     </Animated.View>);
   }
 
@@ -60,22 +55,34 @@ const GridView = (props) => {
         paddingHorizontal: 5
           },
     board2: {
+      width: '100%',
+      height: '100%',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'flex-start',
-      paddingHorizontal: 5
+
     }, 
     cap: {
-      flex: 1,
-      backgroundColor: 'rgba(0,255,0,.3)'
-
+      flex: 2,
+      width: '100%',
+      height: '100%'
     },
     grid: {
-      flex: 8,
-      backgroundColor: 'rgba(255,0,0,.3)'
+      flex: 9,
+      width: '100%',
+      height: '100%',
+      flexDirection: 'column',
+      justifyContent: 'center',
+    },
+    row: {
+      flexDirection: 'row',
+      width: '100%',
+
+      justifyContent: 'space-evenly',
+      alignItems: 'center', 
+      flex: 1,
     }
 
 
-    
   });
   export default GridView;

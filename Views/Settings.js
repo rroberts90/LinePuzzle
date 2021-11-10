@@ -156,6 +156,7 @@ function SettingsScreen({navigation, route}) {
                 </Pressable>
             </View>
 
+            <Text> Version .9 </Text>
             <Button title='Clear User Data' style={{marginTop:100}} onPress={()=> clearAll()}/>
             <BackButton onPress={()=>{play('paper');navigation.navigate('colorflush')}} />
             </View>

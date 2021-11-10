@@ -243,35 +243,49 @@ const setupFalsePaths = (board, criteria) => {
 
 const setupTutorial = (board, level) => {
     board.solution = [];
-
     switch(level) {
         case 0: 
             break;
         case 1:
             board.grid[4][0].links = [board.grid[3][0]];
-            break;
-        case 2:
-            board.grid[4][0].links = [board.grid[3][0]];
             board.grid[3][0].links = [board.grid[2][0]];
-            board.grid[1][0].links = [board.grid[0][0]];
+            board.grid[1][0].links = [board.grid[0][0]];          
+              break;
+        case 2:
+            board.grid[3][0].symbol = 2;
+            board.grid[3][0].links = [board.grid[4][0],board.grid[1][0]];
+    
+            board.grid[1][0].symbol = 2;
+            board.grid[1][0].links = [board.grid[3][0],board.grid[4][0]];
+    
+            
+            board.grid[4][0].symbol = 2;
+            board.grid[4][0].links = [board.grid[3][0],board.grid[1][0]];
+    
 
             break;
         case 3: 
-            board.grid[3][0].symbol = 1
-            board.grid[3][0].links = [board.grid[1][0]];
-            board.grid[1][0].symbol = 1
-            break;
-        case 4: 
-        board.grid[4][0].symbol = 2
-        board.grid[4][0].links = [board.grid[3][0]];
+          board.grid[4][0].symbol = 1
+          board.grid[4][0].links = [board.grid[0][0]];
 
           board.grid[3][0].symbol = 2
+          board.grid[3][0].links = [board.grid[2][0],board.grid[1][0]];
+  
           board.grid[2][0].symbol = 2
-          board.grid[3][0].links = [board.grid[2][0]];
+          board.grid[2][0].links = [board.grid[3][0],board.grid[1][0]];
 
-          board.grid[1][0].symbol = 1
+
+          board.grid[1][0].symbol = 2
+          board.grid[1][0].links = [board.grid[3][0],board.grid[2][0],board.grid[0][0]];
+
           board.grid[0][0].symbol = 1
-          board.grid[1][0].links = [board.grid[0][0]];
+
+          board.grid[0][0].links = [board.grid[4][0]];
+
+
+            break;
+        case 4: 
+
 
           break;
         case 5: 
@@ -281,13 +295,29 @@ const setupTutorial = (board, level) => {
          board.grid[0][0].symbol = 3
          board.grid[3][0].links = [board.grid[0][0],board.grid[2][0]];
 
+         board.grid[0][0].links = [board.grid[3][0]]
          board.grid[1][0].links = [board.grid[0][0]];
+         board.grid[4][0].special = 'rotateCC'
         case 6:
             break;
 
     }
     pathFinder(board);
+
     board.solution = board.visitedNodes.map(node=> node);
+    if(level === 4){ // faking freeze nodes so I don't have to write more code or hard code colors
+        board.grid[3][0].symbol = 2;
+        board.grid[3][0].links = [board.grid[4][0],board.grid[1][0]];
+
+        board.grid[1][0].symbol = 2;
+        board.grid[1][0].links = [board.grid[3][0],board.grid[4][0]];
+
+        
+        board.grid[4][0].symbol = 2;
+        board.grid[4][0].links = [board.grid[3][0],board.grid[1][0]];
+
+        board.grid[4][0].special = 'freezer';
+    }
     board.resetGrid();
 }
 
@@ -363,8 +393,8 @@ const setupGame = (board, criteria) => {
     solutionChecker(board);
     board.resetGrid();
     const t2 = Date.now();
-    console.log(`---------\ntotal time to setup grid: ${t2- t1} milliseconds`);
-   console.log(`Took ${count} tries to create path\n-----------`);
+    /*console.log(`---------\ntotal time to setup grid: ${t2- t1} milliseconds`);
+   console.log(`Took ${count} tries to create path\n-----------`);*/
 
 }
 

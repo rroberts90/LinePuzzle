@@ -108,13 +108,18 @@ const calcNodeWidth = (cols, width) => {
     return .2 * width;
   }
 }
-const gameDims = () => { 
-  return  {
+
+const gameSizes = {
   tutorial: MyMath.gridPos(6, 1),
   endless: MyMath.gridPos(6,4),
   timed: MyMath.gridPos(6,4),
   puzzle: MyMath.gridPos(7,5)
-}}
+};
+
+const gameDims = (game) => { 
+
+  return gameSizes[game];
+ }
 
 /*const tutorialBoard = (level) => {
   switch(level) {
@@ -130,7 +135,7 @@ const gameDims = () => {
 
     constructor (game, level, windowWidth, prevBoard) {
         console.log(`new ${game} board.`);
-        const {row: numRow, col: numCol} = gameDims()[game];
+        const {row: numRow, col: numCol} = gameDims(game, level);
         const nodeWidth = calcNodeWidth(numCol, windowWidth);
         this.gameType = game;
         

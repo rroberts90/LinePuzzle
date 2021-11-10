@@ -28,12 +28,12 @@ function AfterGameScreen({ navigation, route }) {
     return (
         <View style={styles.container}>
             <View style={{ width:'100%',flexDirection: 'row', justifyContent: 'center'}}>
-                <View style={{ flexDirection: 'column' }}>
+                <View style={{ flexDirection: 'column', width: '45%' }}>
                     <Text style={styles.header2}> Score </Text>
                     <Text style={styles.userScore}> {score} </Text>
                 </View>
                 <View style={styles.bar}/>
-                <View style={{ flexDirection: 'column' }}>
+                <View style={{ flexDirection: 'column' , width:'45%'}}>
                     <Text style={styles.header2}> Best Score </Text>
                     <Text style={styles.userScore}> {high} </Text>
                 </View>
@@ -99,7 +99,8 @@ const styles = StyleSheet.create({
     },
     header2: {
         fontSize: 20,
-        opacity: .7
+        opacity: .7,
+        alignSelf:'center'
     },
     userScore: { fontSize: 40, alignSelf: 'center' },
     bar: {

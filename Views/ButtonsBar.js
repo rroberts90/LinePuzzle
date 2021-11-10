@@ -30,7 +30,7 @@ const ButtonsBar = ({ undoEl, restartEl, hintEl}) => {
     }
 
     return (
-        <View style={[styles.buttonsBar]}>
+        <SafeAreaView style={[styles.buttonsBar]}>
             <View style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'flex-start', alignItems: 'center'}}>
              <View style={styles.bar}/>        
             </View>
@@ -43,7 +43,7 @@ const ButtonsBar = ({ undoEl, restartEl, hintEl}) => {
             <TouchableOpacity ref={hintEl} style={[styles.button, styles.lightbulb, {opacity: disabled? .5: .8 }]} onPress={handleOnHint} disabled={disabled}>
                 <Image style={styles.icon} source={require('../Icons/lightbulb.png')} />
             </TouchableOpacity>
-        </View>
+        </SafeAreaView>
 
     );
 };
@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
     buttonsBar: {
         width: '100%',
         position: 'absolute',
-        bottom: -2,
+        bottom: 0,
         flexDirection: 'row',
         justifyContent: 'space-evenly',
         backgroundColor: 'rgba(248,248,255,1)',

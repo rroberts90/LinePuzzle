@@ -1,9 +1,9 @@
-import  React, {useState} from 'react';
+import  React, {useState, useEffect} from 'react';
 import { View, Text, Button, Image, TouchableOpacity, Pressable, StyleSheet, StatusBar, StatusBarStyle } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import {getItem, initialize} from './Storage'
+import {getItem, initialize, storeItem} from './Storage'
 import colorScheme from './Gameplay/ColorSchemes'
 import Game from './Game'
 import SettingsScreen from './Views/Settings'
@@ -11,8 +11,6 @@ import {ScoresScreen, AfterGameScreen} from './Views/Scores'
 import useSound from './Sounds';
 import { PlayButton, IconButton } from './Views/NavigationButtons';
 const defaultBackground = 'rgba(248,248,255,1)';
-
-
 
 function HomeScreen({ navigation }) {
     const [disabled, toggleDisabled]= useState(false);
@@ -33,22 +31,29 @@ function HomeScreen({ navigation }) {
 }
 
 function LoadingScreen({navigation}){
+    const [tutorialFinished, setTutorialFinished] = useState(true);
     StatusBar.setBarStyle('dark-content');
-    getItem('tutorialFinished').then(tutorialFinished=> {
+    useEffect(()=> {getItem('tutorialFinished').then(tutorialFinished=> {
         if( tutorialFinished === null) { // new player
             console.log('go to tutorial');
             initialize();
-
-            navigation.navigate('tutorial');
+            setTutorialFinished(false);
+            //navigation.navigate('tutorial');
         } else{
             navigation.navigate('colorflush');
 
         }
-    });
+    })}, []);
 
     return(
         <View style={styles.loadingScreen} >
             <Text style={{fontSize: 40}}> COLOR MAZE </Text>
+            {!tutorialFinished ? 
+            <View style={styles.tutorialAsk}>
+                <PlayButton navigation={navigation} borderColor={colorScheme.four} disabled={false} toggleDisabled={()=>{}} title={'tutorial'} text={'go to tutorial'} />
+                <PlayButton navigation={navigation} borderColor={colorScheme.one} disabled={false} toggleDisabled={()=>{storeItem('tutorialFinished', true)}} title={'colorflush'} text={'skip tutorial '} />
+
+            </View> : null}
         </View>
     );
 }
@@ -108,17 +113,7 @@ function App() {
 }
 
 const styles = StyleSheet.create({
-    menuButton: {
-        borderWidth: 7,
-        alignItems:'center',
-        justifyContent: 'flex-start',
-        alignSelf:'center',
-        marginVertical: 20,
-        padding: 5,
-        borderRadius: 15,
-        width: '60%',
-        flexDirection: 'row'
-    },
+   
     buttonText: {
         color: 'black',
         fontSize: 40,
@@ -180,6 +175,19 @@ const styles = StyleSheet.create({
 
     },
     selected: {
+
+    },
+    tutorialAsk: {
+        alignSelf: 'center',
+        borderRadius: 10,
+        borderWidth: 0,
+        padding: '5%',
+        marginTop: '10%',
+        alignItems: 'center',
+        justifyContent: 'center'
+
+    },
+    skip1: {
 
     }
 });

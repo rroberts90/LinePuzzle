@@ -1,10 +1,11 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {  TouchableOpacity, Image, StyleSheet, Text, SafeAreaView} from 'react-native';
+import {  TouchableOpacity, Image, StyleSheet, Text, SafeAreaView, Animated} from 'react-native';
 import colorScheme from '../Gameplay/ColorSchemes'
 
 import useSound from '../Sounds';
 const defaultBackground = 'rgba(248,248,255,1)';
 
+const buttonBackground  = 'rgba(240,240,245,1)';
 
 const PlayButton = ({navigation, title, disabled, toggleDisabled, borderColor, text})=> {
     const {play} = useSound();
@@ -20,7 +21,7 @@ const PlayButton = ({navigation, title, disabled, toggleDisabled, borderColor, t
         }}
         disabled={disabled}
     >
-        <Image style={[styles.play, {tintColor:borderColor, opacity: .8}]} source = {require('../Icons/play1.png')}/>
+        <Image style={[styles.play, {tintColor:borderColor, opacity: .8}]} source = {title !=='colorflush' ? require('../Icons/play1.png') : require('../Icons/skip3.png') }/>
     <Text style={[styles.buttonText, text? {fontSize: 30}: {} ]}>{text? text : title} </Text>
     </TouchableOpacity>
     );
@@ -52,7 +53,8 @@ const BackButton = ({ onPress }) => {
                  height: 35, 
                  width: 35
         }}
-            onPress={onPress}
+            onPress={()=>{
+                onPress();}}
         >
             <Image style={{ height: '100%', width: '100%', opacity: .7 }} source={require('../Icons/backArrow2.png')} />
         </TouchableOpacity>
@@ -71,7 +73,9 @@ const styles = StyleSheet.create({
         padding: 5,
         borderRadius: 15,
         width: '60%',
-        flexDirection: 'row'
+        flexDirection: 'row',
+        backgroundColor: buttonBackground
+
     },
     buttonText: {
         color: 'black',
@@ -96,7 +100,8 @@ const styles = StyleSheet.create({
         width: '45%',
         marginHorizontal: 10,
         marginVertical: 20,
-        padding: 5
+        padding: 5,
+        backgroundColor: buttonBackground
     },
     icon:{
         height: 45, 
@@ -117,6 +122,11 @@ const styles = StyleSheet.create({
         width:'18%',
         aspectRatio: 1,
         marginRight: 10
+    }, 
+    skip: {
+        width:'22%',
+        aspectRatio: 1,
+        marginRight: 0
     }, 
     headerText: { 
         fontSize: 30

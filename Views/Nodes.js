@@ -9,6 +9,7 @@ const measure = (ref, node, afterUpdate) => {
   if(ref.current) {
     ref.current.measureInWindow((x,y,width, height)=> {
       node.pos = {x:x,y:y};
+      node.diameter = width;
       if(afterUpdate) {
         afterUpdate();
       }
@@ -30,22 +31,25 @@ const borderStyles = (colors) => {
   const dynamicNodeSize = (diameter, tutorial) => {
       
       return {
-        marginVertical:  diameter /6,
-        marginHorizontal: tutorial ? '50%' : 0,
-        width: diameter,
-        height: diameter,
-        borderRadius: diameter / 2,
-        borderWidth: diameter / 6,
+        height: '80%',
+        aspectRatio: 1,
+
         backgroundColor: "lightgrey",
         zIndex: 10,
         justifyContent: 'center',
         alignItems: 'center',
-        alignSelf: 'center'
       };
   }
+  const borderSize = (diameter)=> {
+    return {
+      borderRadius: diameter / 2,
+      borderWidth: diameter / 6
+    }
+  }
+
   const dynamicNodeSizeNoPosition = (diameter) => {
       return {
-              width: diameter,
+        width: diameter,
         height: diameter,
         borderRadius: diameter / 2,
         borderWidth: diameter / 6
@@ -139,7 +143,8 @@ const NodeView = (props) => {
     
     return (
       <Animated.View ref={measureRef} style={[
-      dynamicNodeSize(props.node.diameter, props.tutorial),
+        styles.nodeSize,
+      borderSize(props.node.diameter),
         colorStyles,
         {transform: [{rotate:rotAnim.interpolate({
                 inputRange: [0,360],
@@ -154,6 +159,7 @@ const NodeView = (props) => {
 
    }}
        >
+      <Image source={require('../Icons/nodeTexture4.png')} style={{width:'100%', height:'100%', borderRadius: props.node.diameter/2, opacity: .4,position: 'absolute'}} resizeMode={'cover'}/>
      <Special node={props.node}/>
      <Symbol group= {props.node.symbol} diameter ={props.node.diameter} frozen ={props.node.frozen} />
      <Frozen node={props.node} rotAnim={rotAnim}/>
@@ -226,21 +232,23 @@ const NodeView = (props) => {
 
   const styles = StyleSheet.create({
     nodeSize: {
-      position: "absolute",
-      width: Node_Width,
-      height: Node_Width,
-      borderRadius: Node_Width / 2,
-      borderWidth: Node_Width / 6,
-      backgroundColor: "lightgrey",
-      zIndex: 10
+      height: '80%',
+      aspectRatio: 1,
+      backgroundColor: "rgb(220,220,220)",
+      zIndex: 10,
+      justifyContent: 'center',
+      alignItems: 'center'
     },
+
     nodeBorder: {
     },
+
     pulse: {
         position: "absolute",
       backgroundColor: "darkgrey",
       zIndex: 0
     },
+
     textSymbol: {
       fontSize: 30
     },
@@ -269,7 +277,6 @@ const NodeView = (props) => {
       alignSelf: 'center',
       top: '20%', //TEMPORARY MAY ALIGN WEIRD ON DIFFERENT SCREEN SIZES
       opacity:1,
-
     }
 });
 /**     <Segment startNode={props.board.start} endPoint={startPoint}/>
