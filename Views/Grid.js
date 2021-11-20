@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Segment, CapSegment } from './Paths';
 
 import { NodeView } from "./Nodes";
-const GridView = ({board, won, afterUpdate, tutorial}) => {
+const GridView = ({board, won, afterUpdate}) => {
 
   const rows = board.grid.map((row, i) => {
 
@@ -12,7 +12,6 @@ const GridView = ({board, won, afterUpdate, tutorial}) => {
         {row.map((node, j) => <NodeView node={node}
           key={j}
           afterUpdate={board.getCurrentNode() === node ? afterUpdate : null}
-          tutorial={tutorial}
     />)}
       </View>
     );

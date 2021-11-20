@@ -32,7 +32,7 @@ const storeItem = async (key,value) => {
   }
   const getItems = async (key1, key2) => {
     try {
-      const values = await AsyncStorage.multiGet([`@level`, `@difficulty`])
+      const values = await AsyncStorage.multiGet([`@${key1}`, `@${key2}`])
       return values;
     } catch(e) {
       // error reading value
@@ -42,19 +42,13 @@ const storeItem = async (key,value) => {
 
 
   const levelUp = (gameType, localLevel) => {
-    console.log(`gameType: ${gameType}`);
-    if(gameType==='puzzle') {
-      getItem('puzzles').then(puzzle=> {
-        storeItem('puzzles', puzzle+1)});
-    }
-    if(gameType === 'timed') {
-      getItem('timedScore').then(score=> {
-        console.log(`saved score: ${score}`);
-        console.log(`local level: ${localLevel}`);
+    const itemName = `${gameType}Score`;
+
+    if(gameType === 'timed' || gameType === 'moves') {
+      getItem(itemName).then(score=> {
 
         if(localLevel+1 > score){
-          console.log(`storing timedScore: ${localLevel+1}`);
-          storeItem('timedScore', localLevel+1);
+          storeItem(itemName, localLevel+1);
         }
       });
     }
@@ -71,7 +65,7 @@ const storeItem = async (key,value) => {
   const getSettings = async () => {
     let values;
     try {
-      values = await AsyncStorage.multiGet([ '@difficulty','@sound', '@vibrate', '@display']);
+      values = await AsyncStorage.multiGet([ '@difficulty','@sound', '@vibrate', '@display', '@board']);
       return values;
     } catch(e) {
       // read error
@@ -84,9 +78,10 @@ const storeItem = async (key,value) => {
     storeItem('puzzles',0);
     storeItem('timedScore',0);
     storeItem('sound', true);
-    storeItem('difficulty', 1);
+    storeItem('difficulty', true);
     storeItem('vibrate', true);
     storeItem('display', 'impossible');
+    storeItem('board', true);
 
   
   }

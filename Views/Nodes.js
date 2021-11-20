@@ -1,4 +1,4 @@
-import { Animated, View, StyleSheet, Easing, Text, Image, useWindowDimensions} from "react-native";
+import { Animated, View, StyleSheet, Easing, Text, Image,ImageBackground, useWindowDimensions} from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import { convertToLayout, point } from '../Utils';
 import {Arrow, Symbol, Special} from './Symbols'
@@ -9,7 +9,7 @@ const measure = (ref, node, afterUpdate) => {
   if(ref.current) {
     ref.current.measureInWindow((x,y,width, height)=> {
       node.pos = {x:x,y:y};
-      node.diameter = width;
+      node.diameter = Math.floor(width) ;
       if(afterUpdate) {
         afterUpdate();
       }
@@ -40,10 +40,11 @@ const borderStyles = (colors) => {
         alignItems: 'center',
       };
   }
+
   const borderSize = (diameter)=> {
     return {
       borderRadius: diameter / 2,
-      borderWidth: diameter / 6
+      borderWidth: Math.floor(diameter / 6)
     }
   }
 
@@ -52,7 +53,7 @@ const borderStyles = (colors) => {
         width: diameter,
         height: diameter,
         borderRadius: diameter / 2,
-        borderWidth: diameter / 6
+        borderWidth: Math.floor(diameter / 6)
       };
   }
 
@@ -115,9 +116,14 @@ const Frozen = ({node, rotAnim}) => {
       <View style={{alignSelf:'flex-end',width:width-1, height: 2, backgroundColor:'rgb(36,36,36)', position:'absolute', top: '55%', right:1,borderRadius:2}}/>
     <Image style={styles.lock} source={require('../Icons/Lock1.png')}/>
 
-  <View style={{backgroundColor: 'dimgrey', opacity:.1, width:node.diameter+3,
-   height:node.diameter+3, borderWidth: node.diameter/6,
-    borderRadius: node.diameter/2, borderColor:'dimgrey'}}>
+  <View style={{
+    backgroundColor: node.special === 'freezer' ? 'white' : 'dimgrey',
+    opacity: .2 , 
+    width:node.diameter+1,
+    height:node.diameter+1,
+    borderWidth: node.diameter/6,
+    borderRadius: node.diameter/2, 
+    borderColor:node.special === 'freezer' ? 'white' : 'dimgrey'}}>
    
     </View>
 
@@ -146,6 +152,7 @@ const NodeView = (props) => {
         styles.nodeSize,
       borderSize(props.node.diameter),
         colorStyles,
+        {backgroundColor: props.node.special === 'freezer' ?  'rgb(80,80,80)' : 'rgb(220,220,220)'},
         {transform: [{rotate:rotAnim.interpolate({
                 inputRange: [0,360],
                 outputRange:['0deg', '360deg']
@@ -159,9 +166,9 @@ const NodeView = (props) => {
 
    }}
        >
-      <Image source={require('../Icons/nodeTexture4.png')} style={{width:'100%', height:'100%', borderRadius: props.node.diameter/2, opacity: .4,position: 'absolute'}} resizeMode={'cover'}/>
+      <Image source={require('../Icons/nodeTexture4.png')} style={{ position: 'absolute',width:'100%', height:'100%', borderRadius:props.node.diameter/2, opacity: .4}} />
      <Special node={props.node}/>
-     <Symbol group= {props.node.symbol} diameter ={props.node.diameter} frozen ={props.node.frozen} />
+     <Symbol group= {props.node.symbol} diameter ={props.node.diameter} frozen ={props.node.frozen} freezer= {props.node.special==='freezer'}/>
      <Frozen node={props.node} rotAnim={rotAnim}/>
       {arrowNodes.map((neighbor,i)=> <Arrow node={props.node} linkedNode= {neighbor} key={i} rotAnim={rotAnim} />)}
       </Animated.View>
@@ -279,8 +286,6 @@ const NodeView = (props) => {
       opacity:1,
     }
 });
-/**     <Segment startNode={props.board.start} endPoint={startPoint}/>
-        <Segment startNode={props.board.finish} endPoint={finishPoint} fixedColor={fixedColor}/>
-         */
+
 const nodeSize = styles.nodeSize;
   export {NodeView, Pulse, dynamicNodeSize, dynamicNodeSizeNoPosition};

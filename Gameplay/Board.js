@@ -10,14 +10,14 @@ const getColors = (colorSet) => {
   return Object.entries(colorSet).map((arr)=> arr[1]);
 }
 
-const setupGridFlex = (numRow, numCol, diameter) =>{ 
+const setupGridFlex = (numRow, numCol) =>{ 
     const grid = []; 
     let x;
     let y;
     for (let i = 0; i < numRow; i++) { 
       grid[i] = []; 
       for (let j = 0; j < numCol; j++) { 
-        grid[i][j] = new Node(MyMath.gridPos(i,j), MyMath.point(0,0), diameter, getColors(colorScheme)); 
+        grid[i][j] = new Node(MyMath.gridPos(i,j), MyMath.point(0,0), getColors(colorScheme)); 
 
       } 
     } 
@@ -70,16 +70,18 @@ const setStart = (grid,numRow,numCol,prevFinish, finalColor) =>{
 const copyBoardData = (prevGrid) => { 
     return prevGrid.map( row =>
     row.map(node=> {
-    return  new Node(MyMath.gridPos(node.gridPos.row, node.gridPos.col),
+      //console.log(node.diameter);
+    const nodeCopy =  new Node(MyMath.gridPos(node.gridPos.row, node.gridPos.col),
              MyMath.point(node.pos.x, node.pos.y),
-             node.diameter,
-             node.colors);  
+             node.colors,null, null, node.diameter);  
+    return nodeCopy;
 
     }
               
       ));     
 
 }
+
 // returns a 2d array. 
 //Each element contains a list of the row/col positions of neighboring nodes. 
 const getAllNeighbors = (numRow, numCol)  => {
@@ -99,16 +101,6 @@ const getAllNeighbors = (numRow, numCol)  => {
     return grid;
 }
 
-const NodeWidth = .2;
-
-const calcNodeWidth = (cols, width) => {
-  if (cols ===5) {
-    return .17  * width;
-  }else {
-    return .2 * width;
-  }
-}
-
 const gameSizes = {
   tutorial: MyMath.gridPos(6, 1),
   endless: MyMath.gridPos(6,4),
@@ -121,39 +113,55 @@ const gameDims = (game) => {
   return gameSizes[game];
  }
 
-/*const tutorialBoard = (level) => {
-  switch(level) {
-    case -5:
-      return {
-          colors: [colorScheme.one,colorScheme.two, colorScheme.three, colorScheme.four],
-
-      }
-  }
-}*/
-
   class Board {
 
-    constructor (game, level, windowWidth, prevBoard) {
-        console.log(`new ${game} board.`);
-        const {row: numRow, col: numCol} = gameDims(game, level);
-        const nodeWidth = calcNodeWidth(numCol, windowWidth);
+    constructor (game, level, prevBoard, boardSize,savedBoard) {
+      if(game==='tutorial') {
+        this.numRow = 6;
+        this.numCol = 1;
+      }
+      else if(!boardSize) {
+        this.numRow = 7;
+        this.numCol = 5;
+      }else{
+        this.numRow = 6;
+        this.numCol = 4;
+      }
+
+      if(false) {
+        this.setupGridFromSave(savedBoard);
+      }
+      else {
+        this.setupGridFromScratch(game, level, prevBoard);
+      }
+
+    }
+
+    setupGridFromSave(savedBoard) {
+      console.log('load from save');
+      this.loadSave(savedBoard);
+    }
+    setupGridFromScratch(game, level, prevBoard){
+
         this.gameType = game;
         
         if(!prevBoard) {
-          //console.log("new board");
-          this.grid = setupGridFlex(numRow,numCol, nodeWidth);
-          this.start = setStart(this.grid, numRow, numCol);
+          console.log("new board");
+          this.grid = setupGridFlex(this.numRow,this.numCol);
+          this.start = setStart(this.grid, this.numRow, this.numCol);
 
         }
         else {
-          //console.log("new board with prevBoard");
+          console.log("new board with prevBoard");
+          this.numRow = prevBoard.numRow;
+          this.numCol = prevBoard.numCol;
           this.grid = copyBoardData(prevBoard.grid);
-          this.start = setStart(this.grid, numRow, numCol, prevBoard.finish, prevBoard.finalColor);
+          this.start = setStart(this.grid, this.numRow, this.numCol, prevBoard.finish, prevBoard.finalColor);
         }
 
-        this.setupNeighbors(numRow, numCol);
+        this.setupNeighbors(this.numRow, this.numCol);
 
-        const finish = MyMath.gridPos(0,MyMath.randInt(0,numCol));
+        const finish = MyMath.gridPos(0,MyMath.randInt(0,this.numCol));
         this.finish =  this.grid[finish.row][finish.col];
         
         this.start.fixed = true;
@@ -161,7 +169,6 @@ const gameDims = (game) => {
 
 
         setupGridSolution(this, game, level);
-
     }
     
     setupNeighbors(numRow, numCol){
@@ -225,7 +232,7 @@ const gameDims = (game) => {
         nextNode.fixed = true; 
       //  MyMath.logGridPos('next: ', nextNode.gridPos);
        // MyMath.logGridPos('  links: ', nextNode.links[0].gridPos);
-        if(!nextNode.special) {
+        if(!nextNode.special || nextNode.special==='booster') {
           nextNode.rotateLinked();
         } else if (nextNode.special === 'freezer'){
           // don't rotate links, instead add a freeze
@@ -258,12 +265,10 @@ const gameDims = (game) => {
       // if node is a freeze-node, and it is not in visitedNodes list a second time, 
       // remove a freeze from its links
       if(current.special == 'freezer'  ) {
-        // -------> I think this is wrong. frozen is ++ every time it is visited if -- each time as well will even out>
-        //if the node is frozen two or more times,
-        // both freezes need to be removed before the node rotates again.
         current.links.forEach(node=> node.frozen--);
-        // don't reverse rotate linked nodes if node is a freeze
-      } else if(current.special !== 'freezer') {
+        
+      } else if(current.special !== 'freezer') {  // don't reverse rotate linked nodes if node is a freeze
+
         current.rotateLinked(true); // reverse rotate
 
       } 
@@ -322,6 +327,54 @@ const gameDims = (game) => {
 
       return {removeCount, nextNode};
 
+    }
+
+    save(){
+      //prevents cyclical refs
+      const visitedNodes = this.visitedNodes.map(node=> node.gridPos);
+      const solution = this.solution.map(node=> node.gridPos);
+      return JSON.stringify({
+        grid:this.grid.map(row=>row.map(node => node.save())),
+        gameType: this.gameType,
+        start: this.start.gridPos,
+        finish: this.finish.gridPos,
+        visitedNodes: visitedNodes,
+        solution: solution
+      
+      });
+
+    }
+
+    loadSave(savedBoardStr) {
+      const savedBoard = JSON.parse(savedBoardStr);
+      
+      this.grid = savedBoard.grid.map(row => row.map(savedNode =>{ 
+        const node = new Node(); //  load save fills  empty node
+        node.loadSave(savedNode);
+        return node;
+      }));
+      //this.setupNeighbors(this.grid.length, this.grid[0].length); 
+
+      // now that we have proper refs to every node get links & neighbors
+      this.grid.map(row => row.map(node =>{ 
+              node.links = node.links.map(gridPos=> this.getNodeFromGridPos(gridPos)) ;
+              node.neighbors = node.neighbors.map(gridPos=> this.getNodeFromGridPos(gridPos)) ;
+
+      }));
+
+      
+
+      this.gameType = savedBoard.gameType;
+      this.start = this.getNodeFromGridPos(savedBoard.start);
+      this.finish = this.getNodeFromGridPos(savedBoard.finish);
+      this.visitedNodes = savedBoard.visitedNodes.map(gridPos=> this.getNodeFromGridPos(gridPos));
+      this.solution = savedBoard.solution.map(gridPos=> this.getNodeFromGridPos(gridPos));
+
+      
+    }
+
+    getNodeFromGridPos(gridPos) {
+      return this.grid[gridPos.row][gridPos.col];
     }
 
     toString(){

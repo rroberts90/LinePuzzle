@@ -1,7 +1,8 @@
 import { Audio } from 'expo-av';
 import React, { useState, useEffect, useRef } from 'react';
 import { getItem } from './Storage';
-const notes = [require('./Sounds/a.wav'), require('./Sounds/b.wav'), require('./Sounds/c.wav'), require('./Sounds/d.wav'), require('./Sounds/e.wav'), require('./Sounds/f.wav'), require('./Sounds/g.wav')];
+
+//const notes = [require('./Sounds/a.wav'), require('./Sounds/b.wav'), require('./Sounds/c.wav'), require('./Sounds/d.wav'), require('./Sounds/e.wav'), require('./Sounds/f.wav'), require('./Sounds/g.wav')];
 
 const sounds = {
     'connect': require('./Sounds/tap2.wav'), 
@@ -19,7 +20,6 @@ export default function useSound() {
 
     const [sound, setSound] = useState();
 
-
     async function playSound(key) {
         const soundAllowed = await getItem('sound');
         if(!soundAllowed) {
@@ -29,9 +29,8 @@ export default function useSound() {
         const { sound } = await Audio.Sound.createAsync(
             sounds[key]
         );
-
         setSound(sound);
-      
+        
         if(key=='paper'){
             await sound.setPositionAsync(400);
         }
@@ -65,7 +64,7 @@ export default function useSound() {
 
 
 
-function useNotes() {
+/*function useNotes() {
     const root = './Sounds';
 
  
@@ -108,4 +107,4 @@ function useNotes() {
     }, [] );
 
     return {play: playSound, reset: reset};
-}
+}*/

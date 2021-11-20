@@ -1,5 +1,5 @@
 import React, { useEffect,useState, useRef, forwardRef } from 'react'
-import {StyleSheet, View, Animated,Easing, Image} from 'react-native'
+import {StyleSheet, View, Animated,Easing, Image, Text} from 'react-native'
 
 import { distance, centerOnNode, point, convertToLayout } from '../Utils'
 import {getItem} from '../Storage'
@@ -115,7 +115,7 @@ const getSymbolSource = (group)=> {
   
   const defaultGroup = 'shapes';
   
-  const Symbol = ({group, diameter, frozen}) => {
+  const Symbol = ({group, diameter, frozen, freezer}) => {
     const [sourceFile, setSource] = useState(()=>getSymbolSource(group)); //default
     
     useEffect(()=>{
@@ -137,7 +137,7 @@ const getSymbolSource = (group)=> {
     const opacity = frozen > 0 ? .3 : 1;
 
     return( sourceFile !== '' ? 
-    <Image style={[symbolStyles(diameter), {opacity: opacity, alignSelf:'center'}]} source={sourceFile} /> : null );
+    <Image style={[symbolStyles(diameter), {opacity: opacity, alignSelf:'center', tintColor: freezer ? 'rgb(220,220,220)' : null}]} source={sourceFile} /> : null );
   }
   
   const ArrowPadding = 2;
@@ -236,6 +236,7 @@ const getSymbolSource = (group)=> {
             }
         }
     }
+
     const source = getArrowSource(type);
    
   
@@ -283,11 +284,13 @@ else{
   const Special = ({node}) => {
       if(node.special === 'freezer') {
           const source = require('../Icons/freezePattern5.png');
-          return <Image style={[styles.special, styles.freezePattern, {borderRadius: node.diameter/2}]} source={source}/>
+          return null; //<Image style={[styles.special, styles.freezePattern, {borderRadius: node.diameter/2}]} source={source}/>
       }else if(node.special === 'rotateCC') {
         const source = require('../Icons/rotateCC3.png');
         return <Image style={[styles.special, {height:'100%',width:'100%', opacity: 1}]} source={source}/>;
 
+      }else if(node.special ==='booster') { 
+        return <Text style={styles.booster}>+5 </Text>;
       }
       return null;
   }
@@ -324,6 +327,11 @@ else{
       },
       freezePattern: {
         opacity: .25
+      },
+      booster: 
+      {
+        fontSize: 25,
+        alignSelf: 'center'
       }
 
   });

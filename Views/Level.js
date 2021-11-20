@@ -10,6 +10,7 @@ import useInterval from './useInterval.js';
 import { levelUp, getItem} from '../Storage';
 import useSound from '../Sounds'
 import Tooltip from './Tooltip'
+
 const displaySolution = (solution) => {
   return solution.slice(1).map((node,i)=> {
     const prevNode = solution[i];
@@ -18,7 +19,7 @@ const displaySolution = (solution) => {
 }
 
 
-const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl}) => {
+const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves, setTime}) => {
   const windowWidth = useWindowDimensions().width; 
   const height = useWindowDimensions().height; 
 
@@ -36,17 +37,39 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl}) => {
   const [loading, toggleLoading] = useState(true);
 
   const {play} = useSound();
+  
   useEffect(()=>{
     //console.log(`---------------\nLevel ${l} start color: ${getBoard().start.colors[2]}\n`);
     //logGridPos('    start',getBoard().start.gridPos);
     if (l !== 0) {
-    resetCurrentNode(1500);
+    resetCurrentNode(1600);
     }
+
     lineSegments.current = [];
+    
+    /*console.log(`${l} called to setup level`);
+    console.log(`visited Nodes length: ${getBoard().visitedNodes.length}\n`);
+    if (getBoard().visitedNodes.length > 1) {
+      getBoard().visitedNodes.reduce((prev, curr) => {
+        const updatedEndPoint = centerOnNode(curr.pos, curr.diameter);
+        const seg = {
+         startNode:prev,
+         endPoint:updatedEndPoint,
+        };
+        lineSegments.current  = [...lineSegments.current, seg];
+      
+      return curr;
+    });
+  }*/
+    
     setWin(false);
     setDefaultPulser(0);
     getBoard().restart();
-
+    //resetCurrentNode(1);
+    return () => {
+      console.log(`return ${l} effect`);
+      //getBoard().restart();
+  }
   },[l]);
 
   useInterval(() => {
@@ -55,14 +78,22 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl}) => {
     triggerPulser(currentValue=> currentValue+1);
     }
     setDefaultPulser(defaultPulser + 1);
-
+    return ()=> {
+      console.log('clearing interval');
+      triggerPulser(0);
+      setDefaultPulser(0);
+    };
   }, 5000);
   
   // sets the endPointto the CurrentNode position after it's position is measurable.
   const updateAfterLayout = () => {
     resetCurrentNode(1);
-    setTimeout(()=>toggleLoading(false), 300);
-
+    setTimeout(()=>{
+      if(loading) {
+        toggleLoading(false);
+      }
+    }, 300);
+    
   }
 
   /** 
@@ -73,6 +104,15 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl}) => {
    // play('connect');
    const prevNode = node;
    setCurrentNode(next);
+
+   setMoves(moves=> moves+1);
+
+   if(next.special === 'booster') {
+      setMoves(moves=> moves- 5);
+      setTime(time => time+5);
+      next.special = null;
+   }
+
    const updatedEndPoint = centerOnNode(next.pos, next.diameter);
 
   const seg = {
@@ -90,7 +130,8 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl}) => {
     setWin(true); // triggers end line fade in 
     hintEl.current.onPress = null;
     setTimeout(()=>onWin(currentLevel=> currentLevel+1), 500);
- 
+
+
     // check if vibrate is AOK with user
     play('win');
 
@@ -145,7 +186,11 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl}) => {
     if(!makePulseWait) {
         triggerPulser(currentValue => currentValue+1);
     }else{
-        setTimeout( ()=>  triggerPulser(currentValue => currentValue+1)
+        setTimeout( ()=>  {
+          if( pulser) {
+            triggerPulser(currentValue => currentValue+1)
+          }
+        }
         ,makePulseWait);
     }
 
@@ -202,13 +247,8 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl}) => {
     }
   }, [current]);
 
-  const startCenter = centerOnNode(getBoard().start.pos, getBoard().start.diameter);
-  const startPoint = point(startCenter.x, startCenter.y+250);
-  
-  const finishCenter = centerOnNode(getBoard().finish.pos, getBoard().finish.diameter);
-  const finishPoint = point(finishCenter.x, finishCenter.y-250);
   const loadingWall = loading ? <View style={{position: 'absolute', width:'100%', height:'100%', backgroundColor:'rgba(248,248,255,1)', zIndex: 20 }}/> : null;
-  const tutorial = getBoard().grid[0].length === 1 ? true: false;
+
   return ( 
 
     <View style={[styles.container]} >
@@ -218,7 +258,7 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl}) => {
       <Pulse pos={currPosF} colors={rotateColors(currentNode.colors, currentNode.rot)} GOGOGO={pulser} diameter = {currentNode.diameter} />
       <Cursor node={currentNode} currPoint={point(currX, currY)} triggerPulser={triggerPulser} detectMatch = {detectMatch} intervalId={intervalId} />
 
-      <GridView board={getBoard()} afterUpdate={updateAfterLayout} height={height} won={win} tutorial={tutorial}/>
+      <GridView board={getBoard()} afterUpdate={updateAfterLayout} height={height} won={win} />
       {/*getBoard().gameType==='tutorial' ? <Tooltip level={l}/> : null*/}
 
       {loadingWall}

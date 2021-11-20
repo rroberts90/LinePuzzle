@@ -41,7 +41,7 @@ function AfterGameScreen({ navigation, route }) {
             <View style={styles.bar2}/>        
 
             <BackButton onPress={() => { play('paper'); navigation.navigate('colorflush') }} />
-            <PlayButton navigation={navigation} title={'timed'} borderColor={colorScheme.two} disabled={false} toggleDisabled={() => null}   text={'play again'}/>
+            <PlayButton navigation={navigation} title={gameType} borderColor={colorScheme.two} disabled={false} toggleDisabled={() => null}   text={'play again'}/>
         </View>);
 }
 function ScoresScreen({ navigation }) {
@@ -49,11 +49,7 @@ function ScoresScreen({ navigation }) {
     const [timed, setTimed] = useState('-');
     const { play } = useSound();
 
-    getItem('puzzles').then(val => {
-        if (val && val > 0) {
-            setPuzzles(val);
-        }
-    });
+
     getItem('timedScore').then(val => {
         if (val && val > 0) {
             setTimed(val);

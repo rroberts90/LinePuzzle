@@ -3,29 +3,24 @@ import { View,Text, StyleSheet, SafeAreaView } from 'react-native';
 import Header from './Header';
 import useInterval from "./useInterval";
 
+const defaultMoves = 60;
 const defaultBackground = 'rgba(248,248,255,1)';
 
-const Timer = ({onFinish, level, time, setTime}) => {
-    //const [score, setScore] = useState(0);
-    //console.log(time);
-    const isFinished = time <=0;
+const Mover = ({onFinish, level, moves}) => {
+    //const [prevCount, setPrevCount]= useState(()=> visitedNodes);
+
+
     useEffect(()=> {
-        if(isFinished){
-        onFinish('timed',level);
 
+        if(defaultMoves-moves <= 0 ){
+             onFinish('moves',level);
         }
 
-    }, [isFinished]);
+    }, [moves]);
     
-    useInterval(()=>{
 
-        setTime(t=> t-1);
-        if(time <= 0){
-            return;
-        }
-    }, 1000);
     return (
-        <Header title1={'Time'} item1={time} title2={'Score'} item2={level}/>
+        <Header title1={'Moves'} item1={defaultMoves - moves} title2={'Score'} item2={level}/>
  );   
 }
 
@@ -83,4 +78,4 @@ const styles = StyleSheet.create({
 
 });
 
-export default Timer;
+export default Mover;

@@ -9,7 +9,7 @@ const Cursor = (props) => {
     const [endPoint, setEndPoint] = useState(null);
 
     const pan = useRef(new Animated.ValueXY()).current;
-    const {play, reset} = useSound();
+    const {play} = useSound();
 
     
     const panResponder = useRef(

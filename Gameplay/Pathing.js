@@ -2,9 +2,8 @@ import {  rotateArray, randInt, rotateColors, logGridPos} from '../Utils';
 import { getItems } from '../Storage';
 import solutionChecker from './SolutionChecker'
 import getCriteria from './Criteria'
-let nodesVisited = 0;
 let logger = [];
-
+let falsePathCount = 10; 
 const randomizeColors = (colors) => {
     const ndxArr = colors.map((val, ndx) => ndx);
     return colors.map(() => {
@@ -105,17 +104,26 @@ const addLink = (node, otherNode) => {
     }
 }
 
-
+// call after solution is found
+const addBoosters = (board, criteria) => { 
+    board.grid.forEach(row=> row.forEach(node=> {
+        if(canAddBooster(node, board, criteria, false)) {
+            node.special = 'booster';
+            criteria.boosters--;
+        }
+    }));
+}
 
 const setupSpecialNodes = (board, criteria) => {
     const outcomes = [1];
     const dist = makeRandomDistribution(criteria.freezer, outcomes );
     const rotateCCDist = makeRandomDistribution(criteria.rotateCC, outcomes);
     let addedRotateCC = false;
+     
     board.grid.forEach((row) => row.forEach(node => {
         if (node.links.length > 0 && node !== board.start && node !== board.finish) {
             const freezer = getRandomElement(dist);
-            if (freezer) {
+            if (freezer && node.symbol != null) {
                 node.special = 'freezer';
             }
         }
@@ -133,7 +141,7 @@ const setupSpecialNodes = (board, criteria) => {
 }
 // call after setupSymbols
 const setupLinkedNeighbors = (board, criteria) => {
-    const outcomes = [1,1,1,2,2,3,4]; // number of links. fewer links more likely
+    const outcomes = [1,1,1,1,1,2,2,3]; // number of links. fewer links more likely
     const dist = makeRandomDistribution(criteria.directLinks, outcomes );
     
     let counter = 0;
@@ -211,30 +219,67 @@ const getFalseFinish = (board, maxLength)  => {
        return falseFinish;
 }
 // random node between start or finish
-const getFalseStart = (board) => {
-    const firstHalf = board.solution.length - 5;
-    return board.solution[randInt(1,firstHalf)];
+const getToFalseStart = (board) => {
+    const maxNdx = board.solution.length - 4;
+    const ndx = randInt(1,maxNdx);
+    const start =  board.solution[ndx];
+
+    // now get the board into position
+    for(let i = 0;i <= ndx;i++ ) {
+        board.visitNode(board.solution[i]);
+    }
+    return start;
+
 }
 
+const setupFalsePath2 = (board, criteria) => {
+    falsePathCount--;
+    if(falsePathCount < 0){
+        return;
+    }
+
+}
+
+const canAddBooster  = (node, board, criteria, excludeSolution) => { 
+    if(criteria.boosters > 0 && 
+        criteria.gameType !== 'endless' && 
+        node.special === null && 
+        node.symbol === null &&
+        node !== board.start &&
+        node !== board.finish
+        )
+         {
+            return true;
+        }
+    else  {
+        return false;
+    }
+
+}
 // assumes solution has already been found
 const setupFalsePaths = (board, criteria) => { 
     
-    const {start, finish} = board;
     const maxLength  = criteria.maxFalsePathLength || 5;
 
-    Array.from({length: criteria.falsePaths}, ()=> {
-        const falseStart = getFalseStart(board); 
-        board.start = falseStart;
+  //  console.log('\nsetting up false paths');
+    let totalBooster = 5;
+     criteria.boosters = 0;
 
-        //logGridPos('False Start', board.start.gridPos);
+    Array.from({length: criteria.falsePaths}, ()=> {
+        if(criteria.boosters === 0){ // only make 1 booster per path
+            totalBooster--;
+            if(totalBooster > 0) {
+                criteria.boosters  = 1;
+            }
+
+        }
+        const falseStart = getToFalseStart(board); 
         criteria.onFalsePath = true;
         criteria.steps = 0;
         criteria.maxFalsePathLength = randInt(maxLength/2, maxLength+1);
         pathFinder(board, criteria);
         criteria.maxFalsePathLength = maxLength;
-        board.start = start;
         board.resetGrid();
-
 
     });
     criteria.onFalsePath = false;
@@ -331,7 +376,7 @@ const setupGrid = (board, gameType, level) => {
         const defaultDifficulty = 2;
 
        getItems('level', 'difficulty').then(vals=>{
-            const diff =  parseInt(vals[1][1]);
+            const diff =  vals[1][1] === 'true' ? true : false;
             const level =parseInt(vals[0][1]);
             setupGame(board, getCriteria(gameType, level, diff) );
 
@@ -389,8 +434,10 @@ const setupGame = (board, criteria) => {
 
    }
 
+    
     setupFalsePaths(board, criteria);
     solutionChecker(board);
+
     board.resetGrid();
     const t2 = Date.now();
     /*console.log(`---------\ntotal time to setup grid: ${t2- t1} milliseconds`);
@@ -403,7 +450,7 @@ const visit = (board, visitedNodes, candidate, criteria) => {
 
     board.visitedNodes = [...visitedNodes, candidate];
     candidate.fixed = true;
-    if(candidate.special == 'freezer'){
+    if(candidate.special === 'freezer'){
         candidate.links.forEach(node=> node.frozen++);
 
     }else {
@@ -500,13 +547,17 @@ const mismatchLastNodes = (board) => {
         }
     });
 }
+
 const pathFinder = (board, criteria) => {
     const { visitedNodes, finish } = board;
     const curr = visitedNodes[visitedNodes.length - 1];
 
     if(criteria && criteria.onFalsePath) {
         criteria.steps++;
-
+        if(criteria.steps > 2 && canAddBooster(curr, board, criteria, true)) {
+            criteria.boosters--;
+            curr.special = 'booster';
+        }
         if(criteria.steps >= criteria.maxFalsePathLength) {
             return true; 
         }
