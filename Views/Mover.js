@@ -1,26 +1,42 @@
-import  React, {useState, useEffect} from 'react';
-import { View,Text, StyleSheet, SafeAreaView } from 'react-native';
+import  React, {useState, useEffect, useRef} from 'react';
+import { View,Text, StyleSheet, SafeAreaView, Animated, Easing } from 'react-native';
 import Header from './Header';
 import useInterval from "./useInterval";
 
-const defaultMoves = 60;
+const defaultMoves = 25;
 const defaultBackground = 'rgba(248,248,255,1)';
-
+const defaultSize = 1;
 const Mover = ({onFinish, level, moves}) => {
     //const [prevCount, setPrevCount]= useState(()=> visitedNodes);
-
+    const [prevMoves, setPrevMoves]= useState(()=> moves);
+    
+    const fontAnim = useRef(new Animated.Value(1)).current;
 
     useEffect(()=> {
-
+        if(moves < prevMoves) { 
+            // added moves
+            Animated.sequence([
+                Animated.timing(fontAnim, {
+                    toValue: 1.5,
+                    isInteraction: false,
+                    useNativeDriver: true,
+                    duration: 500,
+                    easing: Easing.linear
+                }),
+                Animated.spring(fontAnim, {toValue: defaultSize, useNativeDriver: true })
+            ]).start();
+        }
         if(defaultMoves-moves <= 0 ){
              onFinish('moves',level);
         }
 
+
+        setPrevMoves(moves);
     }, [moves]);
     
 
     return (
-        <Header title1={'Moves'} item1={defaultMoves - moves} title2={'Score'} item2={level}/>
+        <Header title1={'Moves'} item1={defaultMoves - moves} title2={'Score'} item2={level} fontAnim={fontAnim}/>
  );   
 }
 

@@ -15,11 +15,10 @@ const defaultBackground = 'rgba(248,248,255,1)';
 function AfterGameScreen({ navigation, route }) {
     const { play } = useSound();
 
-
     const { gameType, score } = route.params;
     const [high, setHigh] = useState(score);
     const itemName = `${gameType}Score`;
-  
+    console.log(itemName);
     getItem(itemName).then(val => {
         setHigh(val);
 

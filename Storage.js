@@ -43,7 +43,7 @@ const storeItem = async (key,value) => {
 
   const levelUp = (gameType, localLevel) => {
     const itemName = `${gameType}Score`;
-
+    console.log(itemName);
     if(gameType === 'timed' || gameType === 'moves') {
       getItem(itemName).then(score=> {
 

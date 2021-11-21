@@ -1,15 +1,16 @@
 import  React from 'react';
-import { View,Text, StyleSheet, SafeAreaView } from 'react-native';
+import { View,Text, StyleSheet, SafeAreaView, Animated } from 'react-native';
 const defaultBackground = 'rgba(248,248,255,1)';
 
-const Header = ({title1,item1,title2, item2}) => {
-
+const Header = ({title1,item1,title2, item2, fontAnim}) => {
     return (
         <SafeAreaView style={styles.box2}>
 
         <View style={styles.duo}>
             <Text style={styles.header}>{title1} </Text>
-            <Text style={styles.timetext}>{item1}</Text>
+            <Animated.View style={[styles.timetext, {transform: [{scale: fontAnim}]}]}>
+                <Text style={styles.timetext}>{item1} </Text>
+                </Animated.View>
         </View>
         <View style={[styles.duo]}>
             <Text style={styles.header}>{title2} </Text>

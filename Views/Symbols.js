@@ -1,5 +1,5 @@
 import React, { useEffect,useState, useRef, forwardRef } from 'react'
-import {StyleSheet, View, Animated,Easing, Image, Text} from 'react-native'
+import {StyleSheet, View, Animated,Easing, Image, Text, useWindowDimensions} from 'react-native'
 
 import { distance, centerOnNode, point, convertToLayout } from '../Utils'
 import {getItem} from '../Storage'
@@ -282,6 +282,45 @@ else{
   }
 
   const Special = ({node}) => {
+    const [booster, setBooster] = useState(null);
+    const moveAnim = useRef(new Animated.ValueXY(0,0)).current;
+    const sizeAnim = useRef(new Animated.Value(1)).current;
+    const fadeAnim = useRef(new Animated.Value(1)).current;
+
+    const windowWidth = useWindowDimensions().width;
+
+    useEffect(()=>{
+      if(node.special === 'booster'){
+        setBooster(true);
+      }
+    },[]);
+    useEffect(()=>{
+      if(!node.special  && booster){
+        const speed = 20;
+        const time = (node.pos.y / speed) * 100;
+        Animated.parallel([
+          Animated.timing(fadeAnim,{
+          duration: 500,
+          toValue: 0,
+          isInteraction: false,
+          useNativeDriver: true,
+          Easing: Easing.quad
+        }),
+         Animated.timing(sizeAnim, {
+          duration: 500,
+          toValue: 2,
+          isInteraction: false,
+          useNativeDriver: true,
+          Easing: Easing.quad
+         })
+      
+      ]).start(finished=> setBooster(false));
+      }
+      else if(!booster && node.special === 'booster'){
+        setBooster(true);
+      }
+    }, [node.special]);
+
       if(node.special === 'freezer') {
           const source = require('../Icons/freezePattern5.png');
           return null; //<Image style={[styles.special, styles.freezePattern, {borderRadius: node.diameter/2}]} source={source}/>
@@ -289,8 +328,12 @@ else{
         const source = require('../Icons/rotateCC3.png');
         return <Image style={[styles.special, {height:'100%',width:'100%', opacity: 1}]} source={source}/>;
 
-      }else if(node.special ==='booster') { 
-        return <Text style={styles.booster}>+5 </Text>;
+      }else if(booster) { 
+        return (<Animated.View style={[styles.booster,{transform:[{scale:sizeAnim}], opacity: fadeAnim}]}>
+            <Text style={styles.boosterPlus}>+</Text>
+            <Text style={styles.boosterText}>5</Text>
+        
+        </Animated.View>);
       }
       return null;
   }
@@ -328,10 +371,24 @@ else{
       freezePattern: {
         opacity: .25
       },
-      booster: 
+      booster: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        left: -2
+      },
+      boosterPlus: 
+      {
+        fontSize: 15,
+        alignSelf: 'center',
+        marginBottom: 1
+
+      },
+      boosterText: 
       {
         fontSize: 25,
         alignSelf: 'center'
+
       }
 
   });

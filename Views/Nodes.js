@@ -44,7 +44,7 @@ const borderStyles = (colors) => {
   const borderSize = (diameter)=> {
     return {
       borderRadius: diameter / 2,
-      borderWidth: Math.floor(diameter / 6)
+      borderWidth: Math.floor(diameter / 6) + .5
     }
   }
 
@@ -53,7 +53,7 @@ const borderStyles = (colors) => {
         width: diameter,
         height: diameter,
         borderRadius: diameter / 2,
-        borderWidth: Math.floor(diameter / 6)
+        borderWidth: Math.floor(diameter / 6) + .5
       };
   }
 
@@ -144,6 +144,7 @@ const NodeView = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     },[props.node.rot]);
 
+
     const colorStyles = borderStyles(props.node.colors);
    const arrowNodes = props.node.neighbors.filter(neighbor=> shouldAddArrow(props.node, neighbor) );
     
@@ -166,7 +167,7 @@ const NodeView = (props) => {
 
    }}
        >
-      <Image source={require('../Icons/nodeTexture4.png')} style={{ position: 'absolute',width:'100%', height:'100%', borderRadius:props.node.diameter/2, opacity: .4}} />
+      <Image source={require('../Icons/nodeTexture4.png')} style={{ position: 'absolute',width:'100%', height:'100%', borderRadius:props.node.diameter/2, opacity: .35}} />
      <Special node={props.node}/>
      <Symbol group= {props.node.symbol} diameter ={props.node.diameter} frozen ={props.node.frozen} freezer= {props.node.special==='freezer'}/>
      <Frozen node={props.node} rotAnim={rotAnim}/>

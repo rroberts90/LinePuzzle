@@ -145,7 +145,7 @@ const Game = ({ navigation, route }) => {
 
   if (!saveLoaded) {
     return (<>
-      <Header />
+      <Header fontAnim={1}/>
       <BackButton onPress={() => navigation.navigate('colorflush')} />
     </>);
   }
@@ -184,7 +184,7 @@ const Game = ({ navigation, route }) => {
       <Timer onFinish={onFinish} level={level}  time = {time} setTime= {setTime}/> : 
       gameType === 'moves'? 
       <Mover onFinish= {onFinish} level = {level} moves={moves}/> : 
-      <Header/>
+      <Header fontAnim={1}/>
     }
     <BackButton onPress={() => { 
       play('paper'); 

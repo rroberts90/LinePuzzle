@@ -4,17 +4,17 @@ const puzzle1 = { group: .5,
     freezer: .2, 
     rotateCC: .1,
      falsePaths: 7, 
-     minLength: 20, 
+     minLength: 15, 
      maxFalsePathLength: 15, 
      maxLength: 100, 
      circles: 2 
  }
  const puzzle2 = { group: .5, 
-    directLinks: .3, 
+    directLinks: .4, 
     freezer: .1, 
     rotateCC: .1,
      falsePaths: 7, 
-     minLength: 20, 
+     minLength: 18, 
      maxFalsePathLength: 15, 
      maxLength: 100, 
      circles: 2 
@@ -26,12 +26,13 @@ const getCriteria = (gameType, level, difficulty) => {
     console.log(` Difficulty level: ${difficulty}`);*/
 
     if(gameType === 'endless' && !difficulty) {
+        puzzle2.gameType = 'endless';
         return puzzle2;
     }
 
     else if(gameType ==='timed' || gameType === 'moves') {
         return { group: .5, 
-            directLinks: .2, 
+            directLinks: .4, 
             freezer: .2, 
             rotateCC: .1,
              falsePaths: 7, 
