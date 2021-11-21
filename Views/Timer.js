@@ -27,9 +27,15 @@ const Timer = ({onFinish, level, time, setTime}) => {
                     isInteraction: false,
                     useNativeDriver: true,
                     duration: 500,
-                    easing: Easing.linear
+                    easing: Easing.in(Easing.quad)
                 }),
-                Animated.spring(fontAnim, {toValue: defaultSize, useNativeDriver: true })
+                Animated.timing(fontAnim, {
+                    toValue: 1,
+                    isInteraction: false,
+                    useNativeDriver: true,
+                    duration: 500,
+                    easing: Easing.out(Easing.quad)
+                })  
             ]).start();
         }
         setPrevTime(time);

@@ -35,7 +35,7 @@ function SettingsScreen({ navigation, route }) {
     const color = colorScheme.four;
 
     const [soundOn, toggleSound] = useState(null);
-  
+
     const [board, toggleBoard] = useState(null);
 
     const [vibrate, toggleVibrate] = useState(null);
@@ -99,74 +99,74 @@ function SettingsScreen({ navigation, route }) {
 
     return (
         <>
-        <SafeAreaView style={styles.container}>
-            <Text style={styles.topHeader}> Settings </Text>
-            <View style={styles.bar}/>
+            <SafeAreaView style={styles.container}>
+                <Text style={styles.topHeader}> Settings </Text>
+                <View style={styles.bar} />
 
-            <View style={styles.line}>
-            <Text style={styles.headerText}> endless mode:    </Text>
-            <Selector toggle={difficulty} color={colorScheme.four} text1={'normal'} text2={'puzzle'} press1={() => { toggleDifficulty(true); play('connect'); }} press2={() => { toggleDifficulty(false); play('connect'); }} />
-            </View>
+                <View style={styles.line}>
+                    <Text style={styles.headerText}> endless mode:    </Text>
+                    <Selector toggle={difficulty} color={colorScheme.four} text1={'normal'} text2={'puzzle'} press1={() => { toggleDifficulty(true); play('connect'); }} press2={() => { toggleDifficulty(false); play('connect'); }} />
+                </View>
 
-            <View style={styles.line}>
+                <View style={styles.line}>
 
-            <Text style={styles.headerText}> maze size: </Text>
-            <Selector toggle={board} color={colorScheme.four} text1={'4x6'} text2={'5x7'} press1={() => { toggleBoard(true); play('connect'); }} press2={() => { toggleBoard(false); play('connect'); }} />
-            </View>
+                    <Text style={styles.headerText}> maze size: </Text>
+                    <Selector toggle={board} color={colorScheme.four} text1={'4x6'} text2={'5x7'} press1={() => { toggleBoard(true); play('connect'); }} press2={() => { toggleBoard(false); play('connect'); }} />
+                </View>
 
-            <View style={styles.bar}/>
-          
-            <View style={styles.line}>
-            <Text style={styles.headerText}> sound:    </Text>
-            <Selector toggle={soundOn} color={colorScheme.four} text1={'on'} text2={'off'} press1={() => { toggleSound(true); play('connect'); }} press2={() => toggleSound(false)} />
-            </View>
+                <View style={styles.bar} />
 
-            <View style={styles.line}>
-            <Text style={styles.headerText}> vibrate:   </Text>
-            <Selector toggle={vibrate} color={colorScheme.four} text1={'on'} text2={'off'} press1={() => { toggleVibrate(true); play('connect'); }} press2={() => { toggleVibrate(false); play('connect'); }} />
-            </View>
-           
-            <View style={styles.bar}/>
+                <View style={styles.line}>
+                    <Text style={styles.headerText}> sound:    </Text>
+                    <Selector toggle={soundOn} color={colorScheme.four} text1={'on'} text2={'off'} press1={() => { toggleSound(true); play('connect'); }} press2={() => toggleSound(false)} />
+                </View>
 
-  
-            <View style={styles.line}>
-            <Text style={styles.headerText}> display:  </Text>
-            <View style={{ flexDirection: 'column' }}>
-                <Pressable style={[styles.toggle, styles.toggleLeft, styles.toggleColorFour, styles.iconContainer]} onPress={() => { play('connect'); setDisplay('shapes') }}>
-                    <View style={display === 'shapes' ? styles.selectedFour : null} />
-                    <DisplayImage source={getSymbolSource(1)} />
-                    <DisplayImage source={getSymbolSource(2)} />
-                    <DisplayImage source={getSymbolSource(3)} />
-                    <DisplayImage source={getSymbolSource(4)} />
-                </Pressable>
-                <Pressable style={[styles.toggle, styles.toggleColorFour, styles.iconContainer]} onPress={() => { play('connect'); setDisplay('impossible') }}>
-                    <View style={display === 'impossible' ? styles.selectedFour : null} />
-                    <DisplayImage source={getImpossibleSource(1)} />
-                    <DisplayImage source={getImpossibleSource(2)} />
-                    <DisplayImage source={getImpossibleSource(3)} />
-                    <DisplayImage source={getImpossibleSource(4)} />
-                </Pressable>
-                <Pressable style={[styles.toggle, styles.toggleLeft,styles.toggleColorFour, styles.iconContainer]} onPress={() => { play('connect'); setDisplay('glyphs') }}>
-                    <View style={display === 'glyphs' ? styles.selectedFour : null} />
-                    <DisplayImage source={getGlyphSource(1)} />
-                    <DisplayImage source={getGlyphSource(2)} />
-                    <DisplayImage source={getGlyphSource(3)} />
-                    <DisplayImage source={getGlyphSource(4)} />
-                </Pressable>
-                <Pressable style={[styles.toggle, styles.toggleRight, styles.toggleColorFour, styles.iconContainer]} onPress={() => { play('connect'); setDisplay('seaAnimal') }}>
-                    <View style={display === 'seaAnimal' ? styles.selectedFour : null} />
-                    <DisplayImage source={getAnimalSource(1)} />
-                    <DisplayImage source={getAnimalSource(2)} />
-                    <DisplayImage source={getAnimalSource(3)} />
-                    <DisplayImage source={getAnimalSource(4)} />
-                </Pressable>
-            </View>
-            </View>
+                <View style={styles.line}>
+                    <Text style={styles.headerText}> vibrate:   </Text>
+                    <Selector toggle={vibrate} color={colorScheme.four} text1={'on'} text2={'off'} press1={() => { toggleVibrate(true); play('connect'); }} press2={() => { toggleVibrate(false); play('connect'); }} />
+                </View>
 
-            <Text> Version .95 </Text>
-            <Button title='Clear User Data' style={{ marginTop: 100 }} onPress={() => clearAll()} />
-        </SafeAreaView>
-        <BackButton onPress={() => { play('paper'); navigation.navigate('colorflush') }} />
+                <View style={styles.bar} />
+
+
+                <View style={styles.line}>
+                    <Text style={styles.headerText}> display:  </Text>
+                    <View style={{ flexDirection: 'column' }}>
+                        <Pressable style={[styles.toggle, styles.toggleLeft, styles.toggleColorFour, styles.iconContainer]} onPress={() => { play('connect'); setDisplay('shapes') }}>
+                            <View style={display === 'shapes' ? styles.selectedFour : null} />
+                            <DisplayImage source={getSymbolSource(1)} />
+                            <DisplayImage source={getSymbolSource(2)} />
+                            <DisplayImage source={getSymbolSource(3)} />
+                            <DisplayImage source={getSymbolSource(4)} />
+                        </Pressable>
+                        <Pressable style={[styles.toggle, styles.toggleColorFour, styles.iconContainer]} onPress={() => { play('connect'); setDisplay('impossible') }}>
+                            <View style={display === 'impossible' ? styles.selectedFour : null} />
+                            <DisplayImage source={getImpossibleSource(1)} />
+                            <DisplayImage source={getImpossibleSource(2)} />
+                            <DisplayImage source={getImpossibleSource(3)} />
+                            <DisplayImage source={getImpossibleSource(4)} />
+                        </Pressable>
+                        <Pressable style={[styles.toggle, styles.toggleLeft, styles.toggleColorFour, styles.iconContainer]} onPress={() => { play('connect'); setDisplay('glyphs') }}>
+                            <View style={display === 'glyphs' ? styles.selectedFour : null} />
+                            <DisplayImage source={getGlyphSource(1)} />
+                            <DisplayImage source={getGlyphSource(2)} />
+                            <DisplayImage source={getGlyphSource(3)} />
+                            <DisplayImage source={getGlyphSource(4)} />
+                        </Pressable>
+                        <Pressable style={[styles.toggle, styles.toggleRight, styles.toggleColorFour, styles.iconContainer]} onPress={() => { play('connect'); setDisplay('seaAnimal') }}>
+                            <View style={display === 'seaAnimal' ? styles.selectedFour : null} />
+                            <DisplayImage source={getAnimalSource(1)} />
+                            <DisplayImage source={getAnimalSource(2)} />
+                            <DisplayImage source={getAnimalSource(3)} />
+                            <DisplayImage source={getAnimalSource(4)} />
+                        </Pressable>
+                    </View>
+                </View>
+
+                <Text> Version .95 </Text>
+                <Button title='Clear User Data' style={{ marginTop: 100 }} onPress={() => clearAll()} />
+            </SafeAreaView>
+            <BackButton onPress={() => { play('paper'); navigation.navigate('colorflush') }} />
 
         </>
     );
@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         marginVertical: 10,
         justifyContent: 'flex-end',
-        
+
     },
     container: {
         flex: 1,
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     },
     topHeader: {
         fontSize: 40,
-        alignSelf: 'center',        
+        alignSelf: 'center',
         marginVertical: 10
     },
 
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row', flexWrap: 'wrap', width: 140
     },
     iconContainer:
-        {  flexDirection: 'row', flexWrap: 'wrap' },
+        { flexDirection: 'row', flexWrap: 'wrap' },
     bar: {
         width: '96%',
         borderRadius: 20,

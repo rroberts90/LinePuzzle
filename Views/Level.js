@@ -10,6 +10,7 @@ import useInterval from './useInterval.js';
 import { levelUp, getItem} from '../Storage';
 import useSound from '../Sounds'
 import Tooltip from './Tooltip'
+import {Arrows} from './Symbols'
 
 const displaySolution = (solution) => {
   return solution.slice(1).map((node,i)=> {
@@ -105,18 +106,6 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
    const prevNode = node;
    setCurrentNode(next);
 
-
-   if(next.special === 'booster') {
-      setMoves(moves=> moves- 5);
-      setTime(time => time+5);
-      next.special = null;
-      setMoves(moves=> moves+1);
-
-   }else{
-    setMoves(moves=> moves+1);
-
-   }
-
    const updatedEndPoint = centerOnNode(next.pos, next.diameter);
 
   const seg = {
@@ -151,6 +140,16 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
     play(hint ? 'button' : 'connect');
 
    }
+   if(next.special === 'booster') {
+    setMoves(moves=> moves- 5);
+    setTime(time => time+5);
+    next.special = null;
+    setMoves(moves=> moves+1);
+
+ }else{
+  setMoves(moves=> moves+1);
+
+ }
 
   };
 
@@ -257,11 +256,13 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
 
     <View style={[styles.container]} >
 
+<Arrows  grid={getBoard().grid}/>
+
       <UserPath segments={lineSegments.current} fades={fadeSegments.current} />
          
       <Pulse pos={currPosF} colors={rotateColors(currentNode.colors, currentNode.rot)} GOGOGO={pulser} diameter = {currentNode.diameter} />
-      <Cursor node={currentNode} currPoint={point(currX, currY)} triggerPulser={triggerPulser} detectMatch = {detectMatch} intervalId={intervalId} />
 
+      <Cursor node={currentNode} currPoint={point(currX, currY)} triggerPulser={triggerPulser} detectMatch = {detectMatch} intervalId={intervalId} />
       <GridView board={getBoard()} afterUpdate={updateAfterLayout} height={height} won={win} />
       {/*getBoard().gameType==='tutorial' ? <Tooltip level={l}/> : null*/}
 
@@ -287,7 +288,8 @@ const styles = StyleSheet.create({
     flex:1,
     flexDirection: "row",
     justifyContent: "space-between",
-    width:"100%"
+    width:"100%",
+    backgroundColor: 'rgba(248,248,255,1)'
   },
   titleText: {
     fontSize: 14,
@@ -312,16 +314,6 @@ const styles = StyleSheet.create({
     width: '100%',
     padding: 0,
     margin: 0,
-  },
-  
-  testSize: {
-    position: "absolute",
-    width: 58.5,
-    height: 58.5,
-    borderRadius: 58.5 / 2,
-    borderWidth:58.5 / 6,
-    backgroundColor: "lightgrey",
-    zIndex: 10
   },
   dot: {
     width:50,

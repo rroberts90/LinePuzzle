@@ -92,22 +92,22 @@ const getSymbolSource = (group)=> {
     let source = '';
     switch(arrow)  {
       case 0: 
-        source = require('../Icons/ArrowUp1.png');
+        source = require('../Icons/upArrow5.png');
         break;
       case 1:
-        source = require('../Icons/ArrowRight1.png');
+        source = require('../Icons/rightArrow5.png');
         break;
       case 2:
-          source = require('../Icons/ArrowDown1.png');
+          source = require('../Icons/downArrow5.png');
           break;  
       case 3:
-          source = require('../Icons/ArrowLeft1.png');
+          source = require('../Icons/leftArrow5.png');
           break;  
       case 4: // bidirectional horizontal
-        source = require('../Icons/ArrowBiHorizontal1.png');
+        source = require('../Icons/bidirectional5.png');
         break; 
       case 5: // bidirectional vertical
-        source = require('../Icons/ArrowBiVertical1.png');
+        source = require('../Icons/bidirectionalVertical5.png');
         break; 
     }
     return source;
@@ -146,6 +146,7 @@ const getSymbolSource = (group)=> {
     const diameter = startNode.diameter
     const middleX = startNode.diameter /2;
     const middleY = startNode.diameter /2;
+   
     let pos;
     let type;
 
@@ -170,20 +171,38 @@ const getSymbolSource = (group)=> {
     }
     return {pos, type};
   }
+  const positionArrow2 = (startNode, endNode, width, height) => {
+    const radius = startNode.diameter /2;
+    const diameter = startNode.diameter;
+    let pos;
+    let type;
 
-  const topOrLeft = (pos) => {
-    if(pos.x ===0) {
-        return {top:pos.y}
-    }else{
-        return {left:pos.x}
+    if(startNode.gridPos.row === endNode.gridPos.row) {
+
+      if(startNode.gridPos.col < endNode.gridPos.col) {  // right arrow
+            pos = point(diameter+ArrowPadding/2, radius - height/2);
+            type = 1;
+        }else { // left arrow
+            pos = point(-width - ArrowPadding/2, radius-height/2);
+            type = 3;
+        }
+    } else {
+        if(startNode.gridPos.row > endNode.gridPos.row) {  // down arrow
+            pos = point(radius-width/2, -height - ArrowPadding/2);
+            type = 0;
+        }else { // up arrow
+            pos = point(radius-width/2, diameter + ArrowPadding/2 );
+            type = 2;
+        }
     }
-}
+    return {pos, type};
+  }
 
   const getArrowDims = (startNode, endNode) => {
     // two cases vertical  and horizontal
     let width;
     let height;
-    const thickness = startNode.diameter / 3;
+    const thickness = startNode.diameter / 4;
     if( startNode.gridPos.row !== endNode.gridPos.row) { // vertical
         height =  Math.abs(Math.abs(startNode.pos.y - endNode.pos.y)- startNode.diameter) -ArrowPadding;
         width = thickness;
@@ -199,21 +218,52 @@ const getSymbolSource = (group)=> {
     return {width, height};
   }
 
-  const shouldAddArrow = (node, neighbor) => {
-    if(node.links.includes(neighbor)){
-      // if link exists and node has no symbol always draw link. 
-      if(!node.symbol){
-        return true;
-      }
-      if(node.symbol !== neighbor.symbol) { // matches symbols already tells user nodes are linked.
-        return true;
-      } else {
-        return false;
-      }
-  
-    }else{
+const shouldAddArrow = (node, neighbor) => {
+  if (node.links.includes(neighbor)) {
+    // if link exists and node has no symbol always draw link. 
+    if (!node.symbol) {
+      return true;
+    }
+    if (node.symbol !== neighbor.symbol) { // matches symbols already tells user nodes are linked.
+      return true;
+    } else {
       return false;
     }
+
+  }
+  else {
+    return false;
+  }
+}
+
+  const FixedArrow = ({node, linkedNode}) => {
+    const {width, height} = getArrowDims(node, linkedNode);
+
+    let {pos, type} = positionArrow2(node, linkedNode,width,height);
+    pos = point(pos.x + node.pos.x, pos.y + node.pos.y);
+   
+    
+    if(linkedNode.links.includes(node)) {
+      if (node.gridPos.row === linkedNode.gridPos.row) { 
+          type = 4;
+          if(node.gridPos.col > linkedNode.gridPos.col) { // only 1 node needs to render bidirectional
+            return null;
+          }
+      }else{
+          type = 5;
+          if(node.gridPos.row > linkedNode.gridPos.row) {// only 1 node needs to render bidirectional
+            return null;
+          }
+      }
+  }
+  const source = getArrowSource(type);
+
+    return <Image style={[styles.arrow,  
+      StyleSheet.absoluteFill,
+      arrowStyles(width,height), 
+      convertToLayout(pos)]} 
+      source={source} /> ;
+
   }
 
   const Arrow = ({node, linkedNode, rotAnim}) => {
@@ -254,21 +304,28 @@ else{
   }
 
   const Arrows = ({grid}) => {
-    const flat = grid.reduce((flat, row) => [...flat, ...row]);
     
-    const arrows = flat.reduce((arrowList,node)=> 
-    {
-        const arrowNeighbors = node.neighbors.filter(neighbor=> 
-            shouldAddArrow(node, neighbor));
-        
-        return [...arrowList, ...arrowNeighbors.map(neighbor=> {
-            return {node: node, neighbor: neighbor }
+     
+      const flat = grid.reduce((flat, row) => [...flat, ...row]);
+
+      const arrows = flat.reduce((arrowList, node) => {
+        const arrowNeighbors = node.neighbors.filter(neighbor =>
+          shouldAddArrow(node, neighbor));
+        return [...arrowList, ...arrowNeighbors.map(neighbor => {
+          return { node: node, neighbor: neighbor }
         })];
-    });
-    
-    return (<View style={{position:'absolute'}}> 
+      }, []);
+
+  
+  
+    useEffect(()=> {
+      
+      //console.log(arrows);
+    }, 
+      []);
+    return (<View style={{position:'absolute', height:'100%', width: '100%'}}> 
         {
-            arrows.map((arrow, i)=> <Arrow node={arrow.node} linkedNode= {arrow.neighbor} key={i} />) 
+            arrows.map((arrow, i)=> <FixedArrow node={arrow.node} linkedNode= {arrow.neighbor} key={i} />) 
         }
       </View>);
   }
@@ -357,7 +414,7 @@ else{
           resizeMode:'stretch',
           borderColor: 'black',
           borderWidth:0,
-          zIndex:0
+          zIndex:0,
       },
       arrowWrapper: {
           position:'absolute'

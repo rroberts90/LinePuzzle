@@ -11,6 +11,7 @@ import Mover from './Views/Mover';
 import Header from './Views/Header'
 import useSound from './Sounds';
 import { BackButton } from './Views/NavigationButtons';
+const defaultBackground = 'rgba(248,248,255,1)';
 
 const Duration = 1500;
 
@@ -150,7 +151,7 @@ const Game = ({ navigation, route }) => {
     </>);
   }
   return (<>
-    <Animated.View style={{ position: 'absolute', height: '100%', width: '100%', transform: [{ translateY: translateYAnim1 }] }}>
+    <Animated.View style={{ position: 'absolute', height: '100%', width: '100%', backgroundColor: defaultBackground,transform: [{ translateY: translateYAnim1 }] }}>
 
       <Level onWin={setLevel} 
              getBoard={() => getBoard(board1)} 
@@ -163,7 +164,7 @@ const Game = ({ navigation, route }) => {
              setTime={setTime} />
     </Animated.View>
 
-    <Animated.View style={{ position: 'absolute', height: '100%', width: '100%', transform: [{ translateY: translateYAnim0 }] }}>
+    <Animated.View style={{ position: 'absolute', height: '100%', width: '100%',backgroundColor: defaultBackground, transform: [{ translateY: translateYAnim0 }] }}>
 
 
     <Level onWin={setLevel} 

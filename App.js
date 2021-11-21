@@ -17,9 +17,9 @@ function HomeScreen({ navigation }) {
    // const [board, toggleBoard] = useState(false);
     return (
         <View style={[styles.defaultBackground,{ flex: 1, alignItems: 'center', justifyContent: 'center' }]}>
-            <PlayButton navigation = {navigation} title={'moves'} borderColor={colorScheme.one} disabled={disabled} toggleDisabled= {toggleDisabled}/>
-            <PlayButton navigation = {navigation} title={'timed'} borderColor={colorScheme.two} disabled={disabled} toggleDisabled= {toggleDisabled}/>
-            <PlayButton navigation = {navigation} title={'endless'} borderColor={colorScheme.three} disabled={disabled} toggleDisabled= {toggleDisabled}/>
+            <PlayButton navigation = {navigation} title={'endless'} borderColor={colorScheme.one} disabled={disabled} toggleDisabled= {toggleDisabled}/>
+            <PlayButton navigation = {navigation} title={'moves'} borderColor={colorScheme.two} disabled={disabled} toggleDisabled= {toggleDisabled}/>
+            <PlayButton navigation = {navigation} title={'timed'} borderColor={colorScheme.three} disabled={disabled} toggleDisabled= {toggleDisabled}/>
             <View style={[ styles.row]} >
                 <IconButton navigation={navigation} title={'Achievements'} borderColor={colorScheme.four} disabled={disabled} toggleDisabled={toggleDisabled} icon={require('./Icons/Trophy.png')} />
                 <IconButton navigation={navigation} title={'Settings'} borderColor={colorScheme.four} disabled={disabled} toggleDisabled={toggleDisabled} icon={require('./Icons/Settings.png')} />
@@ -66,8 +66,10 @@ function App() {
         <NavigationContainer>
             <Stack.Navigator screenOptions={{
                 headerBackTitleVisible: false,
-                headerStyle: {backgroundColor: defaultBackground}
-            }}>
+                headerStyle: {backgroundColor: defaultBackground},
+                cardStyle: {backgroundColor: 'rgba(0,0,0,0)'}
+            }}
+            transitionerStyle={{backgroundColor: defaultBackground}}>
                 <Stack.Screen name="loading" component={LoadingScreen} options={{
                     gestureEnabled: false,
                     headerShown: false

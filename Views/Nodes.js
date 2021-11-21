@@ -66,6 +66,7 @@ const shouldAddArrow = (node, neighbor) => {
  
   if(node.links.includes(neighbor)){
     // if link exists and node has no symbol always draw link. 
+
     if(!node.symbol){
       return true;
     }
@@ -146,7 +147,6 @@ const NodeView = (props) => {
 
 
     const colorStyles = borderStyles(props.node.colors);
-   const arrowNodes = props.node.neighbors.filter(neighbor=> shouldAddArrow(props.node, neighbor) );
     
     return (
       <Animated.View ref={measureRef} style={[
@@ -171,7 +171,6 @@ const NodeView = (props) => {
      <Special node={props.node}/>
      <Symbol group= {props.node.symbol} diameter ={props.node.diameter} frozen ={props.node.frozen} freezer= {props.node.special==='freezer'}/>
      <Frozen node={props.node} rotAnim={rotAnim}/>
-      {arrowNodes.map((neighbor,i)=> <Arrow node={props.node} linkedNode= {neighbor} key={i} rotAnim={rotAnim} />)}
       </Animated.View>
     );
   } 
