@@ -1,21 +1,24 @@
-import  React from 'react';
+import  React, { useEffect, useState } from 'react';
 import { View,Text, StyleSheet, SafeAreaView, Animated } from 'react-native';
 const defaultBackground = 'rgba(248,248,255,1)';
 
 const Header = ({title1,item1,title2, item2, fontAnim}) => {
+    const [loaded, setLoaded]= useState(false);
+    useEffect((
+    )=>  setLoaded(true),[]);
     return (
         <SafeAreaView style={styles.box2}>
-
-        <View style={styles.duo}>
+        
+       {loaded ? <View style={styles.duo}>
             <Text style={styles.header}>{title1} </Text>
             <Animated.View style={[styles.timetext, {transform: [{scale: fontAnim}]}]}>
                 <Text style={styles.timetext}>{item1} </Text>
                 </Animated.View>
-        </View>
-        <View style={[styles.duo]}>
+        </View> : null }
+        {loaded ?<View style={[styles.duo]}>
             <Text style={styles.header}>{title2} </Text>
             <Text style={styles.timetext}>{item2}</Text>
-        </View>
+        </View> : null}
         <View style={{position: 'absolute', left: 0, bottom: 0, justifyContent: 'flex-start', alignItems: 'center', width:'100%'}}>
              <View style={styles.bar}/>        
         </View>
@@ -25,7 +28,8 @@ const Header = ({title1,item1,title2, item2, fontAnim}) => {
 }
 const styles = StyleSheet.create({
     duo: {
-        flexDirection:'row'
+        flexDirection:'row',
+        alignItems: 'center'
     },
     box2: {
         position:'absolute',
@@ -42,14 +46,12 @@ const styles = StyleSheet.create({
     header: {
         fontSize: 16,
         letterSpacing: 1,
-        alignSelf: 'center',
         opacity: .6,
 
     },
     timetext: {
        fontSize: 23,
        opacity: .7,
-       alignSelf: 'center'
      
     },
     bar: {

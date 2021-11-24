@@ -1,7 +1,7 @@
 import { Animated, View, StyleSheet, Easing, Text, Image,ImageBackground, useWindowDimensions} from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import { convertToLayout, point } from '../Utils';
-import {Arrow, Symbol, Special} from './Symbols'
+import { Symbol, Special} from './Symbols'
 
 const Node_Width = 60;
 
@@ -168,7 +168,7 @@ const NodeView = (props) => {
    }}
        >
       <Image source={require('../Icons/nodeTexture4.png')} style={{ position: 'absolute',width:'100%', height:'100%', borderRadius:props.node.diameter/2, opacity: .35}} />
-     <Special node={props.node}/>
+     <Special node={props.node} gameType={props.gameType}/>
      <Symbol group= {props.node.symbol} diameter ={props.node.diameter} frozen ={props.node.frozen} freezer= {props.node.special==='freezer'}/>
      <Frozen node={props.node} rotAnim={rotAnim}/>
       </Animated.View>

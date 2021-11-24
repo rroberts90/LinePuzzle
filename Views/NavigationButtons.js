@@ -13,7 +13,6 @@ const PlayButton = ({navigation, title, disabled, toggleDisabled, borderColor, t
         <TouchableOpacity
         style={[styles.menuButton, {borderColor: borderColor}]}
         onPress={() => {
-            play('paper');
             toggleDisabled(true);
             navigation.push(title);
             setTimeout(()=> toggleDisabled(false), 500);
@@ -33,7 +32,6 @@ const IconButton = ({navigation, title, disabled, toggleDisabled, borderColor, i
         <TouchableOpacity
             style={[styles.iconButton,{ borderColor: borderColor }]}
             onPress={() => {
-                play('paper');
                 toggleDisabled(true)
                 navigation.navigate(title);
                 setTimeout(() => toggleDisabled(false), 500);
@@ -50,8 +48,8 @@ const BackButton = ({ onPress }) => {
     return (<SafeAreaView style={styles.backbutton}>
         <TouchableOpacity
             style={{
-                 height: 35, 
-                 width: 35
+                 height: 40, 
+                 width: 40
         }}
             onPress={()=>{
                 onPress();}}
@@ -69,10 +67,10 @@ const styles = StyleSheet.create({
         alignItems:'center',
         justifyContent: 'flex-start',
         alignSelf:'center',
-        marginVertical: 20,
+        marginVertical: 15,
         padding: 5,
         borderRadius: 15,
-        width: '60%',
+        width: '65%',
         flexDirection: 'row',
         backgroundColor: buttonBackground
 
@@ -80,28 +78,18 @@ const styles = StyleSheet.create({
     buttonText: {
         color: 'black',
         fontSize: 40,
-        fontWeight: 'bold',
+        letterSpacing: 1.25,
         alignSelf: 'stretch',
         opacity: .8
     },
-    loadingScreen: {
-        backgroundColor: defaultBackground,
-        width: '100%',
-        height: '100%',
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    defaultBackground: {backgroundColor:defaultBackground},
     iconButton: {
-        borderWidth: 7,
         borderRadius: 15,
+        borderWidth: 7,
         alignSelf: 'stretch',
         width: '45%',
         marginHorizontal: 10,
         marginVertical: 20,
         padding: 5,
-        backgroundColor: buttonBackground
     },
     icon:{
         height: 45, 
@@ -141,9 +129,6 @@ const styles = StyleSheet.create({
         fontSize:30, 
         padding: 10,
         color: 'black',
-
-    },
-    selected: {
 
     },
     backbutton: {

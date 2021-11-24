@@ -11,12 +11,14 @@ const Timer = ({onFinish, level, time, setTime}) => {
     const [prevTime, setPrevTime]= useState(()=> time);
     
     const fontAnim = useRef(new Animated.Value(1)).current;
+    const [finished, setFinished] = useState(false);
 
     useEffect(()=> {
-        const isFinished = time <=0;
+        const timesUp = time <=0;
 
-        if(isFinished){
-        onFinish('timed',level);
+        if(timesUp && !finished){
+            setFinished(true); // stops glitch where timer keeps on reloading
+            onFinish('timed',level);
 
         }
         if(time > prevTime) { 

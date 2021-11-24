@@ -8,10 +8,11 @@ const defaultBackground = 'rgba(248,248,255,1)';
 const defaultSize = 1;
 const Mover = ({onFinish, level, moves}) => {
     //const [prevCount, setPrevCount]= useState(()=> visitedNodes);
+
     const [prevMoves, setPrevMoves]= useState(()=> moves);
     
     const fontAnim = useRef(new Animated.Value(1)).current;
-
+    const [finished, setFinished] = useState(false); // makes layout load all pretty before rendering
     useEffect(()=> {
         if(moves < prevMoves) { 
             // added moves
@@ -31,10 +32,10 @@ const Mover = ({onFinish, level, moves}) => {
                     easing: Easing.out(Easing.quad)
                 })            ]).start();
         }
-        if(defaultMoves-moves <= 0 ){
+        if(defaultMoves-moves <= 0  && !finished){
+             setFinished(true);
              onFinish('moves',level);
         }
-
 
         setPrevMoves(moves);
     }, [moves]);

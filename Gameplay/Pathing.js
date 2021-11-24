@@ -99,7 +99,7 @@ const setupSymbols = (board, criteria) => {
 
 // adds otherNode to node.links if otherNode !=== node  and it's not already in the list
 const addLink = (node, otherNode) => {
-    if(node !== otherNode && !node.links.includes(otherNode)) {
+    if(node !== otherNode && !node.links.includes(otherNode) && !otherNode.links.includes(node)) {
         node.links = [...node.links, otherNode];
     }
 }
@@ -141,7 +141,7 @@ const setupSpecialNodes = (board, criteria) => {
 }
 // call after setupSymbols
 const setupLinkedNeighbors = (board, criteria) => {
-    const outcomes = [1,1,1,1,1,2,2,3]; // number of links. fewer links more likely
+    const outcomes = [1,1,1,2,2,3,4]; // number of links. fewer links more likely
     const dist = makeRandomDistribution(criteria.directLinks, outcomes );
     
     let counter = 0;
@@ -262,9 +262,9 @@ const setupFalsePaths = (board, criteria) => {
     const maxLength  = criteria.maxFalsePathLength || 5;
 
   //  console.log('\nsetting up false paths');
-    let totalBooster = 5;
+    let totalBooster = criteria.totalBoosters;
      criteria.boosters = 0;
-
+     criteria.paths = [];
     Array.from({length: criteria.falsePaths}, ()=> {
         if(criteria.boosters === 0){ // only make 1 booster per path
             totalBooster--;
@@ -276,13 +276,17 @@ const setupFalsePaths = (board, criteria) => {
         const falseStart = getToFalseStart(board); 
         criteria.onFalsePath = true;
         criteria.steps = 0;
+
         criteria.maxFalsePathLength = randInt(maxLength/2, maxLength+1);
+        criteria.path = [];
         pathFinder(board, criteria);
+        criteria.paths.push(criteria.path);
         criteria.maxFalsePathLength = maxLength;
         board.resetGrid();
 
     });
     criteria.onFalsePath = false;
+
 
 }
 
@@ -367,6 +371,8 @@ const setupTutorial = (board, level) => {
 }
 
 const setupGrid = (board, gameType, level) => {
+    const largeBoard = board.grid.length === 6 ? false : true;
+
     if(gameType === 'tutorial'){
        setupTutorial(board, level);
        
@@ -378,15 +384,15 @@ const setupGrid = (board, gameType, level) => {
        getItems('level', 'difficulty').then(vals=>{
             const diff =  vals[1][1] === 'true' ? true : false;
             const level =parseInt(vals[0][1]);
-            setupGame(board, getCriteria(gameType, level, diff) );
+            setupGame(board, getCriteria(gameType, level, diff, largeBoard) );
 
         }).catch(e=>{
           console.log('couldnt get user data');
-          setupGame(board, getCriteria(gameType, defaultLevel, defaultDifficulty))} );
+          setupGame(board, getCriteria(gameType, defaultLevel, defaultDifficulty, largeBoard))} );
     }
     else{
         // timing and puzzle no level
-        setupGame(board, getCriteria(gameType));
+        setupGame(board, getCriteria(gameType, null,null, largeBoard));
     }
 }
 
@@ -475,7 +481,7 @@ const visit = (board, visitedNodes, candidate, criteria) => {
  * @param {Node} finish
  * @returns 
  */
-const selectCandidates = (curr, criteria, finish, visitedNodes) => {
+const selectCandidates = (curr, criteria, finish, visitedNodes, solution) => {
     let candidates; //= [...curr.neighbors];
     let extras = [];
 
@@ -489,11 +495,17 @@ const selectCandidates = (curr, criteria, finish, visitedNodes) => {
                 extras = [...extras, node];
             }
         }
-        if(criteria && criteria.onFalsePath) {
-        if(node === finish || node.isNeighbor(finish)){
-            return false;
+        if (criteria && criteria.onFalsePath) {
+            if (node === finish || node.isNeighbor(finish)) {
+                return false;
+            }
+            if(!solution.includes(node)){
+                extras = [...extras, node, node]; 
+
+
+            }
         }
-        }
+
 
         return true;
     });
@@ -553,6 +565,7 @@ const pathFinder = (board, criteria) => {
     const curr = visitedNodes[visitedNodes.length - 1];
 
     if(criteria && criteria.onFalsePath) {
+        criteria.path.push(curr);
         criteria.steps++;
         if(criteria.steps > 2 && canAddBooster(curr, board, criteria, true)) {
             criteria.boosters--;
@@ -569,7 +582,7 @@ const pathFinder = (board, criteria) => {
     }
 
     else {    
-        let candidates = selectCandidates(curr, criteria, finish, visitedNodes);
+        let candidates = selectCandidates(curr, criteria, finish, visitedNodes, board.solution);
         // pick one neighbor to visit next
         while (candidates.length > 0) {
             const randomIndex = Math.floor(Math.random() * candidates.length);
@@ -635,6 +648,7 @@ const pathFinder = (board, criteria) => {
         }
         if(criteria && criteria.onFalsePath) {
             criteria.steps--;
+            criteria.path.pop();
         }
         return false;
     }

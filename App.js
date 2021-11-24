@@ -1,5 +1,5 @@
 import  React, {useState, useEffect} from 'react';
-import { View, Text, Button, Image, TouchableOpacity, Pressable, StyleSheet, StatusBar, StatusBarStyle } from 'react-native';
+import { View, Text, Button, Image, TouchableOpacity, Pressable, StyleSheet, StatusBar, StatusBarStyle, SafeAreaView } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -10,21 +10,27 @@ import SettingsScreen from './Views/Settings'
 import {ScoresScreen, AfterGameScreen} from './Views/Scores'
 import useSound from './Sounds';
 import { PlayButton, IconButton } from './Views/NavigationButtons';
+import AboutScreen from './Views/AboutScreen'
 const defaultBackground = 'rgba(248,248,255,1)';
 
 function HomeScreen({ navigation }) {
     const [disabled, toggleDisabled]= useState(false);
    // const [board, toggleBoard] = useState(false);
     return (
-        <View style={[styles.defaultBackground,{ flex: 1, alignItems: 'center', justifyContent: 'center' }]}>
+        <SafeAreaView style={[styles.defaultBackground,{ flex: 1, alignItems: 'center', justifyContent: 'center' }]}>
+            <Text style={styles.headerText}> COLOR MAZE </Text>
+
             <PlayButton navigation = {navigation} title={'endless'} borderColor={colorScheme.one} disabled={disabled} toggleDisabled= {toggleDisabled}/>
             <PlayButton navigation = {navigation} title={'moves'} borderColor={colorScheme.two} disabled={disabled} toggleDisabled= {toggleDisabled}/>
             <PlayButton navigation = {navigation} title={'timed'} borderColor={colorScheme.three} disabled={disabled} toggleDisabled= {toggleDisabled}/>
             <View style={[ styles.row]} >
-                <IconButton navigation={navigation} title={'Achievements'} borderColor={colorScheme.four} disabled={disabled} toggleDisabled={toggleDisabled} icon={require('./Icons/Trophy.png')} />
+            <IconButton navigation={navigation} title={'Achievements'} borderColor={colorScheme.four} disabled={disabled} toggleDisabled={toggleDisabled} icon={require('./Icons/Trophy.png')} />
+
                 <IconButton navigation={navigation} title={'Settings'} borderColor={colorScheme.four} disabled={disabled} toggleDisabled={toggleDisabled} icon={require('./Icons/Settings.png')} />
+
+
             </View>
-        </View>
+        </SafeAreaView>
 
     );
 }
@@ -102,6 +108,10 @@ function App() {
                     headerShown: false,
                     gestureEnabled: false
                 }}/>
+                <Stack.Screen name="About" component={AboutScreen} options={{
+                    headerShown: false,
+                    gestureEnabled: false
+                }}/>
                 <Stack.Screen name="afterGame" component={AfterGameScreen} options={{
                     headerShown: false,
                     gestureEnabled: false
@@ -161,7 +171,14 @@ const styles = StyleSheet.create({
         marginRight: 10
     }, 
     headerText: { 
-        fontSize: 30
+
+        fontSize: 35,
+        fontWeight: 'bold',
+        letterSpacing: 1.25,
+        marginVertical: '8%',
+        color: 'rgba(30,30,30,.8)'
+        
+
     },
     toggle: {
         borderRadius: 2,
@@ -170,7 +187,7 @@ const styles = StyleSheet.create({
 
     },
     toggleText: {
-        fontSize:30, 
+        fontSize:35, 
         padding: 10,
         color: 'black',
 

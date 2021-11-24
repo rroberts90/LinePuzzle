@@ -163,10 +163,11 @@ function SettingsScreen({ navigation, route }) {
                     </View>
                 </View>
 
-                <Text> Version .95 </Text>
+                <Text> Version .97 </Text>
                 <Button title='Clear User Data' style={{ marginTop: 100 }} onPress={() => clearAll()} />
+
             </SafeAreaView>
-            <BackButton onPress={() => { play('paper'); navigation.navigate('colorflush') }} />
+            <BackButton onPress={() => {  navigation.navigate('colorflush') }} />
 
         </>
     );

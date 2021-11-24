@@ -12,6 +12,7 @@ const GridView = ({board, won, afterUpdate}) => {
         {row.map((node, j) => <NodeView node={node}
           key={j}
           afterUpdate={board.getCurrentNode() === node ? afterUpdate : null}
+          gameType = {board.gameType}
     />)}
       </View>
     );

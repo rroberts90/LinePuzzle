@@ -58,7 +58,6 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
          endPoint:updatedEndPoint,
         };
         lineSegments.current  = [...lineSegments.current, seg];
-      
       return curr;
     });
   }*/
@@ -68,7 +67,7 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
     getBoard().restart();
     //resetCurrentNode(1);
     return () => {
-      console.log(`return ${l} effect`);
+      //console.log(`return ${l} effect`);
       //getBoard().restart();
   }
   },[l]);
@@ -93,7 +92,7 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
       if(loading) {
         toggleLoading(false);
       }
-    }, 300);
+    }, 500);
     
   }
 
@@ -102,6 +101,7 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
    Adds segment to previous node
   */
   const updateNodeBundle = (next,node, hint) => {
+
    // play('connect');
    const prevNode = node;
    setCurrentNode(next);
@@ -116,9 +116,10 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
 
    triggerPulser(currentValue => currentValue+1);
   
-   if(next === getBoard().finish) {
+   if(next === getBoard().finish ) {
     //console.log('got to finish node. ');
-    levelUp(getBoard().gameType, l);  
+    levelUp(getBoard());  
+    getBoard().score = getBoard().score+1;
 
     setWin(true); // triggers end line fade in 
     hintEl.current.onPress = null;
@@ -142,7 +143,7 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
    }
    if(next.special === 'booster') {
     setMoves(moves=> moves- 5);
-    setTime(time => time+5);
+    setTime(time => time+10);
     next.special = null;
     setMoves(moves=> moves+1);
 
@@ -157,6 +158,10 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
 
   const node = getBoard().getCurrentNode();
   
+   if(node === getBoard().finish) { // prevents glitch where user can trigger multiple game finishes
+    return {newNode: null, prevPoint:null};
+
+   }
 
    const {candidate} = node.matchPoint(point);
    
@@ -276,9 +281,7 @@ const styles = StyleSheet.create({
     flex: 1, 
     flexDirection: 'column',
     justifyContent: 'center',
-    height: '100%',
-    backgroundColor: 'rgba(248,248,255,1)'
-
+    height: '100%'
   },
   spacer: {
     height: '25%'
@@ -289,7 +292,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     width:"100%",
-    backgroundColor: 'rgba(248,248,255,1)'
   },
   titleText: {
     fontSize: 14,

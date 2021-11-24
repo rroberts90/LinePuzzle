@@ -166,7 +166,7 @@ const gameDims = (game) => {
         
         this.start.fixed = true;
         this.visitedNodes = [this.start]; 
-
+        this.score = 0;
 
         setupGridSolution(this, game, level);
     }

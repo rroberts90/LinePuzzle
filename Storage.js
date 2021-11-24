@@ -41,13 +41,21 @@ const storeItem = async (key,value) => {
   }
 
 
-  const levelUp = (gameType, localLevel) => {
-    const itemName = `${gameType}Score`;
-    console.log(itemName);
-    if(gameType === 'timed' || gameType === 'moves') {
+  const levelUp = ( board) => {
+    const localLevel= board.score;
+    if(board.gameType === 'timed' || board.gameType === 'moves') {
+      let itemName = `${board.gameType}Score`;
+      if(board.grid.length === 6) {
+        itemName += '4x6';
+      }else {
+        itemName += '5x7';
+      }
       getItem(itemName).then(score=> {
+        console.log(`highScore for ${itemName}: ${score}`)
+        console.log(`local Level: ${localLevel+1}`);
 
         if(localLevel+1 > score){
+           console.log(`storing new high score: ${localLevel+1}`);
           storeItem(itemName, localLevel+1);
         }
       });
@@ -73,10 +81,15 @@ const storeItem = async (key,value) => {
   }
 
   const initialize = () => {
-    console.log('initializing');
+
     storeItem('level',0);
     storeItem('puzzles',0);
-    storeItem('timedScore',0);
+   
+    storeItem('timedScore4x6',0);
+    storeItem('timedScore5x7',0);
+    storeItem('movesScore4x6',0);
+    storeItem('movesScore5x7',0);
+
     storeItem('sound', true);
     storeItem('difficulty', true);
     storeItem('vibrate', true);

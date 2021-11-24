@@ -92,22 +92,22 @@ const getSymbolSource = (group)=> {
     let source = '';
     switch(arrow)  {
       case 0: 
-        source = require('../Icons/upArrow5.png');
+        source = require('../Icons/arrowUp7.png');
         break;
       case 1:
-        source = require('../Icons/rightArrow5.png');
+        source = require('../Icons/arrowRight7.png');
         break;
       case 2:
-          source = require('../Icons/downArrow5.png');
+          source = require('../Icons/arrowDown7.png');
           break;  
       case 3:
-          source = require('../Icons/leftArrow5.png');
+          source = require('../Icons/arrowLeft7.png');
           break;  
       case 4: // bidirectional horizontal
-        source = require('../Icons/bidirectional5.png');
+        source = require('../Icons/arrowBiHorizontal4.png');
         break; 
       case 5: // bidirectional vertical
-        source = require('../Icons/bidirectionalVertical5.png');
+        source = require('../Icons/arrowBiVertical4.png');
         break; 
     }
     return source;
@@ -140,37 +140,9 @@ const getSymbolSource = (group)=> {
     <Image style={[symbolStyles(diameter), {opacity: opacity, alignSelf:'center', tintColor: freezer ? 'rgb(220,220,220)' : null}]} source={sourceFile} /> : null );
   }
   
-  const ArrowPadding = 2;
+  const ArrowPadding = 3;
   // absolutely positioned relative to parent (node)
-  const positionArrow = (startNode, endNode, width, height) => {
-    const diameter = startNode.diameter
-    const middleX = startNode.diameter /2;
-    const middleY = startNode.diameter /2;
-   
-    let pos;
-    let type;
-
-    if(startNode.gridPos.row === endNode.gridPos.row) {
-        // use middleX
-        if(startNode.gridPos.col < endNode.gridPos.col) {  // right arrow
-            pos = point(middleX+ArrowPadding/2, -height/2);
-            type = 1;
-        }else { // left arrow
-            pos = point(-middleX-(width) - ArrowPadding/2,-height/2);
-            type = 3;
-        }
-    } else {
-        // use middleY
-        if(startNode.gridPos.row > endNode.gridPos.row) {  // down arrow
-            pos = point(-width/2, -middleY - height - ArrowPadding/2);
-            type = 0;
-        }else { // up arrow
-            pos = point(-width/2, middleY +ArrowPadding/2);
-            type = 2;
-        }
-    }
-    return {pos, type};
-  }
+ 
   const positionArrow2 = (startNode, endNode, width, height) => {
     const radius = startNode.diameter /2;
     const diameter = startNode.diameter;
@@ -202,7 +174,12 @@ const getSymbolSource = (group)=> {
     // two cases vertical  and horizontal
     let width;
     let height;
-    const thickness = startNode.diameter / 4;
+    let thickness = startNode.diameter / 4;
+        
+    if(endNode.links.includes(startNode)) {
+      thickness = startNode.diameter / 4; // bidirectional looks better like this 
+  }
+
     if( startNode.gridPos.row !== endNode.gridPos.row) { // vertical
         height =  Math.abs(Math.abs(startNode.pos.y - endNode.pos.y)- startNode.diameter) -ArrowPadding;
         width = thickness;
@@ -237,7 +214,7 @@ const shouldAddArrow = (node, neighbor) => {
 }
 
   const FixedArrow = ({node, linkedNode}) => {
-    const {width, height} = getArrowDims(node, linkedNode);
+    let {width, height} = getArrowDims(node, linkedNode);
 
     let {pos, type} = positionArrow2(node, linkedNode,width,height);
     pos = point(pos.x + node.pos.x, pos.y + node.pos.y);
@@ -246,6 +223,7 @@ const shouldAddArrow = (node, neighbor) => {
     if(linkedNode.links.includes(node)) {
       if (node.gridPos.row === linkedNode.gridPos.row) { 
           type = 4;
+
           if(node.gridPos.col > linkedNode.gridPos.col) { // only 1 node needs to render bidirectional
             return null;
           }
@@ -264,43 +242,6 @@ const shouldAddArrow = (node, neighbor) => {
       convertToLayout(pos)]} 
       source={source} /> ;
 
-  }
-
-  const Arrow = ({node, linkedNode, rotAnim}) => {
-    if(true) { //node.gridPos.row == 1 && node.gridPos.col == 1) {
-
-    const {width, height} = getArrowDims(node, linkedNode);
-
-    let {pos, type} = positionArrow(node, linkedNode,width,height);
-    
-    if(linkedNode.links.includes(node)) {
-        if (node.gridPos.row === linkedNode.gridPos.row) { 
-            type = 4;
-            if(node.gridPos.col > linkedNode.gridPos.col) { // only 1 node needs to render bidirectional
-              return null;
-            }
-        }else{
-            type = 5;
-            if(node.gridPos.row > linkedNode.gridPos.row) {// only 1 node needs to render bidirectional
-              return null;
-            }
-        }
-    }
-
-    const source = getArrowSource(type);
-   
-  
-    return (<Animated.View 
-    style={[styles.arrowWrapper, {transform: [{rotate:rotAnim.interpolate({
-        inputRange: [0,360],
-        outputRange:['0deg', '-360deg']
-    })}]}]}>
-        <Image style={[styles.arrow,  StyleSheet.absoluteFill,arrowStyles(width,height), convertToLayout(pos)]} source={source} /> 
-        </Animated.View>);
-}
-else{
-    return null;
-}
   }
 
   const Arrows = ({grid}) => {
@@ -334,11 +275,11 @@ else{
      return { 
          width: width,
          height: height,
-         opacity: .5
+         opacity: .7
     };
   }
 
-  const Special = ({node}) => {
+  const Special = ({node, gameType}) => {
     const [booster, setBooster] = useState(null);
     const moveAnim = useRef(new Animated.ValueXY(0,0)).current;
     const sizeAnim = useRef(new Animated.Value(1)).current;
@@ -388,7 +329,7 @@ else{
       }else if(booster) { 
         return (<Animated.View style={[styles.booster,{transform:[{scale:sizeAnim}], opacity: fadeAnim}]}>
             <Text style={styles.boosterPlus}>+</Text>
-            <Text style={styles.boosterText}>5</Text>
+            <Text style={styles.boosterText}>{gameType === 'timed' ? 10: 5}</Text>
         
         </Animated.View>);
       }
@@ -450,4 +391,4 @@ else{
 
   });
   
-  export {Arrow, Symbol, Special,Arrows, getGlyphSource, getSymbolSource, getImpossibleSource, getAnimalSource};
+  export { Symbol, Special,Arrows, getGlyphSource, getSymbolSource, getImpossibleSource, getAnimalSource};

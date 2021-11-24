@@ -15,7 +15,7 @@ const defaultBackground = 'rgba(248,248,255,1)';
 
 const Duration = 1500;
 
-const defaultStartTime = 60;
+const defaultStartTime = 40;
 
 const Game = ({ navigation, route }) => {
   const gameType = route.name;
@@ -140,7 +140,9 @@ const Game = ({ navigation, route }) => {
   }, [level]);
 
   const onFinish = (gameType, highLevel) => {
-    navigation.navigate('afterGame', { gameType: gameType, score: highLevel });
+    const boardSize = getBoard(board0).grid.length === 6 ? '4x6' : '5x7';
+    console.log(`boardSize: ${boardSize}`);
+    navigation.push('afterGame', { gameType: gameType, score: highLevel, boardSize: boardSize });
 
   }
 
@@ -182,13 +184,12 @@ const Game = ({ navigation, route }) => {
     <ButtonsBar undoEl={undoEl} restartEl={restartEl} hintEl={hintEl} />
 
     {gameType === 'timed' ? 
-      <Timer onFinish={onFinish} level={level}  time = {time} setTime= {setTime}/> : 
+      <Timer onFinish={onFinish} level={level}  time = {time} setTime= {setTime} /> : 
       gameType === 'moves'? 
-      <Mover onFinish= {onFinish} level = {level} moves={moves}/> : 
+      <Mover onFinish= {onFinish} level = {level} moves={moves} /> : 
       <Header fontAnim={1}/>
     }
     <BackButton onPress={() => { 
-      play('paper'); 
       const currentSave = board0Current ? board0.current.save() : board1.current.save();
       const saveName = 'saved' + gameType;
       storeItem(saveName, currentSave);

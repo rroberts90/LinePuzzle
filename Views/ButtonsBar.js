@@ -10,7 +10,6 @@ const ButtonsBar = ({ undoEl, restartEl, hintEl}) => {
     const {play}= useSound();
 
     function handleOnHint() {
-        console.log('handling hint');
         if (disabled || hintEl.current.onPress === null) {
             console.log('hint is disabled');
             return;
