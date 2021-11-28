@@ -9,26 +9,67 @@ import Game from './Game'
 import SettingsScreen from './Views/Settings'
 import {ScoresScreen, AfterGameScreen} from './Views/Scores'
 import useSound from './Sounds';
-import { PlayButton, IconButton } from './Views/NavigationButtons';
+import { PlayButton, IconButton ,PlayButtonExpanded} from './Views/NavigationButtons';
 import AboutScreen from './Views/AboutScreen'
 const defaultBackground = 'rgba(248,248,255,1)';
 
 function HomeScreen({ navigation }) {
     const [disabled, toggleDisabled]= useState(false);
-   // const [board, toggleBoard] = useState(false);
+
+    const [endlessBoard, toggleEndlessBoard] = useState(true); // true is 4x6, false 5x7
+   const [movesBoard, toggleMovesBoard] = useState(true);
+   const [timedBoard, toggleTimedBoard] = useState(true);
+
     return (
         <SafeAreaView style={[styles.defaultBackground,{ flex: 1, alignItems: 'center', justifyContent: 'center' }]}>
             <Text style={styles.headerText}> COLOR MAZE </Text>
 
-            <PlayButton navigation = {navigation} title={'endless'} borderColor={colorScheme.one} disabled={disabled} toggleDisabled= {toggleDisabled}/>
-            <PlayButton navigation = {navigation} title={'moves'} borderColor={colorScheme.two} disabled={disabled} toggleDisabled= {toggleDisabled}/>
-            <PlayButton navigation = {navigation} title={'timed'} borderColor={colorScheme.three} disabled={disabled} toggleDisabled= {toggleDisabled}/>
+            <PlayButtonExpanded 
+            navigation = {navigation} 
+            title={'endless'} 
+            borderColor={colorScheme.one} 
+            disabled={disabled} 
+            toggleDisabled= {toggleDisabled}
+            boardSizeSelected = {endlessBoard}
+            toggleSize = {toggleEndlessBoard}
+            />
+
+            <PlayButtonExpanded 
+            navigation = {navigation} 
+            title={'moves'} 
+            borderColor={colorScheme.two} 
+            disabled={disabled} 
+            toggleDisabled= {toggleDisabled}
+            boardSizeSelected = {movesBoard}
+            toggleSize = {toggleMovesBoard}
+            />
+
+            <PlayButtonExpanded 
+            navigation = {navigation} 
+            title={'timed'} 
+            borderColor={colorScheme.three} 
+            disabled={disabled} 
+            toggleDisabled= {toggleDisabled}
+            boardSizeSelected = {timedBoard}
+            toggleSize = {toggleTimedBoard}
+            />
+
             <View style={[ styles.row]} >
-            <IconButton navigation={navigation} title={'Achievements'} borderColor={colorScheme.four} disabled={disabled} toggleDisabled={toggleDisabled} icon={require('./Icons/Trophy.png')} />
+                <IconButton 
+                navigation={navigation} 
+                title={'Achievements'} 
+                borderColor={colorScheme.four} 
+                disabled={disabled} 
+                toggleDisabled={toggleDisabled} 
+                icon={require('./Icons/Trophy.png')} />
 
-                <IconButton navigation={navigation} title={'Settings'} borderColor={colorScheme.four} disabled={disabled} toggleDisabled={toggleDisabled} icon={require('./Icons/Settings.png')} />
-
-
+                <IconButton 
+                navigation={navigation} 
+                title={'Settings'} 
+                borderColor={colorScheme.four} 
+                disabled={disabled} 
+                toggleDisabled={toggleDisabled} 
+                icon={require('./Icons/Settings.png')} />
             </View>
         </SafeAreaView>
 

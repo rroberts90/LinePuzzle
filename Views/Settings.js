@@ -108,11 +108,6 @@ function SettingsScreen({ navigation, route }) {
                     <Selector toggle={difficulty} color={colorScheme.four} text1={'normal'} text2={'puzzle'} press1={() => { toggleDifficulty(true); play('connect'); }} press2={() => { toggleDifficulty(false); play('connect'); }} />
                 </View>
 
-                <View style={styles.line}>
-
-                    <Text style={styles.headerText}> maze size: </Text>
-                    <Selector toggle={board} color={colorScheme.four} text1={'4x6'} text2={'5x7'} press1={() => { toggleBoard(true); play('connect'); }} press2={() => { toggleBoard(false); play('connect'); }} />
-                </View>
 
                 <View style={styles.bar} />
 

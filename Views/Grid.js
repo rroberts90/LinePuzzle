@@ -80,6 +80,7 @@ const GridView = ({board, won, afterUpdate}) => {
 
       justifyContent: 'space-evenly',
       alignItems: 'center', 
+      alignSelf: 'center',
       flex: 1,
     }
 

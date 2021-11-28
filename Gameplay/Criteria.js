@@ -12,12 +12,12 @@ const puzzle1 = { group: .5,
  const endlessHard = { 
     gameType: 'endless' ,
     group: .5, 
-    directLinks: .3, 
+    directLinks: .4, 
     freezer: .1, 
     rotateCC: .1,
-     falsePaths: 8, 
+     falsePaths: 20, 
      minLength: 18, 
-     maxFalsePathLength: 15, 
+     maxFalsePathLength: 16, 
      maxLength: 100, 
      circles: 2 
  }

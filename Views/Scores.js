@@ -6,8 +6,7 @@ import colorScheme from '../Gameplay/ColorSchemes'
 import { getItem, getItems, storeItem } from '../Storage';
 import { PlayButton, BackButton } from './NavigationButtons';
 import useSound from '../Sounds';
-
-import { StackActions } from '@react-navigation/routers';
+import { BoardSize } from './NavigationButtons';
 const defaultBackground = 'rgba(248,248,255,1)';
 
 //            <PlayButton navigation={navigation} title={'timed'} borderColor={colorScheme.two} disabled={false} toggleDisabled={() => null}   text={'play again'}/>
@@ -16,12 +15,12 @@ const ScoreBox = ({header1, header2, score1, score2}) => {
     return (
         <View style={{ width:'100%',flexDirection: 'row', justifyContent: 'center'}}>
         <View style={{ flexDirection: 'column', width: '45%' }}>
-            <Text style={styles.header2}> {header1} </Text>
+            <View style={{flexDirection: 'row', alignItems:'center',justifyContent: 'center'}}><BoardSize row={'4'} col={'6'}/></View>
             <Text style={styles.userScore}> {score1} </Text>
         </View>
         <View style={styles.bar}/>
         <View style={{ flexDirection: 'column' , width:'45%'}}>
-            <Text style={styles.header2}> {header2} </Text>
+        <View style={{flexDirection: 'row', alignItems:'center', justifyContent: 'center'}}><BoardSize row={'5'} col={'7'}/></View>
             <Text style={styles.userScore}> {score2} </Text>
         </View>
     </View>

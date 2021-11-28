@@ -140,7 +140,7 @@ const getSymbolSource = (group)=> {
     <Image style={[symbolStyles(diameter), {opacity: opacity, alignSelf:'center', tintColor: freezer ? 'rgb(220,220,220)' : null}]} source={sourceFile} /> : null );
   }
   
-  const ArrowPadding = 3;
+  const ArrowPadding = 1;
   // absolutely positioned relative to parent (node)
  
   const positionArrow2 = (startNode, endNode, width, height) => {
@@ -160,7 +160,7 @@ const getSymbolSource = (group)=> {
         }
     } else {
         if(startNode.gridPos.row > endNode.gridPos.row) {  // down arrow
-            pos = point(radius-width/2, -height - ArrowPadding/2);
+            pos = point(radius-width/2, -height - (ArrowPadding/2));
             type = 0;
         }else { // up arrow
             pos = point(radius-width/2, diameter + ArrowPadding/2 );
@@ -175,23 +175,30 @@ const getSymbolSource = (group)=> {
     let width;
     let height;
     let thickness = startNode.diameter / 4;
-        
-    if(endNode.links.includes(startNode)) {
-      thickness = startNode.diameter / 4; // bidirectional looks better like this 
-  }
 
-    if( startNode.gridPos.row !== endNode.gridPos.row) { // vertical
-        height =  Math.abs(Math.abs(startNode.pos.y - endNode.pos.y)- startNode.diameter) -ArrowPadding;
-        width = thickness;
+    startNode.neighbors.forEach(neighbor=> {
+      if(startNode.gridPos.row === neighbor.gridPos.row) {
+        width = Math.abs(Math.abs(startNode.pos.x - neighbor.pos.x )- startNode.diameter) -ArrowPadding;
+        if (width > startNode.diameter * .25) {
+          width = startNode.diameter * .25;
+        }
+      }else {
+        height =  Math.abs(Math.abs(startNode.pos.y - neighbor.pos.y)- startNode.diameter) -ArrowPadding;
+        if (height > startNode.diameter * .25) {
+          height = startNode.diameter * .25;
+        }
+      }
+    })
 
-    }else { // horizontal
-        width= Math.abs(Math.abs(startNode.pos.x - endNode.pos.x )- startNode.diameter) -ArrowPadding;
-        height =  thickness;
+    //width = width < height ? width : height;
+    //height = width;    
 
+    if(startNode.gridPos.row === endNode.gridPos.row) {
+      height = thickness;
     }
-
-    width = width;
-    height = height;
+    else{
+      width = thickness
+    }
     return {width, height};
   }
 
@@ -236,6 +243,7 @@ const shouldAddArrow = (node, neighbor) => {
   }
   const source = getArrowSource(type);
 
+
     return <Image style={[styles.arrow,  
       StyleSheet.absoluteFill,
       arrowStyles(width,height), 
@@ -275,6 +283,7 @@ const shouldAddArrow = (node, neighbor) => {
      return { 
          width: width,
          height: height,
+
          opacity: .7
     };
   }
@@ -353,9 +362,6 @@ const shouldAddArrow = (node, neighbor) => {
           height:10,
           width:10,
           resizeMode:'stretch',
-          borderColor: 'black',
-          borderWidth:0,
-          zIndex:0,
       },
       arrowWrapper: {
           position:'absolute'

@@ -500,7 +500,7 @@ const selectCandidates = (curr, criteria, finish, visitedNodes, solution) => {
                 return false;
             }
             if(!solution.includes(node)){
-                extras = [...extras, node, node]; 
+                //extras = [...extras, node, node]; 
 
 
             }

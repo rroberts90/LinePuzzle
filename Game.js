@@ -19,7 +19,7 @@ const defaultStartTime = 40;
 
 const Game = ({ navigation, route }) => {
   const gameType = route.name;
-
+  const {boardSize }= route.params;
   const [level, setLevel] = useState(0);
 
   const height = useWindowDimensions().height;
@@ -66,7 +66,6 @@ const Game = ({ navigation, route }) => {
     const saveName = 'saved' + gameType;
     getItems(saveName, 'board').then(vals => {
       const savedBoard = vals[0][1];
-      const boardSize = vals[1][1] === 'true' ? true : false;
       if (savedBoard) {
         getBoard(board0, null, boardSize,savedBoard);
       }
