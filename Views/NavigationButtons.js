@@ -7,21 +7,27 @@ const defaultBackground = 'rgba(248,248,255,1)';
 
 const buttonBackground  = 'rgba(240,240,245,1)';
 
-const PlayButton = ({navigation, title, disabled, toggleDisabled, borderColor, text})=> {
+const PlayButton = ({navigation, title, disabled, toggleDisabled, borderColor, text, boardSize})=> {
     const {play} = useSound();
     return (
         <TouchableOpacity
         style={[styles.menuButton, {borderColor: borderColor}]}
         onPress={() => {
             toggleDisabled(true);
-            navigation.push(title);
+            boardSize ? navigation.push(title, {boardSize: boardSize}) : navigation.push(title);
             setTimeout(()=> toggleDisabled(false), 500);
 
         }}
         disabled={disabled}
     >
-        <Image style={[styles.play, {tintColor:borderColor, opacity: .8}]} source = {title !=='colorflush' ? require('../Icons/play1.png') : require('../Icons/skip3.png') }/>
-    <Text style={[styles.buttonText, text? {fontSize: 30}: {} ]}>{text? text : title} </Text>
+        
+        <View style={{height: '80%', aspectRatio: 1,  marginHorizontal: 5
+}}>
+            <Image style={[styles.play,
+            { tintColor: borderColor, opacity: .8 }]}
+                source={require('../Icons/play1.png')} />
+            </View>     
+                    <Text style={[styles.buttonText, text? {fontSize: 30}: {} ]}>{text? text : title} </Text>
     </TouchableOpacity>
     );
 }
@@ -70,7 +76,6 @@ const BoardSize = ({row, col}) => {
 // has a choice for board size
 const PlayButtonExpanded = ({ navigation, title, disabled, toggleDisabled, borderColor, text, boardSizeSelected, toggleSize }) => {
     const { play } = useSound();
-    const utfCircle = "&#11044"
     return (
         <TouchableOpacity
             style={[styles.menuButton2, { borderColor: borderColor }]}
@@ -82,23 +87,24 @@ const PlayButtonExpanded = ({ navigation, title, disabled, toggleDisabled, borde
             }}
             disabled={disabled}
         >
+            <View style={{height: '80%', aspectRatio: 1,  marginHorizontal: 5
+}}>
             <Image style={[styles.play,
             { tintColor: borderColor, opacity: .8 }]}
                 source={require('../Icons/play1.png')} />
-
+            </View>
             <Text style={[styles.buttonText,
             text ? { fontSize: 30 } : {}]}>
                 {text ? text : title}
             </Text>
-
-            <View style={[styles.row2, {}]}>
+           <View style={[styles.row2]}>
                 <Pressable style={[styles.boardSizeButton]}
                 onPress={()=>toggleSize(true)}
                 >
                     <View style={{
                         position: 'absolute',
                         width: '101%'
-                        , height: '100%',
+                        , height: '98%',
                         backgroundColor: boardSizeSelected ? borderColor : 'rgb(211,211,211)',
                         opacity: .5
                     }} />
@@ -108,36 +114,39 @@ const PlayButtonExpanded = ({ navigation, title, disabled, toggleDisabled, borde
                  onPress={()=>toggleSize(false)}>
                     <View style={{
                         position: 'absolute',
-                        width: '100%'
-                        , height: '100%',
+                        width: '101%'
+                        , height: '98%',
+                        top: -1,
                         backgroundColor: boardSizeSelected ? 'rgb(211,211,211)' : borderColor,
                         opacity: .5
                     }} />
                     <BoardSize row={'7'} col= {'5'}/>
 
                 </Pressable>
-            </View>
+                </View>
         </TouchableOpacity>
     );
      }
 
 const styles = StyleSheet.create({
     menuButton: {
-        borderWidth: 7,
+        borderWidth: 3,
         alignItems:'center',
         justifyContent: 'flex-start',
         alignSelf:'center',
-        marginVertical: 15,
+        marginVertical: 10,
         padding: 5,
-        borderRadius: 15,
+        borderRadius: 5,
         width: '65%',
+        height: '10%',
         flexDirection: 'row',
         backgroundColor: buttonBackground
 
     },
     buttonText: {
+        flex: 1.6,
         color: 'black',
-        fontSize: 40,
+        fontSize: 35,
         letterSpacing: 1.25,
         alignSelf: 'center',
         opacity: .8
@@ -146,7 +155,6 @@ const styles = StyleSheet.create({
         borderRadius: 3,
         borderWidth: 5,
         alignSelf: 'stretch',
-        width: '45%',
         marginHorizontal: 10,
         marginVertical: 20,
         padding: 5,
@@ -164,11 +172,12 @@ const styles = StyleSheet.create({
         width:'60%',
         alignItems: 'stretch'
 
-
     }, 
     play: {
-        width:'18%',
+        width: '100%',
+        height: '100%',
         aspectRatio: 1,
+     
     }, 
     skip: {
         width:'22%',
@@ -197,22 +206,23 @@ const styles = StyleSheet.create({
 
     },
     menuButton2: {
+        width: '75%',
+        height: '10%',
         borderWidth: 5,
         alignItems: 'center',
         justifyContent: 'space-between',
         alignSelf: 'center',
         marginVertical: 15,
         padding: 0,
+        marginHorizontal: 0,
         borderRadius: 3,
-        width: '80%',
         flexDirection: 'row',
         backgroundColor: buttonBackground
 
     },
     row2: {
         flexDirection: 'column',
-        alignItems: 'center',
-        alignSelf: 'flex-end',
+        flex: 1,
 
     },
     boardSize: {
@@ -235,7 +245,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-
+        flexGrow: 1
     }
 });
 export {BackButton, PlayButton, IconButton, PlayButtonExpanded, BoardSize};

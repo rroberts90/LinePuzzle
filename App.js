@@ -93,13 +93,16 @@ function LoadingScreen({navigation}){
 
     return(
         <View style={styles.loadingScreen} >
-            <Text style={{fontSize: 40}}> COLOR MAZE </Text>
             {!tutorialFinished ? 
+            <>
+                        <Text style={{fontSize: 40}}> COLOR MAZE </Text>
+
             <View style={styles.tutorialAsk}>
                 <PlayButton navigation={navigation} borderColor={colorScheme.four} disabled={false} toggleDisabled={()=>{}} title={'tutorial'} text={'go to tutorial'} />
                 <PlayButton navigation={navigation} borderColor={colorScheme.one} disabled={false} toggleDisabled={()=>{storeItem('tutorialFinished', true)}} title={'colorflush'} text={'skip tutorial '} />
 
-            </View> : null}
+            </View> 
+            </>: null}
         </View>
     );
 }

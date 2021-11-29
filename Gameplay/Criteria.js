@@ -51,9 +51,9 @@ const getCriteria = (gameType, level, difficulty, largeBoard) => {
             directLinks: .3, 
             freezer: .2, 
             rotateCC: .1,
-             falsePaths: 9, 
+             falsePaths: 20, 
              minLength: 17, 
-             maxFalsePathLength: 8, 
+             maxFalsePathLength: 18, 
              maxLength: 100, 
              circles: 2,
              totalBoosters: 5,
@@ -61,7 +61,7 @@ const getCriteria = (gameType, level, difficulty, largeBoard) => {
         if(!largeBoard) {
             return puzzle;
         }else{
-            puzzle.minLength += 2;
+            puzzle.minLength += 4;
             puzzle.falsePaths +=2;
             puzzle.maxFalsePathLength +=3;
             puzzle.totalBoosters +=2;
@@ -79,7 +79,6 @@ const getCriteria = (gameType, level, difficulty, largeBoard) => {
                      maxFalsePathLength: 5, 
                      circles:2,
                      gameType: gameType};
-    
     if(level <= 5){
         // base criteria
         return criteria;

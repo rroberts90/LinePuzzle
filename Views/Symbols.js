@@ -8,16 +8,16 @@ const getSymbolSource = (group)=> {
     let icon = '';
     switch (group){
       case 1: 
-        icon = require('../Icons/shape1.png');
+        icon = require('../Icons/seaAnimal1.png');
         break;
       case 2: 
-        icon = require('../Icons/shape2.png');
+        icon = require('../Icons/seaAnimal2.png');
         break;
       case 3: 
-        icon = require('../Icons/shape4.png');
+        icon = require('../Icons/seaAnimal3.png');
         break;
       case 4: 
-        icon = require('../Icons/shape3.png');
+        icon = require('../Icons/seaAnimal4.png');
         break;
       
     }
@@ -32,7 +32,7 @@ const getSymbolSource = (group)=> {
         icon = require('../Icons/impossible1.png');
         break;
       case 2: 
-        icon = require('../Icons/impossible6.png');
+        icon = require('../Icons/impossible2.png');
         break;
       case 3: 
         icon = require('../Icons/impossible3.png');
@@ -50,16 +50,16 @@ const getSymbolSource = (group)=> {
     let icon = '';
     switch (group){
       case 1: 
-        icon = require('../Icons/seaAnimal1.png');
+        icon = require('../Icons/animal1.png');
         break;
       case 2: 
-        icon = require('../Icons/seaAnimal2.png');
+        icon = require('../Icons/animal2.png');
         break;
       case 3: 
-        icon = require('../Icons/seaAnimal3.png');
+        icon = require('../Icons/animal3.png');
         break;
       case 4: 
-        icon = require('../Icons/seaAnimal4.png');
+        icon = require('../Icons/animal4.png');
         break;
       
     }
@@ -338,7 +338,7 @@ const shouldAddArrow = (node, neighbor) => {
       }else if(booster) { 
         return (<Animated.View style={[styles.booster,{transform:[{scale:sizeAnim}], opacity: fadeAnim}]}>
             <Text style={styles.boosterPlus}>+</Text>
-            <Text style={styles.boosterText}>{gameType === 'timed' ? 10: 5}</Text>
+            <Text style={styles.boosterText}>5</Text>
         
         </Animated.View>);
       }
@@ -346,7 +346,7 @@ const shouldAddArrow = (node, neighbor) => {
   }
 
   const symbolStyles = (diameter) => {
-    const percentageSize = .9;
+    const percentageSize = .8;
     return {height:diameter * percentageSize, 
             width: diameter * percentageSize,
             padding:1};

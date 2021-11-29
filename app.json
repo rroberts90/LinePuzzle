@@ -4,11 +4,11 @@
     "slug": "Spinners",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/1024.png",
     "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "image": "./assets/180.png",
+      "resizeMode": "center",
+      "backgroundColor": "#f8f8ff"
     },
     "updates": {
       "fallbackToCacheTimeout": 0

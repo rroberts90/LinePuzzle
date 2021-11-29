@@ -138,9 +138,8 @@ const Game = ({ navigation, route }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [level]);
 
+  //TODO: FIRST THING IN MORNING
   const onFinish = (gameType, highLevel) => {
-    const boardSize = getBoard(board0).grid.length === 6 ? '4x6' : '5x7';
-    console.log(`boardSize: ${boardSize}`);
     navigation.push('afterGame', { gameType: gameType, score: highLevel, boardSize: boardSize });
 
   }

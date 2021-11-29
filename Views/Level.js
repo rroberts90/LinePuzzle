@@ -143,7 +143,7 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
    }
    if(next.special === 'booster') {
     setMoves(moves=> moves- 5);
-    setTime(time => time+10);
+    setTime(time => time+5);
     next.special = null;
     setMoves(moves=> moves+1);
 

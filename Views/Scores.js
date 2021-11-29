@@ -4,24 +4,24 @@ import { View, Text, Button, Image, TouchableOpacity, Pressable, StyleSheet, Saf
 import colorScheme from '../Gameplay/ColorSchemes'
 
 import { getItem, getItems, storeItem } from '../Storage';
-import { PlayButton, BackButton } from './NavigationButtons';
+import { PlayButton, BackButton} from './NavigationButtons';
 import useSound from '../Sounds';
 import { BoardSize } from './NavigationButtons';
 const defaultBackground = 'rgba(248,248,255,1)';
 
 //            <PlayButton navigation={navigation} title={'timed'} borderColor={colorScheme.two} disabled={false} toggleDisabled={() => null}   text={'play again'}/>
 
-const ScoreBox = ({header1, header2, score1, score2}) => {
+const ScoreBox = ({header1, header2, score1, score2, color}) => {
     return (
         <View style={{ width:'100%',flexDirection: 'row', justifyContent: 'center'}}>
         <View style={{ flexDirection: 'column', width: '45%' }}>
             <View style={{flexDirection: 'row', alignItems:'center',justifyContent: 'center'}}><BoardSize row={'4'} col={'6'}/></View>
-            <Text style={styles.userScore}> {score1} </Text>
+            <Text style={[styles.userScore]}> {score1} </Text>
         </View>
         <View style={styles.bar}/>
         <View style={{ flexDirection: 'column' , width:'45%'}}>
         <View style={{flexDirection: 'row', alignItems:'center', justifyContent: 'center'}}><BoardSize row={'5'} col={'7'}/></View>
-            <Text style={styles.userScore}> {score2} </Text>
+            <Text style={[styles.userScore]}> {score2} </Text>
         </View>
     </View>
     );
@@ -60,7 +60,7 @@ function AfterGameScreen({ navigation, route }) {
             <View style={styles.bar2}/>        
 
             <BackButton onPress={() => { navigation.navigate('colorflush') }} />
-            <PlayButton navigation={navigation} title={gameType} borderColor={colorScheme.two} disabled={false} toggleDisabled={() => null}   text={'play again'}/>
+            <PlayButton navigation={navigation} title={gameType} borderColor={colorScheme.two} disabled={false} toggleDisabled={() => null}   text={'play again'} boardSize={boardSize}/>
         </View>);
 }
 function ScoresScreen({ navigation }) {
@@ -91,11 +91,11 @@ function ScoresScreen({ navigation }) {
             <Text style={styles.topHeader}> Best Scores </Text>
 
             <Text style={styles.header}> moves </Text>
-            <ScoreBox header1={'4x6'} score1={moves['4x6']} header2={'5x7'} score2={moves['5x7']} />
+            <ScoreBox header1={'4x6'} score1={moves['4x6']} header2={'5x7'} score2={moves['5x7'] }  color={colorScheme.two}/>
             <View style={styles.bar2}/>        
 
             <Text style={styles.header}> timed </Text>
-            <ScoreBox header1={'4x6'} score1={timed['4x6']} header2={'5x7'} score2={timed['5x7']} />
+            <ScoreBox header1={'4x6'} score1={timed['4x6']} header2={'5x7'} score2={timed['5x7']}  color={colorScheme.three}/>
 
         </SafeAreaView>
         <BackButton onPress={() => {  navigation.navigate('colorflush') }} />
