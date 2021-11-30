@@ -4,6 +4,7 @@ import { View, StyleSheet, useWindowDimensions, Vibration, Button} from 'react-n
 import { Pulse} from './Nodes';
 import GridView from './Grid';
 import {Cursor} from './UserInput';
+import DemoCursor from './DemoCursor';
 import {point, centerOnNode,logGridPos,rotateColors} from '../Utils';
 import { UserPath } from './Paths';
 import useInterval from './useInterval.js';
@@ -38,7 +39,11 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
   const [loading, toggleLoading] = useState(true);
 
   const {play} = useSound();
-  
+  useEffect(()=> {
+    if(getBoard().gameType === 'tutorial' && l===0) {
+      console.log('on start');
+    }
+  },[]);
   useEffect(()=>{
     //console.log(`---------------\nLevel ${l} start color: ${getBoard().start.colors[2]}\n`);
     //logGridPos('    start',getBoard().start.gridPos);
@@ -264,12 +269,13 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
 <Arrows  grid={getBoard().grid}/>
 
       <UserPath segments={lineSegments.current} fades={fadeSegments.current} />
-         
+      {getBoard().gameType==='tutorial'  && l === 0? <DemoCursor node={getBoard().start} nextNode={getBoard().solution[1]} first={true} firstNode={getBoard().start}/>: null}
+
       <Pulse pos={currPosF} colors={rotateColors(currentNode.colors, currentNode.rot)} GOGOGO={pulser} diameter = {currentNode.diameter} />
 
       <Cursor node={currentNode} currPoint={point(currX, currY)} triggerPulser={triggerPulser} detectMatch = {detectMatch} intervalId={intervalId} />
       <GridView board={getBoard()} afterUpdate={updateAfterLayout} height={height} won={win} />
-      {/*getBoard().gameType==='tutorial' ? <Tooltip level={l}/> : null*/}
+      {getBoard().gameType==='tutorial' && l === 0? <DemoCursor node={getBoard().start} nextNode={getBoard().solution[1]}  firstNode={getBoard().start}/>: null}
 
       {loadingWall}
     </View>
@@ -287,12 +293,6 @@ const styles = StyleSheet.create({
     height: '25%'
   },
   
-  row: {
-    flex:1,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width:"100%",
-  },
   titleText: {
     fontSize: 14,
     lineHeight: 24,

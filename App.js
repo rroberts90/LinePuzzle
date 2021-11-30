@@ -95,13 +95,11 @@ function LoadingScreen({navigation}){
         <View style={styles.loadingScreen} >
             {!tutorialFinished ? 
             <>
-                        <Text style={{fontSize: 40}}> COLOR MAZE </Text>
+            <Text style={styles.headerText}> COLOR MAZE </Text>
 
-            <View style={styles.tutorialAsk}>
-                <PlayButton navigation={navigation} borderColor={colorScheme.four} disabled={false} toggleDisabled={()=>{}} title={'tutorial'} text={'go to tutorial'} />
-                <PlayButton navigation={navigation} borderColor={colorScheme.one} disabled={false} toggleDisabled={()=>{storeItem('tutorialFinished', true)}} title={'colorflush'} text={'skip tutorial '} />
+                <PlayButton navigation={navigation} borderColor={colorScheme.four} disabled={false} toggleDisabled={()=>{}} title={'tutorial'} text={'play tutorial'} boardSize={false}/>
+                <PlayButton navigation={navigation} borderColor={colorScheme.one} disabled={false} toggleDisabled={()=>{storeItem('tutorialFinished', true)}} title={'colorflush'} text={'skip tutorial'} />
 
-            </View> 
             </>: null}
         </View>
     );
@@ -117,7 +115,7 @@ function App() {
             <Stack.Navigator screenOptions={{
                 headerBackTitleVisible: false,
                 headerStyle: {backgroundColor: defaultBackground},
-                cardStyle: {backgroundColor: 'rgba(0,0,0,0)'}
+                cardStyle: {backgroundColor: defaultBackground}
             }}
             transitionerStyle={{backgroundColor: defaultBackground}}>
                 <Stack.Screen name="loading" component={LoadingScreen} options={{

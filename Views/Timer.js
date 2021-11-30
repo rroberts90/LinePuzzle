@@ -53,7 +53,7 @@ const Timer = ({onFinish, level, time, setTime}) => {
         }
     }, 1000);
     return (
-        <Header title1={'Time'} item1={time} title2={'Score'} item2={level} fontAnim = {fontAnim}/>
+        <Header title1={'Time'} item1={time <0 ? 0 :time} title2={'Score'} item2={level} fontAnim = {fontAnim}/>
  );   
 }
 

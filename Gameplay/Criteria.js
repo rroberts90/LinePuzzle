@@ -85,7 +85,7 @@ const getCriteria = (gameType, level, difficulty, largeBoard) => {
     }
     else if(level > 5 && level<=10){
         criteria.directLinks = .2;
-        criteria.falsePaths =6;
+        criteria.falsePaths =2;
         criteria.maxFalsePathLength = 8;
 
     }

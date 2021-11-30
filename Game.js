@@ -138,8 +138,8 @@ const Game = ({ navigation, route }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [level]);
 
-  //TODO: FIRST THING IN MORNING
-  const onFinish = (gameType, highLevel) => {
+
+  const onFinish = async (gameType, highLevel) => {
     navigation.push('afterGame', { gameType: gameType, score: highLevel, boardSize: boardSize });
 
   }

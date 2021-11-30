@@ -118,7 +118,7 @@ const gameDims = (game) => {
     constructor (game, level, prevBoard, boardSize,savedBoard) {
       if(game==='tutorial') {
         this.numRow = 6;
-        this.numCol = 1;
+        this.numCol = 2;
       }
       else if(!boardSize) {
         this.numRow = 7;

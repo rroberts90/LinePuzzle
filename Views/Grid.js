@@ -8,7 +8,7 @@ const GridView = ({board, won, afterUpdate}) => {
   const rows = board.grid.map((row, i) => {
 
     return (
-      <View style={styles.row} key={i}>
+      <View style={[styles.row, board.gameType === 'tutorial' ? { width: '50%'} : {}]} key={i}>
         {row.map((node, j) => <NodeView node={node}
           key={j}
           afterUpdate={board.getCurrentNode() === node ? afterUpdate : null}
@@ -77,7 +77,6 @@ const GridView = ({board, won, afterUpdate}) => {
     row: {
       flexDirection: 'row',
       width: '100%',
-
       justifyContent: 'space-evenly',
       alignItems: 'center', 
       alignSelf: 'center',

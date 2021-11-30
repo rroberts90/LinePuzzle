@@ -282,7 +282,7 @@ const NodeView = (props) => {
       width: '60%',
       height: '60%',
       alignSelf: 'center',
-      top: '20%', //TEMPORARY MAY ALIGN WEIRD ON DIFFERENT SCREEN SIZES
+      top: '20%',
       opacity:1,
     }
 });

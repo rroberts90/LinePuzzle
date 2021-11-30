@@ -295,41 +295,52 @@ const setupTutorial = (board, level) => {
     switch(level) {
         case 0: 
             break;
-        case 1:
+        case 2:
             board.grid[4][0].links = [board.grid[3][0]];
             board.grid[3][0].links = [board.grid[2][0]];
-            board.grid[1][0].links = [board.grid[0][0]];          
+            board.grid[1][0].links = [board.grid[0][0]];
+            board.grid[1][1].links = [board.grid[0][1]];          
+            board.grid[4][1].links = [board.grid[4][0]];          
+
               break;
-        case 2:
+        case 1:
             board.grid[3][0].symbol = 2;
-            board.grid[3][0].links = [board.grid[4][0],board.grid[1][0]];
-    
             board.grid[1][0].symbol = 2;
-            board.grid[1][0].links = [board.grid[3][0],board.grid[4][0]];
+            board.grid[4][0].symbol = 2;
+            board.grid[2][1].symbol = 2;
+
+
+            board.grid[3][0].links = [board.grid[4][0],board.grid[1][0],board.grid[2][1] ];
+    
+            board.grid[1][0].links = [board.grid[3][0],board.grid[4][0], board.grid[2][1]];
     
             
-            board.grid[4][0].symbol = 2;
-            board.grid[4][0].links = [board.grid[3][0],board.grid[1][0]];
-    
+            board.grid[4][0].links = [board.grid[3][0],board.grid[1][0], board.grid[2][1]];
+            board.grid[2][1].links = [board.grid[3][0],board.grid[1][0], board.grid[4][0]];
+
 
             break;
         case 3: 
+          board.grid[3][0].symbol = 3
+          board.grid[2][0].symbol = 3
+          board.grid[1][1].symbol = 3
+
           board.grid[4][0].symbol = 1
-          board.grid[4][0].links = [board.grid[0][0]];
-
-          board.grid[3][0].symbol = 2
-          board.grid[3][0].links = [board.grid[2][0],board.grid[1][0]];
-  
-          board.grid[2][0].symbol = 2
-          board.grid[2][0].links = [board.grid[3][0],board.grid[1][0]];
-
-
-          board.grid[1][0].symbol = 2
-          board.grid[1][0].links = [board.grid[3][0],board.grid[2][0],board.grid[0][0]];
-
           board.grid[0][0].symbol = 1
+          board.grid[4][1].symbol = 1
 
-          board.grid[0][0].links = [board.grid[4][0]];
+          board.grid[4][0].links = [board.grid[0][0],board.grid[4][1]];
+
+          board.grid[3][0].links = [board.grid[2][0],board.grid[1][1]];
+  
+          board.grid[2][0].links = [board.grid[3][0],board.grid[1][1]];
+
+
+          board.grid[1][1].links = [board.grid[3][0],board.grid[2][0],board.grid[0][0]];
+
+
+          board.grid[0][0].links = [board.grid[4][0],board.grid[4][1]];
+          board.grid[4][1].links = [board.grid[4][0],board.grid[0][0]];
 
 
             break;
@@ -344,9 +355,16 @@ const setupTutorial = (board, level) => {
          board.grid[0][0].symbol = 3
          board.grid[3][0].links = [board.grid[0][0],board.grid[2][0]];
 
-         board.grid[0][0].links = [board.grid[3][0]]
+         board.grid[0][0].links = [board.grid[3][0]];
          board.grid[1][0].links = [board.grid[0][0]];
-         board.grid[4][0].special = 'rotateCC'
+
+         board.grid[4][1].symbol = 4;
+         board.grid[2][1].symbol = 4
+         board.grid[4][1].links = [board.grid[2][1]];
+         board.grid[2][1].links = [board.grid[4][1],board.grid[1][1]];
+
+
+
         case 6:
             break;
 
@@ -356,16 +374,25 @@ const setupTutorial = (board, level) => {
     board.solution = board.visitedNodes.map(node=> node);
     if(level === 4){ // faking freeze nodes so I don't have to write more code or hard code colors
         board.grid[3][0].symbol = 2;
-        board.grid[3][0].links = [board.grid[4][0],board.grid[1][0]];
+        board.grid[3][0].links = [board.grid[4][0],board.grid[1][0],board.grid[4][1]];
 
         board.grid[1][0].symbol = 2;
-        board.grid[1][0].links = [board.grid[3][0],board.grid[4][0]];
+        board.grid[1][0].links = [board.grid[3][0],board.grid[4][0],board.grid[4][1]];
 
         
         board.grid[4][0].symbol = 2;
-        board.grid[4][0].links = [board.grid[3][0],board.grid[1][0]];
+        board.grid[4][0].links = [board.grid[3][0],board.grid[1][0]],board.grid[4][1];
+
+        board.grid[4][1].symbol = 1;
+        board.grid[3][1].symbol = 1;
+        board.grid[1][1].symbol = 1;
+
+        board.grid[4][1].links = [board.grid[3][1],board.grid[1][1]];
+        board.grid[3][1].links = [board.grid[4][1],board.grid[1][1]];
+        board.grid[1][1].links = [board.grid[3][1],board.grid[4][1]];
 
         board.grid[4][0].special = 'freezer';
+
     }
     board.resetGrid();
 }
@@ -378,8 +405,8 @@ const setupGrid = (board, gameType, level) => {
        
     }
     else if(gameType === 'endless'){ // get difficulty and level
-        const defaultLevel = 1;
-        const defaultDifficulty = 2;
+        const defaultLevel = 15;
+        const defaultDifficulty = true;
 
        getItems('level', 'difficulty').then(vals=>{
             const diff =  vals[1][1] === 'true' ? true : false;

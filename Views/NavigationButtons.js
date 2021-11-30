@@ -3,18 +3,20 @@ import {  TouchableOpacity, Image, StyleSheet, Text, SafeAreaView, Animated,View
 import colorScheme from '../Gameplay/ColorSchemes'
 
 import useSound from '../Sounds';
+import { storeItem } from '../Storage';
 const defaultBackground = 'rgba(248,248,255,1)';
 
 const buttonBackground  = 'rgba(240,240,245,1)';
 
 const PlayButton = ({navigation, title, disabled, toggleDisabled, borderColor, text, boardSize})=> {
     const {play} = useSound();
+    console.log(`${text}`)
     return (
         <TouchableOpacity
         style={[styles.menuButton, {borderColor: borderColor}]}
         onPress={() => {
             toggleDisabled(true);
-            boardSize ? navigation.push(title, {boardSize: boardSize}) : navigation.push(title);
+            boardSize !== null ? navigation.push(title, {boardSize: boardSize}) : navigation.push(title);
             setTimeout(()=> toggleDisabled(false), 500);
 
         }}
@@ -25,7 +27,7 @@ const PlayButton = ({navigation, title, disabled, toggleDisabled, borderColor, t
 }}>
             <Image style={[styles.play,
             { tintColor: borderColor, opacity: .8 }]}
-                source={require('../Icons/play1.png')} />
+                source={text==='skip tutorial' ?require('../Icons/skip3.png')  : require('../Icons/play1.png')} />
             </View>     
                     <Text style={[styles.buttonText, text? {fontSize: 30}: {} ]}>{text? text : title} </Text>
     </TouchableOpacity>
@@ -58,6 +60,7 @@ const BackButton = ({ onPress }) => {
                  width: 40
         }}
             onPress={()=>{
+                storeItem('tutorialFinished', true);
                 onPress();}}
         >
             <Image style={{ height: '100%', width: '100%', opacity: .7 }} source={require('../Icons/backArrow2.png')} />
@@ -103,8 +106,8 @@ const PlayButtonExpanded = ({ navigation, title, disabled, toggleDisabled, borde
                 >
                     <View style={{
                         position: 'absolute',
-                        width: '101%'
-                        , height: '98%',
+                        width: '100%'
+                        , height: '100%',
                         backgroundColor: boardSizeSelected ? borderColor : 'rgb(211,211,211)',
                         opacity: .5
                     }} />
@@ -114,9 +117,8 @@ const PlayButtonExpanded = ({ navigation, title, disabled, toggleDisabled, borde
                  onPress={()=>toggleSize(false)}>
                     <View style={{
                         position: 'absolute',
-                        width: '101%'
-                        , height: '98%',
-                        top: -1,
+                        width: '100%'
+                        , height: '100%',
                         backgroundColor: boardSizeSelected ? 'rgb(211,211,211)' : borderColor,
                         opacity: .5
                     }} />
@@ -223,14 +225,16 @@ const styles = StyleSheet.create({
     row2: {
         flexDirection: 'column',
         flex: 1,
-
+        
     },
     boardSize: {
         fontSize: 25,
         color: 'black',
         opacity: .8,
-        paddingVertical: 3,
-        paddingHorizontal: 8
+        paddingVertical: 0,
+        paddingHorizontal: 8,
+        textAlign: 'center'
+        
     },
     times: {
         borderColor: 'black',
@@ -245,7 +249,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        flexGrow: 1
+        height: '50%'
     }
 });
 export {BackButton, PlayButton, IconButton, PlayButtonExpanded, BoardSize};
