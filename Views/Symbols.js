@@ -3,6 +3,7 @@ import {StyleSheet, View, Animated,Easing, Image, Text, useWindowDimensions} fro
 
 import { distance, centerOnNode, point, convertToLayout } from '../Utils'
 import {getItem} from '../Storage'
+import { Segment } from './Paths'
 
 const getSymbolSource = (group)=> {
     let icon = '';
@@ -155,26 +156,26 @@ const getSymbolSource = (group)=> {
             pos = point(diameter+ArrowPadding/2, radius - height/2);
             type = 1;
         }else { // left arrow
-            pos = point(-width - ArrowPadding/2, radius-height/2);
+            pos = point(-width - ArrowPadding/2 , radius-height/2);
             type = 3;
         }
     } else {
         if(startNode.gridPos.row > endNode.gridPos.row) {  // down arrow
-            pos = point(radius-width/2, -height - (ArrowPadding/2));
+            pos = point(radius-width/2, -height - (ArrowPadding/2) );
             type = 0;
         }else { // up arrow
-            pos = point(radius-width/2, diameter + ArrowPadding/2 );
+            pos = point(radius-width/2, diameter + ArrowPadding/2  );
             type = 2;
         }
     }
     return {pos, type};
   }
 
-  const getArrowDims = (startNode, endNode) => {
+  const getArrowDims = (startNode, endNode, length) => {
     // two cases vertical  and horizontal
     let width;
     let height;
-    let thickness = startNode.diameter / 4;
+    let thickness = startNode.diameter / 5;
 
     startNode.neighbors.forEach(neighbor=> {
       if(startNode.gridPos.row === neighbor.gridPos.row) {
@@ -195,9 +196,11 @@ const getSymbolSource = (group)=> {
 
     if(startNode.gridPos.row === endNode.gridPos.row) {
       height = thickness;
+      width = length;
     }
     else{
-      width = thickness
+      width = thickness;
+      height = length;
     }
     return {width, height};
   }
@@ -220,10 +223,10 @@ const shouldAddArrow = (node, neighbor) => {
   }
 }
 
-  const FixedArrow = ({node, linkedNode}) => {
-    let {width, height} = getArrowDims(node, linkedNode);
-
-    let {pos, type} = positionArrow2(node, linkedNode,width,height);
+  const FixedArrow = ({node, linkedNode, length}) => {
+   let {width, height} = getArrowDims(node, linkedNode, length);
+    
+   let {pos, type} = positionArrow2(node, linkedNode,width,height);
     pos = point(pos.x + node.pos.x, pos.y + node.pos.y);
    
     
@@ -254,9 +257,10 @@ const shouldAddArrow = (node, neighbor) => {
 
   const Arrows = ({grid}) => {
     
-     
+      //const [length, setLength]= useState(1000); //abritrarily high number
       const flat = grid.reduce((flat, row) => [...flat, ...row]);
 
+      const length = Math.min(grid[1][0].pos.y - grid[0][0].pos.y - grid[0][0].diameter,grid[0][1].pos.x - grid[0][0].pos.x - grid[0][0].diameter   );
       const arrows = flat.reduce((arrowList, node) => {
         const arrowNeighbors = node.neighbors.filter(neighbor =>
           shouldAddArrow(node, neighbor));
@@ -265,16 +269,20 @@ const shouldAddArrow = (node, neighbor) => {
         })];
       }, []);
 
-  
-  
+
     useEffect(()=> {
       
       //console.log(arrows);
     }, 
       []);
+      //           arrows.map((arrow, i)=> <FixedArrow node={arrow.node} linkedNode= {arrow.neighbor} key={i} />) 
+/*       {arrows.map((arrow, i)=> <Segment startNode={arrow.node} endPoint={centerOnNode(arrow.neighbor.pos, arrow.neighbor.diameter)} fixedColor={'rgba(130,130,130,.5)'} key={i}/>)
+        }*/
     return (<View style={{position:'absolute', height:'100%', width: '100%'}}> 
-        {
-            arrows.map((arrow, i)=> <FixedArrow node={arrow.node} linkedNode= {arrow.neighbor} key={i} />) 
+
+
+                {
+          arrows.map((arrow, i)=> <FixedArrow node={arrow.node} linkedNode= {arrow.neighbor} key={i} length={length}/>) 
         }
       </View>);
   }
@@ -284,7 +292,7 @@ const shouldAddArrow = (node, neighbor) => {
          width: width,
          height: height,
 
-         opacity: .7
+         opacity: .7,
     };
   }
 
@@ -362,6 +370,7 @@ const shouldAddArrow = (node, neighbor) => {
           height:10,
           width:10,
           resizeMode:'stretch',
+          tintColor: 'black'
       },
       arrowWrapper: {
           position:'absolute'

@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "Spinners",
-    "slug": "Spinners",
+    "name": "ColorMaze",
+    "slug": "ColorMaze",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/1024.png",
     "splash": {
-      "image": "./assets/1024.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#f8f8ff"
     },
@@ -14,7 +14,9 @@
       "fallbackToCacheTimeout": 0
     },
     "assetBundlePatterns": [
-      "**/*"
+      "./assets/*",
+      "./Icons/*",
+      "./Sounds/*"
     ],
     "ios": {
       "supportsTablet": true

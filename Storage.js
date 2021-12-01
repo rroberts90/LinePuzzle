@@ -42,7 +42,7 @@ const storeItem = async (key,value) => {
 
 
   const levelUp = ( board) => {
-    const localLevel= board.score;
+    board.score = board.score+1;
     if(board.gameType === 'timed' || board.gameType === 'moves') {
       let itemName = `${board.gameType}Score`;
       if(board.grid.length === 6) {
@@ -50,13 +50,11 @@ const storeItem = async (key,value) => {
       }else {
         itemName += '5x7';
       }
-      getItem(itemName).then(score=> {
-        console.log(`highScore for ${itemName}: ${score}`)
-        console.log(`local Level: ${localLevel+1}`);
 
-        if(localLevel+1 > score){
-           console.log(`storing new high score: ${localLevel+1}`);
-          storeItem(itemName, localLevel+1);
+      getItem(itemName).then(score=> {
+
+        if( board.score > score){
+          storeItem(itemName,  board.score);
         }
       });
     }

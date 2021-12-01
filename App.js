@@ -20,6 +20,8 @@ function HomeScreen({ navigation }) {
    const [movesBoard, toggleMovesBoard] = useState(true);
    const [timedBoard, toggleTimedBoard] = useState(true);
 
+   useEffect(()=> {getItem('movesScore4x6').then(val => {console.log(val)});
+},[])
     return (
         <SafeAreaView style={[styles.defaultBackground,{ flex: 1, alignItems: 'center', justifyContent: 'center' }]}>
             <Text style={styles.headerText}> COLOR MAZE </Text>

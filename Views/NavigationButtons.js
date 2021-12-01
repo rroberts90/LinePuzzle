@@ -23,7 +23,7 @@ const PlayButton = ({navigation, title, disabled, toggleDisabled, borderColor, t
         disabled={disabled}
     >
         
-        <View style={{height: '80%', aspectRatio: 1,  marginHorizontal: 5
+        <View style={{height: '20%', aspectRatio: 1,  marginHorizontal: 5
 }}>
             <Image style={[styles.play,
             { tintColor: borderColor, opacity: .8 }]}
@@ -90,7 +90,7 @@ const PlayButtonExpanded = ({ navigation, title, disabled, toggleDisabled, borde
             }}
             disabled={disabled}
         >
-            <View style={{height: '80%', aspectRatio: 1,  marginHorizontal: 5
+            <View style={{height: '80%', aspectRatio: 1,  marginHorizontal: 5, justifyContent: 'center'
 }}>
             <Image style={[styles.play,
             { tintColor: borderColor, opacity: .8 }]}
@@ -160,6 +160,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 10,
         marginVertical: 20,
         padding: 5,
+        backgroundColor: buttonBackground
     },
     icon:{
         height: 45, 
@@ -176,8 +177,8 @@ const styles = StyleSheet.create({
 
     }, 
     play: {
-        width: '100%',
-        height: '100%',
+        width: '70%',
+        height: '70%',
         aspectRatio: 1,
      
     }, 

@@ -39,41 +39,21 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
   const [loading, toggleLoading] = useState(true);
 
   const {play} = useSound();
-  useEffect(()=> {
-    if(getBoard().gameType === 'tutorial' && l===0) {
-      console.log('on start');
-    }
-  },[]);
+
   useEffect(()=>{
-    //console.log(`---------------\nLevel ${l} start color: ${getBoard().start.colors[2]}\n`);
-    //logGridPos('    start',getBoard().start.gridPos);
+
     if (l !== 0) {
     resetCurrentNode(1600);
     }
 
     lineSegments.current = [];
     
-    /*console.log(`${l} called to setup level`);
-    console.log(`visited Nodes length: ${getBoard().visitedNodes.length}\n`);
-    if (getBoard().visitedNodes.length > 1) {
-      getBoard().visitedNodes.reduce((prev, curr) => {
-        const updatedEndPoint = centerOnNode(curr.pos, curr.diameter);
-        const seg = {
-         startNode:prev,
-         endPoint:updatedEndPoint,
-        };
-        lineSegments.current  = [...lineSegments.current, seg];
-      return curr;
-    });
-  }*/
-    
+
     setWin(false);
     setDefaultPulser(0);
     getBoard().restart();
-    //resetCurrentNode(1);
     return () => {
-      //console.log(`return ${l} effect`);
-      //getBoard().restart();
+
   }
   },[l]);
 
@@ -124,7 +104,6 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
    if(next === getBoard().finish ) {
     //console.log('got to finish node. ');
     levelUp(getBoard());  
-    getBoard().score = getBoard().score+1;
 
     setWin(true); // triggers end line fade in 
     hintEl.current.onPress = null;

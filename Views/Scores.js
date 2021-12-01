@@ -31,11 +31,18 @@ function AfterGameScreen({ navigation, route }) {
 
     const { gameType, score, boardSize } = route.params;
     const [high, setHigh] = useState('-');
-    const itemName = `${gameType}Score${boardSize}`;
+    let itemName = `${gameType}Score`;
+
+    if(boardSize) {
+        itemName += '4x6';
+      }else {
+        itemName += '5x7';
+      }
+
     useEffect(()=>
     {getItem(itemName).then(val => {
 
-        if(val >= score){
+        if(parseInt(val) >= parseInt(score)){
             setHigh(val);
         }else{
             setHigh(score);
@@ -72,6 +79,7 @@ function ScoresScreen({ navigation }) {
 
 
     useEffect(()=> {
+        console.log('getting scores');
         getItems('timedScore4x6', 'timedScore5x7').then(items=> {
             const small = parseInt(items[0][1]);
             const large = parseInt(items[1][1]);
