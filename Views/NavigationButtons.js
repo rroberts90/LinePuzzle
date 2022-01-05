@@ -10,7 +10,6 @@ const buttonBackground  = 'rgba(240,240,245,1)';
 
 const PlayButton = ({navigation, title, disabled, toggleDisabled, borderColor, text, boardSize})=> {
     const {play} = useSound();
-    console.log(`${text}`)
     return (
         <TouchableOpacity
         style={[styles.menuButton, {borderColor: borderColor}]}
@@ -23,7 +22,7 @@ const PlayButton = ({navigation, title, disabled, toggleDisabled, borderColor, t
         disabled={disabled}
     >
         
-        <View style={{height: '20%', aspectRatio: 1,  marginHorizontal: 5
+        <View style={{height: '60%', aspectRatio: 1,  marginHorizontal: 5
 }}>
             <Image style={[styles.play,
             { tintColor: borderColor, opacity: .8 }]}
@@ -92,7 +91,7 @@ const PlayButtonExpanded = ({ navigation, title, disabled, toggleDisabled, borde
         >
             <View style={{height: '80%', aspectRatio: 1,  marginHorizontal: 5, justifyContent: 'center'
 }}>
-            <Image style={[styles.play,
+            <Image style={[styles.play2,
             { tintColor: borderColor, opacity: .8 }]}
                 source={require('../Icons/play1.png')} />
             </View>
@@ -176,9 +175,15 @@ const styles = StyleSheet.create({
         alignItems: 'stretch'
 
     }, 
-    play: {
+    play2: {
         width: '70%',
         height: '70%',
+        aspectRatio: 1,
+     
+    }, 
+    play: {
+        width: '100%',
+        height: '100%',
         aspectRatio: 1,
      
     }, 

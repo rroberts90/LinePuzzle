@@ -144,7 +144,8 @@ const gameDims = (game) => {
     setupGridFromScratch(game, level, prevBoard){
 
         this.gameType = game;
-        
+        this.potentialBoosterNodes = [];
+
         if(!prevBoard) {
           console.log("new board");
           this.grid = setupGridFlex(this.numRow,this.numCol);
@@ -300,7 +301,6 @@ const gameDims = (game) => {
       this.visitedNodes = [this.start];
       
       this.start.fixed = true;
-  
       this.grid.forEach((row) => row.forEach(node =>  {
           node.frozen = 0;
           node.direction=-1;}));
@@ -382,6 +382,8 @@ const gameDims = (game) => {
       return nodes.map(node=>node.toString()).join(' ');
 
     }
+
+
 
 }
 

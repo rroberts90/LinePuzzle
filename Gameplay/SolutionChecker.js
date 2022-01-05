@@ -1,6 +1,6 @@
 import {rotateColors, logGridPos} from '../Utils'
 
-const visit = (board, visitedNodes, candidate, pathList) => {
+const visit = (board, visitedNodes, candidate, pathList,uniqueVisitsDict) => {
     //console.log(`visiting node: ${candidate.toString()}`);
 
     board.visitedNodes = [...visitedNodes, candidate];
@@ -17,18 +17,18 @@ const visit = (board, visitedNodes, candidate, pathList) => {
         }
         candidate.rotateLinked();
     }
-    return pathFinder(board, pathList);
+    return pathFinder(board, pathList,uniqueVisitsDict);
 }
 
 /**
- * Finds all possible paths through grid. If
+ * Finds all possible paths through grid. this version DOES NOT  mutate the grid
  * @param {Node} curr 
  * @param {*} criteria 
  * @param {Node} finish
  * @returns 
  */
 
-const pathFinder = (board, pathList) => {
+const pathFinder = (board, pathList, uniqueVisitsDict) => {
     const { visitedNodes, finish } = board;
     const curr = visitedNodes[visitedNodes.length - 1];
     //logGridPos('Current', curr.gridPos);
@@ -48,10 +48,21 @@ const pathFinder = (board, pathList) => {
 
             if (board.isPathOpen(curr, candidate)) {
 
-                //candidate  matches
+                //candidate  matches. in this version always go to good match
                 if (curr.isMatch(candidate)) {
+                    
+                    let uniqueIdentifier = `${curr.gridPos.row}${curr.gridPos.col}${curr.rot}${curr.direction}${curr.frozen}`
+                    uniqueIdentifier += `${candidate.gridPos.row}${candidate.gridPos.col}${candidate.rot}${candidate.direction}${candidate.frozen}`
 
-                    const isGoodCandidate = visit(board, visitedNodes, candidate, pathList);
+                    if(uniqueVisitsDict){
+                     if( !uniqueVisitsDict[uniqueIdentifier]) {
+                        uniqueVisitsDict[uniqueIdentifier] = 1;
+                     }else{
+                        uniqueVisitsDict[uniqueIdentifier] += 1; 
+                     }
+                    }
+
+                    const isGoodCandidate = visit(board, visitedNodes, candidate, pathList,uniqueVisitsDict);
                     if (!isGoodCandidate) {
                         candidates = candidates.filter(node => node !== candidate);
                     }
@@ -111,7 +122,7 @@ const findMinLength = (l) => {
     return l.reduce((prev, curr)=> {if(prev.length< curr.length){return prev}else{return curr}}).length
 
 }
-const solutionChecker = (board, resetGrid) => {
+const solutionChecker = (board) => {
     let pathList = [];
     board.resetGrid();
 
@@ -126,9 +137,15 @@ const solutionChecker = (board, resetGrid) => {
     board.resetGrid();
 
     pathList = [];
-    pathFinder(board, pathList);
+    let uniqueVisitsDict = {};
+    pathFinder(board, pathList, uniqueVisitsDict);
+
+    const totalVisitPairs = Object.entries(uniqueVisitsDict).reduce((r,arr)=> {return r+arr[1]}, 0);
+    const totalUniqueVisits = Object.entries(uniqueVisitsDict).length;
+    
+
     board.resetGrid();
 
-    return findMinLength(pathList);
+    return {minLength: findMinLength(pathList), uniques: totalUniqueVisits, total: totalVisitPairs};
 }
 export default solutionChecker;

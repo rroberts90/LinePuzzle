@@ -63,18 +63,14 @@ const Game = ({ navigation, route }) => {
   useEffect(() => {
     // check if there is a save. , and get the board size
     // change saveLoaded to true and proceed as normal
-    const saveName = 'saved' + gameType;
-    getItems(saveName, 'board').then(vals => {
-      const savedBoard = vals[0][1];
-      if (savedBoard) {
-        getBoard(board0, null, boardSize,savedBoard);
-      }
-      else {
-        getBoard(board0,null, boardSize);
-      }
+    //const saveName = 'saved' + gameType;
+    //getItems(saveName, 'board').then(vals => {
+    //  const savedBoard = vals[0][1];
+
+      getBoard(board0,null, boardSize);
+      
       getBoard(board1, board0.current);
       setSaveLoaded(true);
-    });
   }, []);
 
   useEffect(() => {

@@ -1,9 +1,8 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Animated, PanResponder, StyleSheet, View, Image } from "react-native";
 import { dynamicNodeSizeNoPosition } from './Nodes';
 import { Segment } from "./Paths";
 import { centerOnNode } from '../Utils';
-import { useEffect } from "react/cjs/react.development";
 
 
 const DemoCursor = ({ node, nextNode, first, firstNode }) => {
@@ -17,17 +16,20 @@ const DemoCursor = ({ node, nextNode, first, firstNode }) => {
         endPointAnim.addListener((value) => { setEndPoint({ x: value.x, y: value.y }) });
 
         setTimeout(() => {
-            endPointAnim.setValue({ x: node.pos.x, y: node.pos.y });
+           
             const centeredEnd = centerOnNode(nextNode.pos, nextNode.diameter);
+            const centeredStart = centerOnNode(node.pos, node.diameter);
+            endPointAnim.setValue(centeredStart);
+            fadeAnim.setValue(1);
             Animated.sequence([Animated.timing(endPointAnim, {
-                delay: 0,
-                toValue: { x: nextNode.pos.x - 100, y: node.pos.y + 50 },
+                delay: 1000,
+                toValue: { x: nextNode.pos.x - 100, y: node.pos.y + 120 },
                 duration: 1500,
                 useNativeDriver: true
             }),
             Animated.timing(endPointAnim, {
                 delay: 0,
-                toValue: { x: nextNode.pos.x + 100, y: node.pos.y + 50 },
+                toValue: { x: nextNode.pos.x + 100, y: node.pos.y - 120 },
                 duration: 1500,
                 useNativeDriver: true
             }),

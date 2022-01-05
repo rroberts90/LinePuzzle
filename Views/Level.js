@@ -64,7 +64,6 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
     }
     setDefaultPulser(defaultPulser + 1);
     return ()=> {
-      console.log('clearing interval');
       triggerPulser(0);
       setDefaultPulser(0);
     };
@@ -102,7 +101,6 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
    triggerPulser(currentValue => currentValue+1);
   
    if(next === getBoard().finish ) {
-    //console.log('got to finish node. ');
     levelUp(getBoard());  
 
     setWin(true); // triggers end line fade in 

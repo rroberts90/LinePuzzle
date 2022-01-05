@@ -9,17 +9,19 @@ const puzzle1 = { group: .5,
      maxLength: 100, 
      circles: 2 
  }
+
  const endlessHard = { 
     gameType: 'endless' ,
-    group: .5, 
+    group: .6, 
     directLinks: .4, 
     freezer: .1, 
-    rotateCC: .1,
-     falsePaths: 20, 
-     minLength: 18, 
-     maxFalsePathLength: 16, 
+    rotateCC: .05,
+     falsePaths: 8, 
+     minLength: 16, 
+     maxFalsePathLength: 14, 
      maxLength: 100, 
-     circles: 2 
+     circles: 2 ,
+     minSymbols: 10
  }
 
 // remember difficulty == false means hard 
@@ -47,13 +49,13 @@ const getCriteria = (gameType, level, difficulty, largeBoard) => {
     }
 
     else if(gameType ==='timed' || gameType === 'moves') {
-        let puzzle =  { group: .4, 
+        let puzzle =  { group: .5, 
             directLinks: .3, 
             freezer: .2, 
             rotateCC: .1,
-             falsePaths: 20, 
-             minLength: 17, 
-             maxFalsePathLength: 18, 
+             falsePaths: 8, 
+             minLength: 16, 
+             maxFalsePathLength: 10, 
              maxLength: 100, 
              circles: 2,
              totalBoosters: 5,

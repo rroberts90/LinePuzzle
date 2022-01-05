@@ -13,6 +13,7 @@ import { PlayButton, IconButton ,PlayButtonExpanded} from './Views/NavigationBut
 import AboutScreen from './Views/AboutScreen'
 const defaultBackground = 'rgba(248,248,255,1)';
 
+
 function HomeScreen({ navigation }) {
     const [disabled, toggleDisabled]= useState(false);
 
@@ -20,8 +21,7 @@ function HomeScreen({ navigation }) {
    const [movesBoard, toggleMovesBoard] = useState(true);
    const [timedBoard, toggleTimedBoard] = useState(true);
 
-   useEffect(()=> {getItem('movesScore4x6').then(val => {console.log(val)});
-},[])
+
     return (
         <SafeAreaView style={[styles.defaultBackground,{ flex: 1, alignItems: 'center', justifyContent: 'center' }]}>
             <Text style={styles.headerText}> COLOR MAZE </Text>
@@ -100,7 +100,7 @@ function LoadingScreen({navigation}){
             <Text style={styles.headerText}> COLOR MAZE </Text>
 
                 <PlayButton navigation={navigation} borderColor={colorScheme.four} disabled={false} toggleDisabled={()=>{}} title={'tutorial'} text={'play tutorial'} boardSize={false}/>
-                <PlayButton navigation={navigation} borderColor={colorScheme.one} disabled={false} toggleDisabled={()=>{storeItem('tutorialFinished', true)}} title={'colorflush'} text={'skip tutorial'} />
+                <PlayButton navigation={navigation} borderColor={colorScheme.one} disabled={false} toggleDisabled={()=>{storeItem('tutorialFinished', true)}} title={'colorflush'} text={'skip tutorial'} boardSize={false}/>
 
             </>: null}
         </View>
@@ -116,14 +116,14 @@ function App() {
         <NavigationContainer>
             <Stack.Navigator screenOptions={{
                 headerBackTitleVisible: false,
-                headerStyle: {backgroundColor: defaultBackground},
-                cardStyle: {backgroundColor: defaultBackground}
+                
             }}
-            transitionerStyle={{backgroundColor: defaultBackground}}>
+    >
                 <Stack.Screen name="loading" component={LoadingScreen} options={{
                     gestureEnabled: false,
                     headerShown: false
-                }} />
+                }}
+                 />
                 <Stack.Screen name="colorflush" component={HomeScreen} options={{
                     gestureEnabled: false,
                     headerShown: false
@@ -131,7 +131,9 @@ function App() {
                 <Stack.Screen name="endless" component={Game} options={{
                     headerShown: false,
                     gestureEnabled: false
-                }} />
+                }}
+
+/>
                 <Stack.Screen name="moves" component={Game} options={{
                     headerShown: false,
                     gestureEnabled: false
