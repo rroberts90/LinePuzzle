@@ -3,7 +3,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { Segment, CapSegment } from './Paths';
 
 import { NodeView } from "./Nodes";
-const GridView = ({board, won, afterUpdate}) => {
+
+const GridView = ({board, won, afterUpdate, triggerPulser}) => {
 
   const rows = board.grid.map((row, i) => {
 
@@ -20,7 +21,7 @@ const GridView = ({board, won, afterUpdate}) => {
   });
 
   return (
-    <Animated.View style={styles.board2}  >
+    <Animated.View style={styles.board2} onStartShouldSetResponder={()=> true} onResponderGrant={()=>triggerPulser(pulser=> pulser+1)}>
 
 
      <View style={styles.cap}>

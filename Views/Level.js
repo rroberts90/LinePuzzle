@@ -251,7 +251,7 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
       <Pulse pos={currPosF} colors={rotateColors(currentNode.colors, currentNode.rot)} GOGOGO={pulser} diameter = {currentNode.diameter} />
 
       <Cursor node={currentNode} currPoint={point(currX, currY)} triggerPulser={triggerPulser} detectMatch = {detectMatch} intervalId={intervalId} />
-      <GridView board={getBoard()} afterUpdate={updateAfterLayout} height={height} won={win} />
+      <GridView board={getBoard()} afterUpdate={updateAfterLayout} height={height} won={win} triggerPulser={triggerPulser}/>
       {getBoard().gameType==='tutorial' && l === 0? <DemoCursor node={getBoard().start} nextNode={getBoard().solution[1]}  firstNode={getBoard().start}/>: null}
 
       {loadingWall}

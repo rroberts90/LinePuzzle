@@ -41,7 +41,7 @@ const getCriteria = (gameType, level, difficulty, largeBoard) => {
          }else{
             let hard = [];
             Object.assign(hard, endlessHard);
-            hard.minLength += 4;
+            hard.minLength += 5;
             hard.maxFalsePathLength += 2;
             hard.falsePaths += 4;
             return hard;
@@ -66,13 +66,13 @@ const getCriteria = (gameType, level, difficulty, largeBoard) => {
             puzzle.minLength += 4;
             puzzle.falsePaths +=2;
             puzzle.maxFalsePathLength +=3;
-            puzzle.totalBoosters +=2;
+            puzzle.totalBoosters +=4;
             return puzzle;
         }
     }
 
     let criteria = {group: .3, 
-                    directLinks: .1, 
+                    directLinks: 0, 
                     freezer: 0, 
                     rotateCC: 0, 
                     falsePaths: 4,
@@ -101,10 +101,10 @@ const getCriteria = (gameType, level, difficulty, largeBoard) => {
     else{
         criteria.directLinks = .3
         criteria.group = .4;
-        criteria.maxFalsePathLength = 9;
-        criteria.falsePaths = 8;
+        criteria.maxFalsePathLength = 8;
+        criteria.falsePaths = 6;
         criteria.freezer = .1;
-        criteria.minLength = 15;
+        criteria.minLength = 14;
         criteria.circles = 2;
 
     }

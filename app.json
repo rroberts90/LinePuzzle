@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "ColorMaze",
+    "name": "Color Maze",
     "slug": "ColorMaze",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/1024.png",
     "splash": {
-      "image": "./assets/splash2.png",
+      "image": "./assets/splash3.png",
       "resizeMode": "contain",
       "backgroundColor": "#f8f8ff"
     },
@@ -19,7 +19,8 @@
       "./Sounds/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.rroberts90.ColorMaze"
     },
     "android": {
       "adaptiveIcon": {

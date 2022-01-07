@@ -21,6 +21,7 @@ function HomeScreen({ navigation }) {
    const [movesBoard, toggleMovesBoard] = useState(true);
    const [timedBoard, toggleTimedBoard] = useState(true);
 
+//            <Image style={{width: 50, aspectRatio:1}}source={require('./assets/180.png')}/>
 
     return (
         <SafeAreaView style={[styles.defaultBackground,{ flex: 1, alignItems: 'center', justifyContent: 'center' }]}>

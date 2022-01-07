@@ -115,7 +115,7 @@ const setupSpecialNodes = (board, criteria) => {
     const outcomes = [1];
     const dist = makeRandomDistribution(criteria.freezer, outcomes );
     const rotateCCDist = makeRandomDistribution(criteria.rotateCC, outcomes);
-    let addedRotateCC = false;
+
      
     board.grid.forEach((row) => row.forEach(node => {
         if (node.links.length > 0 && node !== board.start && node !== board.finish) {
@@ -125,15 +125,22 @@ const setupSpecialNodes = (board, criteria) => {
             }
         }
 
-        if (node !== board.start && node !== board.finish && node.special !== 'freezer' && node.symbol === null )
-        {
-            const rotateCC = getRandomElement(rotateCCDist);
-            if(rotateCC && !addedRotateCC) {
-                node.special = 'rotateCC';
-                addedRotateCC = true;
-            }
-        }
     }));
+
+    let addedCC = false;
+    let maxTries = 0;
+    while (!addedCC && criteria && criteria.rotateCC > 0 && maxTries < 20) {
+        const randCol = randInt(0, board.grid[0].length);
+        const randRow = randInt(0, board.grid.length);
+        const randNode = board.grid[randRow][randCol];
+        if(!randNode.special && !randNode.symbol && randNode!== board.start && randNode !== board.finish) {
+            randNode.special = 'rotateCC';
+            addedCC = true;
+            maxTries ++;
+        }
+
+    }
+
 
 }
 // call after setupSymbols

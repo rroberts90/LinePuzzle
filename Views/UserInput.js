@@ -1,15 +1,14 @@
 import React, {useRef, useState } from "react";
-import { Animated, PanResponder, StyleSheet, View} from "react-native";
+import { Animated, PanResponder, StyleSheet} from "react-native";
 import {dynamicNodeSizeNoPosition} from './Nodes';
 import {  Segment } from "./Paths";
 import * as MyMath from '../Utils';
-import useSound from "../Sounds";
+
 const Cursor = (props) => {
     const mostRecentPoint = useRef(null);
     const [endPoint, setEndPoint] = useState(null);
 
     const pan = useRef(new Animated.ValueXY()).current;
-    const {play} = useSound();
 
     
     const panResponder = useRef(
@@ -42,12 +41,7 @@ const Cursor = (props) => {
          
           // check for intersections with other nodes
           const {newNode, prevPoint} = props.detectMatch(point);
-          if(prevPoint){
-            // rolled back to previous node 
-            //mostRecentPoint.current = prevPoint;
-          }
-          else if(newNode){
-            //play('connect');
+          if(newNode){
             mostRecentPoint.current = point;
             
           }
@@ -61,13 +55,11 @@ const Cursor = (props) => {
           )(evt, gestureState);
         },
         onPanResponderRelease: (evt, gestureState) => {
-          //console.log("RELEASED");
          
           const centeredEndPoint = mostRecentPoint.current;///MyMath.point(gestureState.x0, gestureState.y0); //MyMath.centerOnNode(MyMath.point(props.currX, props.currY), props.node.diameter );
           setEndPoint(null);
 
           pan.setValue({ x: 0, y: 0 });
-          //reset();
         }
       })
     ).current;

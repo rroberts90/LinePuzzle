@@ -101,31 +101,31 @@ function SettingsScreen({ navigation, route }) {
         <>
             <SafeAreaView style={styles.container}>
                 <Text style={styles.topHeader}> Settings </Text>
-                <View style={styles.bar} />
+
+                <Text style={styles.headerText}>difficulty</Text>
 
                 <View style={styles.line}>
-                    <Text style={styles.headerText}> endless mode:    </Text>
-                    <Selector toggle={difficulty} color={colorScheme.four} text1={'normal'} text2={'puzzle'} press1={() => { toggleDifficulty(true); play('connect'); }} press2={() => { toggleDifficulty(false); play('connect'); }} />
+                    <Selector toggle={difficulty} color={colorScheme.four} text1={'easy'} text2={'hard'} press1={() => { toggleDifficulty(true); play('connect'); }} press2={() => { toggleDifficulty(false); play('connect'); }} />
                 </View>
 
 
-                <View style={styles.bar} />
+                <Text style={styles.headerText}>sound</Text>
 
                 <View style={styles.line}>
-                    <Text style={styles.headerText}> sound:    </Text>
                     <Selector toggle={soundOn} color={colorScheme.four} text1={'on'} text2={'off'} press1={() => { toggleSound(true); play('connect'); }} press2={() => toggleSound(false)} />
                 </View>
 
+                <Text style={styles.headerText}>vibrate</Text>
+
                 <View style={styles.line}>
-                    <Text style={styles.headerText}> vibrate:   </Text>
                     <Selector toggle={vibrate} color={colorScheme.four} text1={'on'} text2={'off'} press1={() => { toggleVibrate(true); play('connect'); }} press2={() => { toggleVibrate(false); play('connect'); }} />
                 </View>
 
-                <View style={styles.bar} />
 
+
+                <Text style={styles.headerText}>display</Text>
 
                 <View style={styles.line}>
-                    <Text style={styles.headerText}> display:  </Text>
                     <View style={{ flexDirection: 'column' }}>
                         <Pressable style={[styles.toggle, styles.toggleLeft, styles.toggleColorFour, styles.iconContainer]} onPress={() => { play('connect'); setDisplay('shapes') }}>
                             <View style={display === 'shapes' ? styles.selectedFour : null} />
@@ -171,25 +171,29 @@ function SettingsScreen({ navigation, route }) {
 const styles = StyleSheet.create({
     line: {
         flexDirection: 'row',
-        marginVertical: 10,
         justifyContent: 'flex-end',
+        alignSelf: 'center',
+        marginBottom: 10
 
     },
     container: {
         flex: 1,
-        alignItems: 'flex-start',
-        justifyContent: 'flex-start',
+        alignItems: 'center',
+        justifyContent: 'space-evenly',
         backgroundColor: defaultBackground
     },
     topHeader: {
         fontSize: 40,
         alignSelf: 'center',
-        marginVertical: 10
+        marginVertical: 10,
+        marginTop: 10
     },
 
     headerText: {
         fontSize: 25,
-        marginTop: 10
+        marginTop: 10,
+        alignSelf: 'center',
+        textDecorationLine: 'underline'
     },
     toggle: {
         borderWidth: 0,
