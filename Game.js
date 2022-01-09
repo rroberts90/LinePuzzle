@@ -61,11 +61,6 @@ const Game = ({ navigation, route }) => {
   const board1 = useRef(null);
 
   useEffect(() => {
-    // check if there is a save. , and get the board size
-    // change saveLoaded to true and proceed as normal
-    //const saveName = 'saved' + gameType;
-    //getItems(saveName, 'board').then(vals => {
-    //  const savedBoard = vals[0][1];
 
       getBoard(board0,null, boardSize);
       
@@ -142,8 +137,7 @@ const Game = ({ navigation, route }) => {
 
   if (!saveLoaded) {
     return (<>
-      <Header fontAnim={1}/>
-      <BackButton onPress={() => navigation.navigate('colorflush')} />
+      <Header fontAnim={1} navigation= {navigation}/>
     </>);
   }
   return (<>
@@ -178,18 +172,11 @@ const Game = ({ navigation, route }) => {
     <ButtonsBar undoEl={undoEl} restartEl={restartEl} hintEl={hintEl} />
 
     {gameType === 'timed' ? 
-      <Timer onFinish={onFinish} level={level}  time = {time} setTime= {setTime} /> : 
+      <Timer onFinish={onFinish} level={level}  time = {time} setTime= {setTime}  navigation= {navigation}/> : 
       gameType === 'moves'? 
-      <Mover onFinish= {onFinish} level = {level} moves={moves} /> : 
-      <Header fontAnim={1}/>
+      <Mover onFinish= {onFinish} level = {level} moves={moves}  navigation= {navigation}/> : 
+      <Header fontAnim={1} navigation= {navigation} />
     }
-    <BackButton onPress={() => { 
-      const currentSave = board0Current ? board0.current.save() : board1.current.save();
-      const saveName = 'saved' + gameType;
-      storeItem(saveName, currentSave);
-      navigation.navigate('colorflush') }
-      }/>
-
 
   </>
 
@@ -199,6 +186,13 @@ const Game = ({ navigation, route }) => {
 
 export default Game;
 
+/*
+
+      const currentSave = board0Current ? board0.current.save() : board1.current.save();
+      const saveName = 'saved' + gameType;
+      storeItem(saveName, currentSave);
+
+*/
 
 /**      <View style={{position:'absolute', width: '100%', height: '15%', backgroundColor:'red', bottom: '-7.5%', left:0}}/>
 

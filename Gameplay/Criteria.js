@@ -12,7 +12,7 @@ const puzzle1 = { group: .5,
 
  const endlessHard = { 
     gameType: 'endless' ,
-    group: .6, 
+    group: .5, 
     directLinks: .4, 
     freezer: .1, 
     rotateCC: .05,
@@ -102,10 +102,10 @@ const getCriteria = (gameType, level, difficulty, largeBoard) => {
         criteria.directLinks = .3
         criteria.group = .4;
         criteria.maxFalsePathLength = 8;
-        criteria.falsePaths = 6;
+        criteria.falsePaths = 4;
         criteria.freezer = .1;
         criteria.minLength = 14;
-        criteria.circles = 2;
+        criteria.circles = 1;
 
     }
     if(largeBoard) {

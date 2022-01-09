@@ -51,23 +51,22 @@ const IconButton = ({navigation, title, disabled, toggleDisabled, borderColor, i
     );
 }
 
-const BackButton = ({ onPress }) => {
-    return (<SafeAreaView style={styles.backbutton}>
+const BackButton = ({ navigation }) => {
+    return (
+
         <TouchableOpacity
-            style={{
-                 height: 40, 
-                 width: 40
-        }}
+            style={styles.backbutton}
             onPress={()=>{
                 storeItem('tutorialFinished', true);
-                onPress();}}
+                navigation.navigate('colorflush')}}
         >
             <Image style={{ height: '100%', width: '100%', opacity: .7 }} source={require('../Icons/backArrow2.png')} />
         </TouchableOpacity>
-    </SafeAreaView>
+    
     );
 
 }
+
 
 const BoardSize = ({row, col}) => {
     return (<><Text style={[styles.boardSize]}>{col}</Text>
@@ -208,10 +207,16 @@ const styles = StyleSheet.create({
 
     },
     backbutton: {
-        position: 'absolute',
-         top: -5,
-          left: 5,
+          height: 40, 
+          width: 40,
+          position: 'absolute',
+          left: 1,
+          bottom: 0,
+          opacity: .8
 
+    },
+    backbuttonwrapper: {
+        flex:1
     },
     menuButton2: {
         width: '75%',

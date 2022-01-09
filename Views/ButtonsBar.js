@@ -11,7 +11,6 @@ const ButtonsBar = ({ undoEl, restartEl, hintEl}) => {
 
     function handleOnHint() {
         if (disabled || hintEl.current.onPress === null) {
-            console.log('hint is disabled');
             return;
         }
 
@@ -29,7 +28,7 @@ const ButtonsBar = ({ undoEl, restartEl, hintEl}) => {
     }
 
     return (
-        <SafeAreaView style={[styles.buttonsBar]}>
+        <View style={[styles.buttonsBar]}>
             <View style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'flex-start', alignItems: 'center'}}>
              <View style={styles.bar}/>        
             </View>
@@ -40,9 +39,9 @@ const ButtonsBar = ({ undoEl, restartEl, hintEl}) => {
                 <Image style={styles.icon} source={require('../Icons/restart2.png')} />
             </TouchableOpacity>
             <TouchableOpacity ref={hintEl} style={[styles.button, styles.lightbulb, {opacity: disabled? .5: .8 }]} onPress={handleOnHint} disabled={disabled}>
-                <Image style={styles.icon} source={require('../Icons/lightbulb.png')} />
+                <Image style={[styles.icon, styles.lightbulbIcon]} source={require('../Icons/lightbulb.png')} />
             </TouchableOpacity>
-        </SafeAreaView>
+        </View>
 
     );
 };
@@ -65,6 +64,9 @@ const styles = StyleSheet.create({
         opacity: .8
 
         },
+    lightbulbIcon: {
+        height: '95s%'
+    },
     button: {
         width: '13.5%',
         aspectRatio: 1,

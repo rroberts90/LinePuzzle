@@ -1,6 +1,6 @@
 import  React, {useState, useEffect} from 'react';
 import { View, Text, Button, Image, TouchableOpacity, Pressable, StyleSheet, StatusBar, StatusBarStyle, SafeAreaView } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import {getItem, initialize, storeItem} from './Storage'
@@ -110,11 +110,19 @@ function LoadingScreen({navigation}){
 
 const Stack = createNativeStackNavigator();
 
+const MyTheme = {
+    ...DefaultTheme,
+    colors: {
+      ...DefaultTheme.colors,
+      background: defaultBackground,
+    },
+  };
+console.log = function () {};
 
 function App() {
     // eslint-disable react/display-name
     return (
-        <NavigationContainer>
+        <NavigationContainer theme={MyTheme} >
             <Stack.Navigator screenOptions={{
                 headerBackTitleVisible: false,
                 

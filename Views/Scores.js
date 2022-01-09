@@ -7,6 +7,7 @@ import { getItem, getItems, storeItem } from '../Storage';
 import { PlayButton, BackButton} from './NavigationButtons';
 import useSound from '../Sounds';
 import { BoardSize } from './NavigationButtons';
+import { InfoHeader } from './Header';
 const defaultBackground = 'rgba(248,248,255,1)';
 
 //            <PlayButton navigation={navigation} title={'timed'} borderColor={colorScheme.two} disabled={false} toggleDisabled={() => null}   text={'play again'}/>
@@ -95,18 +96,18 @@ function ScoresScreen({ navigation }) {
 
     return (
         <>
-        <SafeAreaView style={styles.container}>
-            <Text style={styles.topHeader}> Best Scores </Text>
 
-            <Text style={styles.header}> moves </Text>
+        <View style={styles.container}>
+        <InfoHeader navigation= {navigation} title= {"High Scores"}/>
+
+            <Text style={styles.header}> Moves </Text>
             <ScoreBox header1={'4x6'} score1={moves['4x6']} header2={'5x7'} score2={moves['5x7'] }  color={colorScheme.two}/>
             <View style={styles.bar2}/>        
 
-            <Text style={styles.header}> timed </Text>
+            <Text style={styles.header}> Timed </Text>
             <ScoreBox header1={'4x6'} score1={timed['4x6']} header2={'5x7'} score2={timed['5x7']}  color={colorScheme.three}/>
 
-        </SafeAreaView>
-        <BackButton onPress={() => {  navigation.navigate('colorflush') }} />
+        </View>
 
         </>
     );
@@ -127,12 +128,13 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         padding: 5,
         width: '80%',
-        margin: 10
+        margin: 10,
     },
     header: {
         fontSize: 30,
         alignSelf: 'center',
-        marginVertical: 10
+        marginVertical: 10,
+        marginTop: '10%'
     },
     header2: {
         fontSize: 20,

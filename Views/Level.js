@@ -12,6 +12,7 @@ import { levelUp, getItem} from '../Storage';
 import useSound from '../Sounds'
 import Tooltip from './Tooltip'
 import {Arrows} from './Symbols'
+const defaultBackground = 'rgba(248,248,255,1)';
 
 const displaySolution = (solution) => {
   return solution.slice(1).map((node,i)=> {
@@ -237,7 +238,7 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
     }
   }, [current]);
 
-  const loadingWall = loading ? <View style={{position: 'absolute', width:'100%', height:'100%', backgroundColor:'rgba(248,248,255,1)', zIndex: 20 }}/> : null;
+  const loadingWall = loading ? <View style={{position: 'absolute', width:'100%', height:'110%', backgroundColor:defaultBackground, zIndex: 20 }}/> : null;
 
   return ( 
 
@@ -264,7 +265,8 @@ const styles = StyleSheet.create({
     flex: 1, 
     flexDirection: 'column',
     justifyContent: 'center',
-    height: '100%'
+    height: '100%',
+    backgroundColor: defaultBackground
   },
   spacer: {
     height: '25%'
