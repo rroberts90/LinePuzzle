@@ -8,18 +8,28 @@ import { storeItem, getItem, getItems } from './Storage';
 import Timer from './Views/Timer';
 import Mover from './Views/Mover';
 
+import {PuzzleHeader} from './Views/Header'
 import Header from './Views/Header'
 import useSound from './Sounds';
 import { BackButton } from './Views/NavigationButtons';
-const defaultBackground = 'rgba(248,248,255,1)';
+import {getStar} from './Views/Puzzler';
+import Puzzler from './Views/Puzzler';
+
+import GlobalStyles from './GlobalStyles';
 
 const Duration = 1500;
 
 const defaultStartTime = 40;
 
+function stackTrace() {
+  var err = new Error();
+  return err.stack;
+}
 const Game = ({ navigation, route }) => {
+
+
   const gameType = route.name;
-  const {boardSize }= route.params;
+  const { boardSize, level:puzzleNumber, initialProgress} = route.params;
   const [level, setLevel] = useState(0);
 
   const height = useWindowDimensions().height;
@@ -35,17 +45,18 @@ const Game = ({ navigation, route }) => {
   const hintEl = useRef(null);
 
   const [saveLoaded, setSaveLoaded] = useState(false);
-  const { play } = useSound();
 
-  const getBoard = (ref, prevBoard, boardSize,savedBoard) => {  
+  const getBoard = (ref, prevBoard) => {
 
     if (ref.current === null && !prevBoard) {
-      ref.current = new Board(gameType, 0, null,boardSize,savedBoard);
+      
+      ref.current = new Board(gameType, 0, null, boardSize, {puzzleNumber, initialProgress});
       ref.current.level = 0;
     }
-    else if (prevBoard) { 
 
-      ref.current = new Board(gameType, prevBoard.level + 1, prevBoard);
+    else if (prevBoard) {
+
+      ref.current = new Board(gameType, prevBoard.level + 1, prevBoard,boardSize, {puzzleNumber, initialProgress});
       ref.current.level = prevBoard.level + 1;
 
     }
@@ -59,32 +70,56 @@ const Game = ({ navigation, route }) => {
 
   const board0 = useRef(null);
   const board1 = useRef(null);
-
   useEffect(() => {
 
-      getBoard(board0,null, boardSize);
-      
-      getBoard(board1, board0.current);
-      setSaveLoaded(true);
+    console.log('\n\n---------new game')
+    getBoard(board0, null);
+
+    getBoard(board1, board0.current);
+    setSaveLoaded(true);
   }, []);
 
   useEffect(() => {
     if (gameType === 'tutorial' && level === 6) {
       storeItem('tutorialFinished', true);
-      setTimeout(() => navigation.navigate('colorflush'), 1000);
+      setTimeout(() => navigation.navigate('colormaze'), 1000);
       return;
     }
 
     if (level > 0) {
-         if (level === 1) { // special case give board1 positions
-         board1.current.grid.forEach((row, i) =>
-         row.forEach((node, j) => node.pos = board0.current.grid[i][j].pos));
- 
-         }
+      if (level === 1) { // special case give board1 positions
+        board1.current.grid.forEach((row, i) =>
+          row.forEach((node, j) => node.pos = board0.current.grid[i][j].pos));
+
+      }
       const end0 = translateYAnim0._value + height;
       const end1 = translateYAnim1._value + height;
 
       console.log(` level: ${level} `);
+  
+      // if we're in puzzle mode, and puzzle #20 is finished, end level
+     if(gameType === 'puzzle') {
+      
+      // get the star info and save it
+      const star = getStar(time).color;
+      getItem('levelProgress').then(levelProgress=> {
+        const updatedProgress = levelProgress.map(level=> level);
+        if(star !== GlobalStyles.defaultBackground.backgroundColor) {
+          updatedProgress[puzzleNumber-1].stars.push(star);
+        }
+        storeItem('levelProgress',updatedProgress);
+      });
+
+      if(initialProgress + level >= 20){
+        console.log('COMPLETED');
+        navigation.push('afterPuzzle',{puzzleNumber: puzzleNumber})
+    
+        }
+       setTime(0);
+
+        
+
+     }
 
       Animated.parallel([Animated.timing(translateYAnim0, {
         toValue: end0,
@@ -130,52 +165,52 @@ const Game = ({ navigation, route }) => {
   }, [level]);
 
 
+
   const onFinish = async (gameType, highLevel) => {
     navigation.push('afterGame', { gameType: gameType, score: highLevel, boardSize: boardSize });
 
   }
 
-  if (!saveLoaded) {
-    return (<>
-      <Header fontAnim={1} navigation= {navigation}/>
-    </>);
-  }
-  return (<>
-    <Animated.View style={{ position: 'absolute', height: '100%', width: '100%', backgroundColor: defaultBackground,transform: [{ translateY: translateYAnim1 }] }}>
 
-      <Level onWin={setLevel} 
-             getBoard={() => getBoard(board1)} 
-             l={getBoard(board1).level} 
-             current={board1Current} 
-             undoEl={undoEl} 
-             restartEl={restartEl} 
-             hintEl={hintEl} 
-             setMoves={setMoves}
-             setTime={setTime} />
+  const puzzleID = level+1 + initialProgress <= 20 ? `${level+1 + initialProgress}` : 20;
+  return (<>
+    <Animated.View style={{ position: 'absolute', height: '100%', width: '100%', transform: [{ translateY: translateYAnim1 }] }}>
+
+      <Level onWin={setLevel}
+        getBoard={() => getBoard(board1)}
+        l={getBoard(board1).level}
+        current={board1Current}
+        undoEl={undoEl}
+        restartEl={restartEl}
+        hintEl={hintEl}
+        setMoves={setMoves}
+        setTime={setTime} />
     </Animated.View>
 
-    <Animated.View style={{ position: 'absolute', height: '100%', width: '100%',backgroundColor: defaultBackground, transform: [{ translateY: translateYAnim0 }] }}>
+    <Animated.View style={{ position: 'absolute', height: '100%', width: '100%', transform: [{ translateY: translateYAnim0 }] }}>
 
 
-    <Level onWin={setLevel} 
-     getBoard={() => getBoard(board0)} 
-     l={getBoard(board0).level} 
-     current={board0Current} 
-     undoEl={undoEl} 
-     restartEl={restartEl} 
-     hintEl={hintEl} 
-     setMoves={setMoves} 
-     setTime={setTime} />
+      <Level onWin={setLevel}
+        getBoard={() => getBoard(board0)}
+        l={getBoard(board0).level}
+        current={board0Current}
+        undoEl={undoEl}
+        restartEl={restartEl}
+        hintEl={hintEl}
+        setMoves={setMoves}
+        setTime={setTime} />
 
     </Animated.View>
 
     <ButtonsBar undoEl={undoEl} restartEl={restartEl} hintEl={hintEl} />
 
-    {gameType === 'timed' ? 
-      <Timer onFinish={onFinish} level={level}  time = {time} setTime= {setTime}  navigation= {navigation}/> : 
-      gameType === 'moves'? 
-      <Mover onFinish= {onFinish} level = {level} moves={moves}  navigation= {navigation}/> : 
-      <Header fontAnim={1} navigation= {navigation} />
+    {gameType === 'timed' ?
+      <Timer onFinish={onFinish} level={level} time={time} setTime={setTime} navigation={navigation} /> :
+      gameType === 'moves' ?
+        <Mover onFinish={onFinish} level={level} moves={moves} navigation={navigation} /> :
+      gameType === 'puzzle' ?
+        <Puzzler navigation = {navigation} info={{puzzleID: puzzleID}} time={time} setTime={setTime}/> :
+        <Header fontAnim={1} navigation={navigation} />
     }
 
   </>

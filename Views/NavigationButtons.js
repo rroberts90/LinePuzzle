@@ -4,9 +4,10 @@ import colorScheme from '../Gameplay/ColorSchemes'
 
 import useSound from '../Sounds';
 import { storeItem } from '../Storage';
-const defaultBackground = 'rgba(248,248,255,1)';
+import GlobalStyles from '../GlobalStyles'
 
-const buttonBackground  = 'rgba(240,240,245,1)';
+const defaultBackground = GlobalStyles.defaultBackground.backgroundColor;
+const buttonBackground  = defaultBackground//'rgba(240,240,245,1)';
 
 const PlayButton = ({navigation, title, disabled, toggleDisabled, borderColor, text, boardSize})=> {
     const {play} = useSound();
@@ -51,14 +52,14 @@ const IconButton = ({navigation, title, disabled, toggleDisabled, borderColor, i
     );
 }
 
-const BackButton = ({ navigation }) => {
+const BackButton = ({ navigation, overrideDestination }) => {
     return (
 
         <TouchableOpacity
             style={styles.backbutton}
             onPress={()=>{
                 storeItem('tutorialFinished', true);
-                navigation.navigate('colorflush')}}
+                overrideDestination ?  navigation.navigate(overrideDestination, {updateProgress:true}) : navigation.navigate('colormaze')}}
         >
             <Image style={{ height: '100%', width: '100%', opacity: .7 }} source={require('../Icons/backArrow2.png')} />
         </TouchableOpacity>
@@ -128,6 +129,61 @@ const PlayButtonExpanded = ({ navigation, title, disabled, toggleDisabled, borde
     );
      }
 
+     const mapDifficultyToColor = (difficulty) =>{
+         if(difficulty === 'easy') {
+             return colorScheme.four;
+         }
+         else if(difficulty === 'moderate') {
+             return colorScheme.three;
+         }else {
+             return colorScheme.one;
+         }
+     }
+
+     const PuzzleButton = ({ navigation, disabled, toggleDisabled, info })=> {
+        const name = `Pack ${info.level}`;
+        const progressStr = `${info.initialProgress}/${info.mazeCount}`;
+        const puzzleCompleted = info.initialProgress >= info.mazeCount;
+        const source = !puzzleCompleted ? require('../Icons/play1.png') : require('../Icons/check1.png')
+        return (
+            <TouchableOpacity
+            style={[styles.menuButton, styles.puzzleButton]}
+            onPress={() => {
+                toggleDisabled(true);
+                if(!puzzleCompleted) {
+                storeItem('currentPuzzle', info.level);
+                navigation.push('puzzle', info);
+                }else {
+                    navigation.push('afterPuzzle', {puzzleNumber: info.level});
+
+                }
+                setTimeout(()=> toggleDisabled(false), 500);
+    
+            }}
+            disabled={disabled}
+        >
+            <View style={{flexDirection: 'row', flex: 1, alignItems: 'center'}}>
+          
+            <View>
+                <Image style={[styles.play,
+                { tintColor: mapDifficultyToColor(info.difficulty), opacity: .8 },
+                {height: '60%',aspectRatio: 1, marginHorizontal: 5
+            }]}
+                    source={source} />
+                </View> 
+            
+            <Text style={[styles.puzzleText, styles.level]} adjustsFontSizeToFit={true}> {name}</Text>
+            </View>
+            
+            <Text style={[styles.puzzleText, styles.progress]}> {progressStr}</Text>
+
+
+            <Text style={[styles.puzzleText, styles.difficulty]}>{info.difficulty}</Text>
+
+        </TouchableOpacity>
+        );
+    }
+
 const styles = StyleSheet.create({
     menuButton: {
         borderWidth: 3,
@@ -143,13 +199,30 @@ const styles = StyleSheet.create({
         backgroundColor: buttonBackground
 
     },
+    puzzleButton: {
+        width: '95%',
+        height: 60,
+       borderWidth: 0,
+       justifyContent: 'flex-start',
+    },
+    puzzleText: {
+        fontSize: 22,
+        flex: 1,
+        textAlign: 'center',
+
+    },
+    level: {
+     },
+    difficulty: {
+
+    },
     buttonText: {
         flex: 1.6,
         color: 'black',
         fontSize: 35,
-        letterSpacing: 1.25,
+        letterSpacing: 1.5,
         alignSelf: 'center',
-        opacity: .8
+        opacity: .8,
     },
     iconButton: {
         borderRadius: 3,
@@ -212,7 +285,8 @@ const styles = StyleSheet.create({
           position: 'absolute',
           left: 1,
           bottom: 0,
-          opacity: .8
+          opacity: .8,
+          zIndex: 10
 
     },
     backbuttonwrapper: {
@@ -263,4 +337,4 @@ const styles = StyleSheet.create({
         height: '50%'
     }
 });
-export {BackButton, PlayButton, IconButton, PlayButtonExpanded, BoardSize};
+export {BackButton, PlayButton, IconButton, PlayButtonExpanded, BoardSize, PuzzleButton};

@@ -24,16 +24,15 @@ const puzzle1 = { group: .5,
  }
 
 // remember difficulty == false means hard 
-const getCriteria = (gameType, difficulty, largeBoard) => {
+const getCriteria = (gameType, difficulty, largeBoard,level) => {
     /*console.log(` Progress level: ${level}`);
     console.log(` Difficulty level: ${difficulty}`);*/
 
-    console.log(`criteria: largeBoard ${largeBoard}\n   difficulty: ${difficulty}`)
+    //console.log(`criteria: largeBoard ${largeBoard}\n   difficulty: ${difficulty}`)
 
     if(gameType === 'endless' && !difficulty) {
  
          if(!largeBoard){
-
              return endlessHard;
          }else{
             let hard = [];
@@ -45,35 +44,12 @@ const getCriteria = (gameType, difficulty, largeBoard) => {
          }
     }
 
-    else if(gameType ==='timed' || gameType === 'moves') {
-        let puzzle =  { group: .4, 
-            directLinks: .3, 
-            freezer: .2, 
-            rotateCC: .1,
-             falsePaths: 8, 
-             minLength: 17, 
-             maxFalsePathLength: 10, 
-             maxLength: 100, 
-             circles: 2,
-             totalBoosters: 5,
-            gameType: gameType };
-        if(!largeBoard) {
-            return puzzle;
-        }else{
-            puzzle.minLength += 4;
-            puzzle.falsePaths +=2;
-            puzzle.maxFalsePathLength +=3;
-            puzzle.totalBoosters +=2;
-            return puzzle;
-        }
-    }
-
-    let criteria = {group: .3, 
+    let criteria = {group: .4, 
                     directLinks: .1, 
                     freezer: 0, 
                     rotateCC: 0, 
-                    falsePaths: 4,
-                     minLength: 12, 
+                    falsePaths: 3,
+                     minLength: 15, 
                      maxLength: 20, 
                      maxFalsePathLength: 5, 
                      circles:2,
@@ -84,22 +60,22 @@ const getCriteria = (gameType, difficulty, largeBoard) => {
     }
     else if(level > 5 && level<=10){
         criteria.directLinks = .2;
-        criteria.falsePaths =2;
+        criteria.falsePaths =4;
         criteria.maxFalsePathLength = 8;
 
     }
     else if(level > 10 && level <= 20){
         criteria.directLinks = .2
-        criteria.group = .4;
+        criteria.group = .5;
         criteria.falsePaths =6;
 
         criteria.maxFalsePathLength = 9;
     }
     else{
         criteria.directLinks = .3
-        criteria.group = .4;
-        criteria.maxFalsePathLength = 9;
-        criteria.falsePaths = 8;
+        criteria.group = .5;
+        criteria.maxFalsePathLength = 10;
+        criteria.falsePaths = 6;
         criteria.freezer = .1;
         criteria.minLength = 15;
         criteria.circles = 2;

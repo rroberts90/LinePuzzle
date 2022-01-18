@@ -28,7 +28,6 @@ const ScoreBox = ({header1, header2, score1, score2, color}) => {
     );
 }
 function AfterGameScreen({ navigation, route }) {
-    const { play } = useSound();
 
     const { gameType, score, boardSize } = route.params;
     const [high, setHigh] = useState('-');
@@ -54,6 +53,7 @@ function AfterGameScreen({ navigation, route }) {
 
     return (
         <View style={[styles.container, {justifyContent:'center'}]}>
+            <InfoHeader navigation={navigation} title={''}/>
             <View style={{ width:'100%',flexDirection: 'row', justifyContent: 'center'}}>
                 <View style={{ flexDirection: 'column', width: '45%' }}>
                     <Text style={styles.header2}> Score </Text>
@@ -67,7 +67,6 @@ function AfterGameScreen({ navigation, route }) {
             </View>
             <View style={styles.bar2}/>        
 
-            <BackButton onPress={() => { navigation.navigate('colorflush') }} />
             <PlayButton navigation={navigation} title={gameType} borderColor={colorScheme.two} disabled={false} toggleDisabled={() => null}   text={'play again'} boardSize={boardSize}/>
         </View>);
 }
@@ -119,7 +118,9 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'flex-start',
-        backgroundColor: defaultBackground
+        backgroundColor: defaultBackground,
+        paddingTop: '15%'
+
     },
     box: {
         flexDirection: 'column',
@@ -141,12 +142,7 @@ const styles = StyleSheet.create({
         opacity: .7,
         alignSelf:'center'
     },
-    topHeader: {
-        fontSize: 40,
-        alignSelf: 'center',
-        marginVertical: 10,
-        marginBottom: '20%'
-    },
+
     userScore: { fontSize: 40, alignSelf: 'center' },
     bar: {
         width: 1,

@@ -1,10 +1,9 @@
 import  React, {useState, useEffect, useRef} from 'react';
-import { View,Text, StyleSheet, SafeAreaView, Animated, Easing } from 'react-native';
+import { Animated, Easing } from 'react-native';
 import Header from './Header';
 import useInterval from "./useInterval";
 
 const defaultMoves = 25;
-const defaultBackground = 'rgba(248,248,255,1)';
 const defaultSize = 1;
 const Mover = ({onFinish, level, moves, navigation}) => {
     //const [prevCount, setPrevCount]= useState(()=> visitedNodes);

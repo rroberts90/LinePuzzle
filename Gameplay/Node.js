@@ -46,12 +46,9 @@ const calculateColor = (node, endPoint) => {
 */
 class Node {
 
-  constructor(gridPos, point, colors, links, direction,diameter, savedNode) {
-    if(savedNode) {
-      this.loadSave(savedNode);
-    }
-    else { 
-      this.gridPos = gridPos;
+  constructor(gridPos, point, colors, links, direction,diameter) {
+
+    this.gridPos = gridPos;
     this.pos = point;
     this.colors = colors;
     this.rot = 0;
@@ -63,7 +60,7 @@ class Node {
     this.symbol = null;
     this.special = null;
     this.frozen = 0;
-    }
+    
   }
 
 
@@ -132,7 +129,7 @@ class Node {
     return match;
   }
   save() {
-    const links = this.links.map(node => node.gridPos);
+   /* const links = this.links.map(node => node.gridPos);
     const neighbors = this.neighbors.map(node => node.gridPos);
 
     return {
@@ -147,21 +144,24 @@ class Node {
       pos: this.pos,
       diameter: this.diameter,
       neighbors: neighbors
-    }
+    }*/
   }
 
   loadSave(savedNode) {
-    this.gridPos = savedNode.gridPos;
-    this.symbol = savedNode.symbol;
-    this.colors = savedNode.colors;
-    this.special = savedNode.special;
-    this.rot = savedNode.rot;
-    this.direction = savedNode.direction;
-    this.fixed = savedNode.fixed;
-    this.links = savedNode.links;
-    this.pos = savedNode.pos;
-    this.diameter = savedNode.diameter;
-    this.neighbors = savedNode.neighbors;
+    this.gridPos = MyMath.unCompressGridPos(savedNode.g);
+  
+    this.symbol = savedNode.s || null;
+    this.colors = savedNode.c.map(rawColor=> 'rgba' + rawColor);
+    this.special = savedNode.sp || null;
+   
+    this.rot = savedNode.r || 0;
+    this.direction = savedNode.d || -1;
+    this.fixed = savedNode.f || false;
+   
+    this.pos = MyMath.point(0,0);
+    
+    this.links = savedNode.l.map(link=> MyMath.unCompressGridPos(link));
+
   }
 
 

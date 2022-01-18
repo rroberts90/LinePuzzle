@@ -1,5 +1,5 @@
 import { Audio } from 'expo-av';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getItem } from './Storage';
 
 //const notes = [require('./Sounds/a.wav'), require('./Sounds/b.wav'), require('./Sounds/c.wav'), require('./Sounds/d.wav'), require('./Sounds/e.wav'), require('./Sounds/f.wav'), require('./Sounds/g.wav')];

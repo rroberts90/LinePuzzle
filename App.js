@@ -1,7 +1,7 @@
 import  React, {useState, useEffect} from 'react';
 import { View, Text, Button, Image, TouchableOpacity, Pressable, StyleSheet, StatusBar, StatusBarStyle, SafeAreaView } from 'react-native';
-import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { DefaultTheme, NavigationContainer } from '@react-navigation/native'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
 import {getItem, initialize, storeItem} from './Storage'
 import colorScheme from './Gameplay/ColorSchemes'
@@ -9,10 +9,14 @@ import Game from './Game'
 import SettingsScreen from './Views/Settings'
 import {ScoresScreen, AfterGameScreen} from './Views/Scores'
 import useSound from './Sounds';
-import { PlayButton, IconButton ,PlayButtonExpanded} from './Views/NavigationButtons';
+import { PlayButton, IconButton ,PlayButtonExpanded} from './Views/NavigationButtons'
+import PuzzlePicker from './Views/PuzzlePicker'
 import AboutScreen from './Views/AboutScreen'
-const defaultBackground = 'rgba(248,248,255,1)';
+import AfterPuzzleScreen from './Views/AfterPuzzle'
 
+import GlobalStyles from './GlobalStyles'
+
+const defaultBackground = GlobalStyles.defaultBackground.backgroundColor;
 
 function HomeScreen({ navigation }) {
     const [disabled, toggleDisabled]= useState(false);
@@ -21,10 +25,8 @@ function HomeScreen({ navigation }) {
    const [movesBoard, toggleMovesBoard] = useState(true);
    const [timedBoard, toggleTimedBoard] = useState(true);
 
-//            <Image style={{width: 50, aspectRatio:1}}source={require('./assets/180.png')}/>
-
     return (
-        <SafeAreaView style={[styles.defaultBackground,{ flex: 1, alignItems: 'center', justifyContent: 'center' }]}>
+        <SafeAreaView style={[{ flex: 1, alignItems: 'center', justifyContent: 'center' }]}>
             <Text style={styles.headerText}> COLOR MAZE </Text>
 
             <PlayButtonExpanded 
@@ -57,11 +59,21 @@ function HomeScreen({ navigation }) {
             toggleSize = {toggleTimedBoard}
             />
 
+            <PlayButtonExpanded 
+            navigation = {navigation} 
+            title={'puzzles'} 
+            borderColor={colorScheme.four} 
+            disabled={disabled} 
+            toggleDisabled= {toggleDisabled}
+            boardSizeSelected = {timedBoard}
+            toggleSize = {toggleTimedBoard}
+            />
+
             <View style={[ styles.row]} >
                 <IconButton 
                 navigation={navigation} 
                 title={'Achievements'} 
-                borderColor={colorScheme.four} 
+                borderColor={'darkgrey'} 
                 disabled={disabled} 
                 toggleDisabled={toggleDisabled} 
                 icon={require('./Icons/Trophy.png')} />
@@ -69,7 +81,7 @@ function HomeScreen({ navigation }) {
                 <IconButton 
                 navigation={navigation} 
                 title={'Settings'} 
-                borderColor={colorScheme.four} 
+                borderColor={'darkgrey'} 
                 disabled={disabled} 
                 toggleDisabled={toggleDisabled} 
                 icon={require('./Icons/Settings.png')} />
@@ -89,7 +101,7 @@ function LoadingScreen({navigation}){
             setTutorialFinished(false);
             //navigation.navigate('tutorial');
         } else{
-            navigation.navigate('colorflush');
+            navigation.navigate('colormaze');
 
         }
     })}, []);
@@ -101,7 +113,7 @@ function LoadingScreen({navigation}){
             <Text style={styles.headerText}> COLOR MAZE </Text>
 
                 <PlayButton navigation={navigation} borderColor={colorScheme.four} disabled={false} toggleDisabled={()=>{}} title={'tutorial'} text={'play tutorial'} boardSize={false}/>
-                <PlayButton navigation={navigation} borderColor={colorScheme.one} disabled={false} toggleDisabled={()=>{storeItem('tutorialFinished', true)}} title={'colorflush'} text={'skip tutorial'} boardSize={false}/>
+                <PlayButton navigation={navigation} borderColor={colorScheme.one} disabled={false} toggleDisabled={()=>{storeItem('tutorialFinished', true)}} title={'colormaze'} text={'skip tutorial'} boardSize={false}/>
 
             </>: null}
         </View>
@@ -117,7 +129,7 @@ const MyTheme = {
       background: defaultBackground,
     },
   };
-console.log = function () {};
+//console.log = function () {};
 
 function App() {
     // eslint-disable react/display-name
@@ -133,7 +145,7 @@ function App() {
                     headerShown: false
                 }}
                  />
-                <Stack.Screen name="colorflush" component={HomeScreen} options={{
+                <Stack.Screen name="colormaze" component={HomeScreen} options={{
                     gestureEnabled: false,
                     headerShown: false
                 }} />
@@ -151,6 +163,14 @@ function App() {
                     headerShown: false,
                     gestureEnabled: false
                 }} />
+                <Stack.Screen name="puzzle" component={Game} options={{
+                    headerShown: false,
+                    gestureEnabled: false
+                }} />
+                <Stack.Screen name="puzzles" component={PuzzlePicker} options={{
+                    headerShown: false,
+                    gestureEnabled: false
+                }} />
                 <Stack.Screen name="tutorial" component={Game} options={{
                     headerShown: false,
                     gestureEnabled: false
@@ -163,11 +183,16 @@ function App() {
                     headerShown: false,
                     gestureEnabled: false
                 }}/>
+                
                 <Stack.Screen name="About" component={AboutScreen} options={{
                     headerShown: false,
                     gestureEnabled: false
                 }}/>
                 <Stack.Screen name="afterGame" component={AfterGameScreen} options={{
+                    headerShown: false,
+                    gestureEnabled: false
+                }}/>
+                <Stack.Screen name="afterPuzzle" component={AfterPuzzleScreen} options={{
                     headerShown: false,
                     gestureEnabled: false
                 }}/>
@@ -180,13 +205,6 @@ function App() {
 
 const styles = StyleSheet.create({
    
-    buttonText: {
-        color: 'black',
-        fontSize: 40,
-        fontWeight: 'bold',
-        alignSelf: 'stretch',
-        opacity: .8
-    },
     loadingScreen: {
         backgroundColor: defaultBackground,
         width: '100%',
@@ -235,21 +253,6 @@ const styles = StyleSheet.create({
         
 
     },
-    toggle: {
-        borderRadius: 2,
-        borderWidth: 7,
-        borderColor: colorScheme.four,
-
-    },
-    toggleText: {
-        fontSize:35, 
-        padding: 10,
-        color: 'black',
-
-    },
-    selected: {
-
-    },
     tutorialAsk: {
         alignSelf: 'center',
         borderRadius: 10,
@@ -258,9 +261,6 @@ const styles = StyleSheet.create({
         marginTop: '10%',
         alignItems: 'center',
         justifyContent: 'center'
-
-    },
-    skip1: {
 
     }
 });

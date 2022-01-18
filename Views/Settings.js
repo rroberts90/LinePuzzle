@@ -9,7 +9,6 @@ import { clearAll, storeItem, getSettings } from '../Storage'
 import { BackButton } from './NavigationButtons';
 import { InfoHeader } from './Header';
 import { getGlyphSource, getAnimalSource, getSymbolSource, getImpossibleSource } from './Symbols';
-const defaultBackground = 'rgba(248,248,255,1)';
 
 const DisplayImage = ({ source }) => {
     return <Image style={styles.iconSmall} source={source} />;
@@ -102,7 +101,7 @@ function SettingsScreen({ navigation, route }) {
             <View style={styles.container}>
                 <InfoHeader navigation = {navigation} title= {'Settings'}/>
               
-                <View style={{ flexDirection: 'column'}}>
+                <View style={{ flexDirection: 'column', marginTop: '25%'}}>
                 <Text style={styles.headerText}>Difficulty</Text>
 
                 <View style={styles.line}>
@@ -172,6 +171,7 @@ function SettingsScreen({ navigation, route }) {
                     </View>
                 </View>
                 </View>
+                <Button title='Clear User Data' style={{ marginTop: 100 }} onPress={() => clearAll()} />
 
             </View>
 </>
@@ -190,7 +190,6 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'space-evenly',
-        backgroundColor: defaultBackground
     },
 
     headerText: {

@@ -1,15 +1,14 @@
 import  React, { useEffect, useState } from 'react';
-import { View,Text, StyleSheet, SafeAreaView, Animated } from 'react-native';
+import { View,Text, StyleSheet, SafeAreaView, Animated, Image } from 'react-native';
 import { BackButton } from './NavigationButtons';
-const defaultBackground = 'rgba(248,248,255,1)';
+import GlobalStyles from '../GlobalStyles'
+
+const defaultBackground = GlobalStyles.defaultBackground.backgroundColor;
 
 const Header = ({title1,item1,title2, item2, fontAnim, navigation}) => {
-    const [loaded, setLoaded]= useState(false);
-    useEffect(()=> {setTimeout(()=>setLoaded(true), 10)},
-     []);
     return (
         <View style={styles.box2}>
-         {loaded ? <BackButton navigation= {navigation}/> : null}
+<BackButton navigation= {navigation}/> 
 <View style={styles.duo}>
             <Text style={styles.header}>{title1} </Text>
             <Animated.View style={[styles.timetext, {transform: [{scale: fontAnim}]}]}>
@@ -27,10 +26,11 @@ const Header = ({title1,item1,title2, item2, fontAnim, navigation}) => {
     </View>
     );
 }
-const InfoHeader = ({navigation, title}) => {
+const InfoHeader = ({navigation, title, overrideDestination}) => {
+    
     return (
     <View style={styles.box3}>
-         <BackButton navigation= {navigation}/>
+         <BackButton navigation= {navigation} overrideDestination={overrideDestination}/>
          <Text style={styles.title}>{title} </Text>
          <View style={{position: 'absolute', left: 0, bottom: 0, justifyContent: 'flex-start', alignItems: 'center', width:'100%'}}>
              <View style={styles.bar}/>        
@@ -38,10 +38,42 @@ const InfoHeader = ({navigation, title}) => {
             </View>
     );
 }
+
+const PuzzleHeader = ({ navigation,time,info, getGoalInfo }) => {
+    const goalInfo = getGoalInfo(time)
+    //                <Text style={[styles.timetext, {alignSelf:'flex-end'}]}> {goalInfo.time} s</Text>
+
+    return (
+        <View style={styles.box3}>
+           
+            <BackButton navigation={navigation} overrideDestination={'puzzles'} />
+           
+            <View style={styles.duo}>
+                <Text style={styles.header}>#</Text>
+                <Text style={styles.timetext}>{info.puzzleID} </Text>
+            </View>
+            <View style={styles.duo}>
+                <Image style={[styles.star, {tintColor: goalInfo.color}]} source={require('../Icons/star3.png')}/>
+            </View>
+            <View style={styles.duo}>
+                <Text style={styles.timetext}>{time} s</Text>
+            </View>
+
+            <View style={{ position: 'absolute', left: 0, bottom: 0, justifyContent: 'flex-start', alignItems: 'center', width: '100%' }}>
+                <View style={styles.bar} />
+            </View>
+
+        </View>
+    );
+}
+
 const styles = StyleSheet.create({
     duo: {
         flexDirection:'row',
-        alignItems: 'center'
+        alignItems: 'center',
+        flex: 1,
+        justifyContent: 'center'
+
     },
     box2: {
         position:'absolute',
@@ -55,13 +87,16 @@ const styles = StyleSheet.create({
         paddingBottom: 5
     },
     box3: {
+        position: 'absolute',
+
         height: '10%',
         width: '100%',
         backgroundColor: defaultBackground,
         flexDirection: 'row',
-        justifyContent: 'center',
         alignItems: 'flex-end',
-        paddingBottom: 5
+        justifyContent: 'center',
+        paddingBottom: 5,
+        top: 0,
         
         
     },
@@ -89,7 +124,11 @@ const styles = StyleSheet.create({
         fontSize: 25,
         opacity: .8
     },
+    star: {
+        height: 40,
+        width: 40
+    }
 
 });
-export {InfoHeader};
+export {InfoHeader, PuzzleHeader};
 export default Header;

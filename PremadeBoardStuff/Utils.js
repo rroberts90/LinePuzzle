@@ -103,7 +103,11 @@ const randInt = (min,max)  => {
 }
 //
 //export {gridP//os, point, distance, centerOnNode, pointInCircle, logPoint, logGridPos,compareGridPos, rotateArray, logColors, randInt, convertToLayout, rotateColors};
-
+const compressGridPos = (gridPos)=> {
+  return [gridPos.row, gridPos.col];
+}
+const _compressGridPos = compressGridPos;
+export {_compressGridPos as compressGridPos};
 const _logGridPos = logGridPos;
 export { _logGridPos as logGridPos };
 const _gridPos = gridPos;

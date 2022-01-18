@@ -3,6 +3,10 @@ import {StyleSheet, View, Animated,Easing, useWindowDimensions} from 'react-nati
 
 import { distance, centerOnNode,rotateColors,convertToLayout, point } from '../Utils';
 
+import GlobalStyles from '../GlobalStyles'
+
+const defaultFinishColor = GlobalStyles.defaultBackground.backgroundColor;
+
 const toDegrees = (angle) =>{
     return angle * (180 / Math.PI);
   }
@@ -191,7 +195,6 @@ const BridgeSegment=  ({color, width, end}) => {
   const CapSegment = ({end,node, won}) => {
 
     let color;
-    const defaultFinishColor = 'rgba(248,248,255,1)';
 
     const fadeAnim = useRef(new Animated.Value(.65)).current;
     const triangleAnim1 = useRef(new Animated.Value(0)).current;

@@ -1,6 +1,6 @@
 // the other node.js
 
-import {rotateArray, rotateColors, gridPos} from './Utils.js';
+import {rotateArray, rotateColors, gridPos, compressGridPos} from './Utils.js';
 
 const Default_Node_Width = 80;
 
@@ -97,37 +97,33 @@ class Node {
     }
     return match;
   }
+
   save() {
-    const links = this.links.map(node => node.gridPos);
-    const neighbors = this.neighbors.map(node => node.gridPos);
+    const links = this.links.map(node => compressGridPos(node.gridPos));
+    //const neighbors = this.neighbors.map(node => compressGridPos(node.gridPos));
 
-    return {
-      gridPos: this.gridPos,
-      symbol: this.symbol,
-      colors: this.colors,
-      links: links,
-      special: this.special,
-      rot: this.rot,
-      direction: this.direction,
-      fixed: this.fixed,
-      pos: this.pos,
-      diameter: this.diameter,
-      neighbors: neighbors
+    const saved = {
+      g: compressGridPos(this.gridPos),
+      c: this.colors.map(color=>color.replace('rgba','')),
+      l: links
+    };
+
+    if(this.symbol){
+      saved['s'] =  this.symbol;
     }
-  }
-
-  loadSave(savedNode) {
-    this.gridPos = savedNode.gridPos;
-    this.symbol = savedNode.symbol;
-    this.colors = savedNode.colors;
-    this.special = savedNode.special;
-    this.rot = savedNode.rot;
-    this.direction = savedNode.direction;
-    this.fixed = savedNode.fixed;
-    this.links = savedNode.links;
-    this.pos = savedNode.pos;
-    this.diameter = savedNode.diameter;
-    this.neighbors = savedNode.neighbors;
+    if(this.special){
+      saved['sp'] = this.special;
+    }
+    if(this.fixed) {
+      saved['f'] = this.fixed;
+    }
+    if(this.direction != -1) {
+      saved['d'] = this.direction;
+    }
+    if(this.rot != 0) {
+      saved['r'] = this.rot;
+    }
+    return saved;
   }
 
 

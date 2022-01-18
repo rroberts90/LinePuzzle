@@ -448,16 +448,15 @@ const setupGame = (board, criteria) => {
           const {minLength, total} = solutionChecker(board);
           shortestSolution = minLength;
           pathLength = total;
-          console.log(`official solution: ${board.solution.length}`);
-          console.log(`shortestSolution: ${shortestSolution} \nPath Length: ${pathLength}`)
-
+        
+        
+           board.shortestSolution = shortestSolution;
+           board.pathLength = pathLength;
           if(shortestSolution > 0){
               realCount++;
           }
         }
-
         board.resetGrid();
-
    }
 
     
@@ -467,14 +466,13 @@ const setupGame = (board, criteria) => {
 
     const t2 = Date.now();
 
-    console.log(`Level:${board.level} \ntotal time to setup: ${t2- t1} milliseconds`);
+   /* console.log(`Level:${board.level} \ntotal time to setup: ${t2- t1} milliseconds`);
    console.log(`Solution Length: ${minLength}`);
    console.log(`Took ${realCount} tries to create path\nUnique visits: ${uniques} \nTotal Path Length: ${total}\n-----------`);
-
+*/
 }
 
 const visit = (board, visitedNodes, candidate, criteria) => {
-    //console.log(`visiting node: ${candidate.toString()}`);
 
     board.visitedNodes = [...visitedNodes, candidate];
     candidate.fixed = true;
@@ -562,7 +560,6 @@ const selectCandidates = (curr, criteria, finish, visitedNodes, solution) => {
 const mismatchLastNodes = (board) => {
     board.finish.neighbors.map(neighbor=> {
         if(neighbor.isMatch(board.finish)) {
-            //console.log('rotating matches');
             const tmpColor1 = neighbor.colors[0];
             const tmpColor2 = neighbor.colors[1];
             neighbor.colors[0] = neighbor.colors[2];
@@ -572,14 +569,6 @@ const mismatchLastNodes = (board) => {
         }
     });
 }
-
-
-/*        
-if(criteria.steps > 2 && canAddBooster(curr, board, criteria, true)) {
-    criteria.boosters--;
-    curr.special = 'booster';
-}
-*/ 
 
 const shouldStartFalsePath = (visitedNodes, criteria)=> {
     if(!criteria){

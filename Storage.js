@@ -1,4 +1,6 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage'
+const packInfo = require('./PremadeBoardStuff/Output/packInfo.json')
+
 const clearAll = async () => {
     try {
       await AsyncStorage.clear()
@@ -40,7 +42,7 @@ const storeItem = async (key,value) => {
   }
 
 
-  const levelUp = ( board) => {
+  const levelUp = async ( board) => {
     board.score = board.score+1;
     if(board.gameType === 'timed' || board.gameType === 'moves') {
       let itemName = `${board.gameType}Score`;
@@ -64,6 +66,16 @@ const storeItem = async (key,value) => {
         
         });
 
+      
+        const levelProgress = await getItem('levelProgress');
+
+        const currentPuzzle = await getItem('currentPuzzle');
+
+        const updatedProgress = levelProgress.map(level=> level);
+        updatedProgress[currentPuzzle-1].progress++; //Level is index position +1
+        storeItem('levelProgress',updatedProgress);
+        
+
           
   }
 
@@ -80,7 +92,6 @@ const storeItem = async (key,value) => {
   const initialize = () => {
 
     storeItem('level',0);
-    storeItem('puzzles',0);
    
     storeItem('timedScore4x6',0);
     storeItem('timedScore5x7',0);
@@ -93,7 +104,12 @@ const storeItem = async (key,value) => {
     storeItem('display', 'impossible');
     storeItem('board', true);
 
-  
+    const zeroProgress = packInfo.levels.map(level=> {return {progress:0, stars:[]}});
+
+    console.log(zeroProgress)
+    storeItem('levelProgress',zeroProgress);
+
+
   }
 
   export {clearAll, storeItem, getItem, getItems, levelUp, initialize, getSettings};

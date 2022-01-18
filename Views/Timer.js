@@ -3,8 +3,6 @@ import { View,Text, StyleSheet, SafeAreaView, Animated, Easing } from 'react-nat
 import Header from './Header';
 import useInterval from "./useInterval";
 
-const defaultBackground = 'rgba(248,248,255,1)';
-const defaultSize = 1;
 
 const Timer = ({onFinish, level, time, setTime, navigation}) => {
 

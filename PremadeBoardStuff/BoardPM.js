@@ -1,5 +1,5 @@
 
-import {gridPos, randInt,rotateColors, point} from './Utils.js';
+import {gridPos, randInt,rotateColors, point, compressGridPos} from './Utils.js';
 import setupGrid from './PathingPM.js';
 import colorScheme from './ColorSchemesPM.js';
 
@@ -35,14 +35,6 @@ const isInBounds = (gridPos, numRow, numCol) => {
     }
 }
 
-const getNeighbors =  (i,j, numRow, numCol) => {
-  const potentials = [gridPos( i,j+1), //right
-    gridPos( i,j-1), //left
-    gridPos( i-1,j), // bottom
-    gridPos(i+1,j)];
-    return potentials.filter(neighbor => isInBounds(neighbor, numRow, numCol));
-  
-}
 
 const setStart = (grid,numRow,numCol,prevFinish, finalColor) =>{ 
 
@@ -86,21 +78,9 @@ const getAllNeighbors = (numRow, numCol)  => {
     return grid;
 }
 
-const gameSizes = {
-  tutorial: gridPos(6, 1),
-  endless: gridPos(6,4),
-  timed: gridPos(6,4),
-  puzzle: gridPos(7,5)
-};
-
-const gameDims = (game) => { 
-
-  return gameSizes[game];
- }
-
   class Board {
 
-    constructor (boardSize, criteria) {
+    constructor (boardSize, criteria, prevBoard) {
 
       if(!boardSize) {
         this.numRow = 7;
@@ -110,18 +90,22 @@ const gameDims = (game) => {
         this.numCol = 4;
       }
 
-        this.setupGridFromScratch(criteria);
+        this.setupGridFromScratch(criteria, prevBoard);
       
 
     }
 
 
-    setupGridFromScratch(criteria){
+    setupGridFromScratch(criteria, prevBoard){
 
         
           this.grid = setupGridFlex(this.numRow,this.numCol);
-          this.start = setStart(this.grid, this.numRow, this.numCol);
-
+          if(prevBoard){
+          this.start = setStart(this.grid, this.numRow, this.numCol, prevBoard.finish, prevBoard.finalColor);
+          }
+          else{
+            this.start = setStart(this.grid, this.numRow, this.numCol);
+          }
       
         this.setupNeighbors(this.numRow, this.numCol);
 
@@ -191,15 +175,12 @@ const gameDims = (game) => {
       }
       if(this.isPathOpen(curr, nextNode)) {
 
-       // console.log("adding node");
         this.visitedNodes = [...this.visitedNodes, nextNode];
         nextNode.fixed = true; 
-      //  logGridPos('next: ', nextNode.gridPos);
-       // logGridPos('  links: ', nextNode.links[0].gridPos);
+
         if(!nextNode.special || nextNode.special==='booster') {
           nextNode.rotateLinked();
         } else if (nextNode.special === 'freezer'){
-          // don't rotate links, instead add a freeze
           nextNode.links.forEach(node=> node.frozen++);
 
         } else if (nextNode.special === 'rotateCC') {
@@ -295,46 +276,19 @@ const gameDims = (game) => {
 
     save(){
       //prevents cyclical refs
-      const visitedNodes = this.visitedNodes.map(node=> node.gridPos);
-      const solution = this.solution.map(node=> node.gridPos);
-      return JSON.stringify({
+      const visitedNodes = this.visitedNodes.map(node=> compressGridPos(node.gridPos));
+      const solution = this.solution.map(node=> compressGridPos(node.gridPos));
+    
+      return {
         grid:this.grid.map(row=>row.map(node => node.save())),
-        gameType: this.gameType,
         start: this.start.gridPos,
         finish: this.finish.gridPos,
         visitedNodes: visitedNodes,
-        solution: solution
+        solution: solution,
+        pathLength: this.pathLength
       
-      });
+      };
 
-    }
-
-    loadSave(savedBoardStr) {
-      const savedBoard = JSON.parse(savedBoardStr);
-      
-      this.grid = savedBoard.grid.map(row => row.map(savedNode =>{ 
-        const node = new Node(); //  load save fills  empty node
-        node.loadSave(savedNode);
-        return node;
-      }));
-      //this.setupNeighbors(this.grid.length, this.grid[0].length); 
-
-      // now that we have proper refs to every node get links & neighbors
-      this.grid.map(row => row.map(node =>{ 
-              node.links = node.links.map(gridPos=> this.getNodeFromGridPos(gridPos)) ;
-              node.neighbors = node.neighbors.map(gridPos=> this.getNodeFromGridPos(gridPos)) ;
-
-      }));
-
-      
-
-      this.gameType = savedBoard.gameType;
-      this.start = this.getNodeFromGridPos(savedBoard.start);
-      this.finish = this.getNodeFromGridPos(savedBoard.finish);
-      this.visitedNodes = savedBoard.visitedNodes.map(gridPos=> this.getNodeFromGridPos(gridPos));
-      this.solution = savedBoard.solution.map(gridPos=> this.getNodeFromGridPos(gridPos));
-
-      
     }
 
     getNodeFromGridPos(gridPos) {

@@ -5,6 +5,10 @@ import { Symbol, Special} from './Symbols'
 
 const Node_Width = 60;
 
+import GlobalStyles from '../GlobalStyles'
+
+const defaultNodeColor = GlobalStyles.defaultNodeColor.backgroundColor;
+
 const measure = (ref, node, afterUpdate) => {
   if(ref.current) {
     ref.current.measureInWindow((x,y,width, height)=> {
@@ -153,7 +157,7 @@ const NodeView = (props) => {
         styles.nodeSize,
       borderSize(props.node.diameter),
         colorStyles,
-        {backgroundColor: props.node.special === 'freezer' ?  'rgb(80,80,80)' : 'rgb(220,220,220)'},
+        {backgroundColor: props.node.special === 'freezer' ?  'rgb(80,80,80)' : defaultNodeColor},
         {transform: [{rotate:rotAnim.interpolate({
                 inputRange: [0,360],
                 outputRange:['0deg', '360deg']

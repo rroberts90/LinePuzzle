@@ -4,6 +4,9 @@ import React, {useState, useRef, useEffect} from 'react';
 import { View, StyleSheet, Button, TouchableOpacity, Image, SafeAreaView} from 'react-native';
 
 import useSound from '../Sounds';
+import GlobalStyles from '../GlobalStyles'
+
+const defaultBackground = GlobalStyles.defaultBackground.backgroundColor;
 
 const ButtonsBar = ({ undoEl, restartEl, hintEl}) => {
     const [disabled, toggleDisabled]= useState(false);
@@ -53,7 +56,7 @@ const styles = StyleSheet.create({
         bottom: 0,
         flexDirection: 'row',
         justifyContent: 'space-evenly',
-        backgroundColor: 'rgba(248,248,255,1)',
+        backgroundColor: defaultBackground,
         height: '9%'
     },
     icon: {

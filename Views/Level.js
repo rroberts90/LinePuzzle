@@ -1,5 +1,5 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { View, StyleSheet, useWindowDimensions, Vibration, Button} from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
+import { View, StyleSheet, useWindowDimensions, Vibration} from 'react-native'
 
 import { Pulse} from './Nodes';
 import GridView from './Grid';
@@ -10,16 +10,11 @@ import { UserPath } from './Paths';
 import useInterval from './useInterval.js';
 import { levelUp, getItem} from '../Storage';
 import useSound from '../Sounds'
-import Tooltip from './Tooltip'
 import {Arrows} from './Symbols'
-const defaultBackground = 'rgba(248,248,255,1)';
 
-const displaySolution = (solution) => {
-  return solution.slice(1).map((node,i)=> {
-    const prevNode = solution[i];
-    return {startNode: prevNode, endPoint: centerOnNode(node.pos, node.diameter) }
-  });
-}
+import GlobalStyles from '../GlobalStyles'
+
+const defaultBackground = GlobalStyles.defaultBackground.backgroundColor;
 
 
 const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves, setTime}) => {
@@ -48,7 +43,6 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
     }
 
     lineSegments.current = [];
-    
 
     setWin(false);
     setDefaultPulser(0);
@@ -87,7 +81,6 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
   */
   const updateNodeBundle = (next,node, hint) => {
 
-   // play('connect');
    const prevNode = node;
    setCurrentNode(next);
 
@@ -106,12 +99,12 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
 
     setWin(true); // triggers end line fade in 
     hintEl.current.onPress = null;
-    setTimeout(()=>onWin(currentLevel=> currentLevel+1), 500);
+    setTimeout(()=>onWin(currentLevel=> currentLevel+1), 1000);
 
 
-    // check if vibrate is AOK with user
     play('win');
 
+    // check if vibrate is AOK with user
     getItem('vibrate').then(vibrate=> {
       if(vibrate){
         Vibration.vibrate();
@@ -158,6 +151,10 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
       else if (prev) {
         onUndo();
         return {newNode: null, prevPoint: prev.pos};
+      }
+      else{
+        return {newNode: null, prevPoint: null};
+
       }
     } else {
       return {newNode: null, prevPoint:null};
@@ -238,7 +235,7 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
     }
   }, [current]);
 
-  const loadingWall = loading ? <View style={{position: 'absolute', width:'100%', height:'110%', backgroundColor:defaultBackground, zIndex: 20 }}/> : null;
+  const loadingWall = loading ? <View style={styles.loadingWall}/> : null;
 
   return ( 
 
@@ -266,43 +263,13 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     height: '100%',
-    backgroundColor: defaultBackground
   },
-  spacer: {
-    height: '25%'
-  },
-  
-  titleText: {
-    fontSize: 14,
-    lineHeight: 24,
-    fontWeight: "bold"
-  },
-  origin: {
-    position: "absolute",
-    top: 100,
-    left: 100
-  },
-  rect: {
-    width: 50,
-    height: 50,
-    backgroundColor: "blue",
-    borderRadius: 1,
-    margin: 10
-  },
-  zero: {
-    position: "absolute",
-    height: '100%',
-    width: '100%',
-    padding: 0,
-    margin: 0,
-  },
-  dot: {
-    width:50,
-    height:50,
+  loadingWall: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-  }
+     width:'100%', 
+     height:'110%', 
+     backgroundColor:defaultBackground, 
+     zIndex: 20 }
 
 });
 
