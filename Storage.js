@@ -43,8 +43,11 @@ const storeItem = async (key,value) => {
 
 
   const levelUp = async ( board) => {
-    board.score = board.score+1;
+    console.log('leveling up');
+    console.log(board.score)
     if(board.gameType === 'timed' || board.gameType === 'moves') {
+      storeItem('currentScore',  board.score);
+
       let itemName = `${board.gameType}Score`;
       if(board.grid.length === 6) {
         itemName += '4x6';
@@ -82,7 +85,7 @@ const storeItem = async (key,value) => {
   const getSettings = async () => {
     let values;
     try {
-      values = await AsyncStorage.multiGet([ '@difficulty','@sound', '@vibrate', '@display', '@board']);
+      values = await AsyncStorage.multiGet([ '@music','@sound', '@vibrate', '@display', '@board']);
       return values;
     } catch(e) {
       // read error
@@ -100,6 +103,7 @@ const storeItem = async (key,value) => {
 
     storeItem('sound', true);
     storeItem('difficulty', true);
+    storeItem('music', true);
     storeItem('vibrate', true);
     storeItem('display', 'impossible');
     storeItem('board', true);

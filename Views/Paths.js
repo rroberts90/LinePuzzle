@@ -275,29 +275,8 @@ const BridgeSegment=  ({color, width, end}) => {
         left: 0,
         position: 'absolute',
 
-      },
-      cap: {
-
       }
   });
+
   export {Segment, UserPath, Fade, CapSegment, calculateColor}
 
-    /*const measureRef = useRef(null);
-  //const [offset, setOffset] = useState(300);
-  const height = useWindowDimensions().height;
-  const offset = useRef(new Animated.Value(0)).current;
-  useEffect(()=>{
-    if(won){
-      offset.setValue(0);
-      Animated.timing(offset,{
-        toValue:-100,
-        duration: 1500,
-        easing: Easing.ease,
-        useNativeDriver: true,
-        delay: 500
-      }).start(finished=> offset.setValue(-100));
-    }
-    else{
-
-    }
-  },[won]);*/

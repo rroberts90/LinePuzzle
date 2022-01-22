@@ -22,6 +22,7 @@ const PuzzlePicker = ({navigation, route}) => {
         getItem('levelProgress').then(levelProgress=>{
             setProgress(levelProgress);
         });
+        
     },[renderOnArrival]);
 
     //setupPuzzles()

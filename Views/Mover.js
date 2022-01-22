@@ -5,6 +5,11 @@ import useInterval from "./useInterval";
 
 const defaultMoves = 25;
 const defaultSize = 1;
+
+function sleep(ms) {
+    return new Promise(resolve=> setTimeout(resolve,ms));
+  }
+
 const Mover = ({onFinish, level, moves, navigation}) => {
     //const [prevCount, setPrevCount]= useState(()=> visitedNodes);
 
@@ -12,6 +17,7 @@ const Mover = ({onFinish, level, moves, navigation}) => {
     
     const fontAnim = useRef(new Animated.Value(1)).current;
     const [finished, setFinished] = useState(false); // makes layout load all pretty before rendering
+  
     useEffect(()=> {
         if(moves < prevMoves) { 
             // added moves
@@ -33,7 +39,7 @@ const Mover = ({onFinish, level, moves, navigation}) => {
         }
         if(defaultMoves-moves <= 0  && !finished){
              setFinished(true);
-             onFinish('moves',level);
+             sleep(500).then(()=>onFinish('moves',level));
         }
 
         setPrevMoves(moves);

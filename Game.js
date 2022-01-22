@@ -70,6 +70,7 @@ const Game = ({ navigation, route }) => {
 
   const board0 = useRef(null);
   const board1 = useRef(null);
+
   useEffect(() => {
 
     console.log('\n\n---------new game')
@@ -165,9 +166,8 @@ const Game = ({ navigation, route }) => {
   }, [level]);
 
 
-
   const onFinish = async (gameType, highLevel) => {
-    navigation.push('afterGame', { gameType: gameType, score: highLevel, boardSize: boardSize });
+    navigation.push('afterGame', { gameType: gameType, score: level, boardSize: boardSize });
 
   }
 

@@ -1,12 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
 
-import { View, Text, Button, Image, TouchableOpacity, Pressable, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, Button, Image, Pressable, StyleSheet, SafeAreaView } from 'react-native';
 import colorScheme from '../Gameplay/ColorSchemes'
 import useSound from '../Sounds';
 
 import { clearAll, storeItem, getSettings } from '../Storage'
-import { BackButton } from './NavigationButtons';
 import { InfoHeader } from './Header';
 import { getGlyphSource, getAnimalSource, getSymbolSource, getImpossibleSource } from './Symbols';
 
@@ -39,7 +38,7 @@ function SettingsScreen({ navigation, route }) {
 
     const [vibrate, toggleVibrate] = useState(null);
 
-    const [difficulty, toggleDifficulty] = useState(null);
+    const [music, toggleMusic] = useState(null);
 
     const [display, setDisplay] = useState(null);
 
@@ -56,7 +55,7 @@ function SettingsScreen({ navigation, route }) {
 
             setDisplay(d2 ? d2.replace(/"/g, '') : 'shapes');
 
-            toggleDifficulty(d === 'true' ? true : false);
+            toggleMusic(d === 'true' ? true : false);
 
             toggleSound(s === 'true' ? true : false);
             toggleVibrate(v === 'true' ? true : false);
@@ -66,10 +65,10 @@ function SettingsScreen({ navigation, route }) {
     }, []);
 
     useEffect(() => {
-        if (difficulty !== null) {
-            storeItem('difficulty', difficulty);
+        if (music !== null) {
+            storeItem('music', music);
         }
-    }, [difficulty]);
+    }, [music]);
 
     useEffect(() => {
         if (soundOn !== null) {
@@ -102,10 +101,10 @@ function SettingsScreen({ navigation, route }) {
                 <InfoHeader navigation = {navigation} title= {'Settings'}/>
               
                 <View style={{ flexDirection: 'column', marginTop: '25%'}}>
-                <Text style={styles.headerText}>Difficulty</Text>
+                <Text style={styles.headerText}>Music</Text>
 
                 <View style={styles.line}>
-                    <Selector toggle={difficulty} color={colorScheme.four} text1={'easy'} text2={'hard'} press1={() => { toggleDifficulty(true); play('connect'); }} press2={() => { toggleDifficulty(false); play('connect'); }} />
+                    <Selector toggle={music} color={colorScheme.four} text1={'on'} text2={'off'} press1={() => { toggleMusic(true); play('connect'); }} press2={() => { toggleMusic(false); play('connect'); }} />
                 </View>
 
 
@@ -113,7 +112,7 @@ function SettingsScreen({ navigation, route }) {
                 <View style={styles.bar}/> 
                 <View style={{ flexDirection: 'column'}}>
 
-                <Text style={styles.headerText}>Sound</Text>
+                <Text style={styles.headerText}>Sounds</Text>
 
                 <View style={styles.line}>
                     <Selector toggle={soundOn} color={colorScheme.four} text1={'on'} text2={'off'} press1={() => { toggleSound(true); play('connect'); }} press2={() => toggleSound(false)} />

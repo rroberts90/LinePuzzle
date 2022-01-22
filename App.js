@@ -29,59 +29,49 @@ function HomeScreen({ navigation }) {
         <SafeAreaView style={[{ flex: 1, alignItems: 'center', justifyContent: 'center' }]}>
             <Text style={styles.headerText}> COLOR MAZE </Text>
 
-            <PlayButtonExpanded 
+            <PlayButton
             navigation = {navigation} 
-            title={'endless'} 
+            title={'puzzles'} 
             borderColor={colorScheme.one} 
             disabled={disabled} 
             toggleDisabled= {toggleDisabled}
-            boardSizeSelected = {endlessBoard}
-            toggleSize = {toggleEndlessBoard}
             />
 
-            <PlayButtonExpanded 
+
+
+            <PlayButton
             navigation = {navigation} 
             title={'moves'} 
             borderColor={colorScheme.two} 
             disabled={disabled} 
             toggleDisabled= {toggleDisabled}
-            boardSizeSelected = {movesBoard}
-            toggleSize = {toggleMovesBoard}
+
             />
 
-            <PlayButtonExpanded 
+            <PlayButton 
             navigation = {navigation} 
             title={'timed'} 
             borderColor={colorScheme.three} 
             disabled={disabled} 
             toggleDisabled= {toggleDisabled}
-            boardSizeSelected = {timedBoard}
-            toggleSize = {toggleTimedBoard}
             />
 
-            <PlayButtonExpanded 
+            <PlayButton
             navigation = {navigation} 
-            title={'puzzles'} 
+            title={'endless'} 
             borderColor={colorScheme.four} 
             disabled={disabled} 
             toggleDisabled= {toggleDisabled}
-            boardSizeSelected = {timedBoard}
-            toggleSize = {toggleTimedBoard}
+
             />
 
             <View style={[ styles.row]} >
-                <IconButton 
-                navigation={navigation} 
-                title={'Achievements'} 
-                borderColor={'darkgrey'} 
-                disabled={disabled} 
-                toggleDisabled={toggleDisabled} 
-                icon={require('./Icons/Trophy.png')} />
+
 
                 <IconButton 
                 navigation={navigation} 
                 title={'Settings'} 
-                borderColor={'darkgrey'} 
+                borderColor={'lightgrey'} 
                 disabled={disabled} 
                 toggleDisabled={toggleDisabled} 
                 icon={require('./Icons/Settings.png')} />
@@ -112,8 +102,8 @@ function LoadingScreen({navigation}){
             <>
             <Text style={styles.headerText}> COLOR MAZE </Text>
 
-                <PlayButton navigation={navigation} borderColor={colorScheme.four} disabled={false} toggleDisabled={()=>{}} title={'tutorial'} text={'play tutorial'} boardSize={false}/>
-                <PlayButton navigation={navigation} borderColor={colorScheme.one} disabled={false} toggleDisabled={()=>{storeItem('tutorialFinished', true)}} title={'colormaze'} text={'skip tutorial'} boardSize={false}/>
+                <PlayButton navigation={navigation} borderColor={colorScheme.four} disabled={false} toggleDisabled={()=>{}} title={'tutorial'} text={'play intro'} boardSize={false}/>
+                <PlayButton navigation={navigation} borderColor={colorScheme.one} disabled={false} toggleDisabled={()=>{storeItem('tutorialFinished', true)}} title={'colormaze'} text={'skip intro'} boardSize={false}/>
 
             </>: null}
         </View>

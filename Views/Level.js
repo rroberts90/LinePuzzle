@@ -95,6 +95,7 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
    triggerPulser(currentValue => currentValue+1);
   
    if(next === getBoard().finish ) {
+     getBoard().score = l+1;
     levelUp(getBoard());  
 
     setWin(true); // triggers end line fade in 

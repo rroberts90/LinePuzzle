@@ -88,6 +88,148 @@ const getSymbolSource = (group)=> {
     return icon;
   
   }
+  const getFlowerSource = (group)=> {
+    let icon = '';
+    switch (group){
+      case 1: 
+        icon = require('../Icons/flowers1.png');
+        break;
+      case 2: 
+        icon = require('../Icons/flowers2.png');
+        break;
+      case 3: 
+        icon = require('../Icons/flowers3.png');
+        break;
+      case 4: 
+        icon = require('../Icons/flowers4.png');
+        break;
+      
+    }
+    return icon;
+  
+  }
+  const getDogSource = (group)=> {
+    let icon = '';
+    switch (group){
+      case 1: 
+        icon = require('../Icons/dogs1.png');
+        break;
+      case 2: 
+        icon = require('../Icons/dogs2.png');
+        break;
+      case 3: 
+        icon = require('../Icons/dogs3.png');
+        break;
+      case 4: 
+        icon = require('../Icons/dogs4.png');
+        break;
+      
+    }
+    return icon;
+  
+  }
+  const getDog2Source = (group)=> {
+    let icon = '';
+    switch (group){
+      case 1: 
+        icon = require('../Icons/dogs5.png');
+        break;
+      case 2: 
+        icon = require('../Icons/dogs6.png');
+        break;
+      case 3: 
+        icon = require('../Icons/dogs7.png');
+        break;
+      case 4: 
+        icon = require('../Icons/dogs8.png');
+        break;
+      
+    }
+    return icon;
+  
+  }
+  const getScienceSource = (group)=> {
+    let icon = '';
+    switch (group){
+      case 1: 
+        icon = require('../Icons/science1.png');
+        break;
+      case 2: 
+        icon = require('../Icons/science2.png');
+        break;
+      case 3: 
+        icon = require('../Icons/science3.png');
+        break;
+      case 4: 
+        icon = require('../Icons/science4.png');
+        break;
+      
+    }
+    return icon;
+  
+  }
+
+  const getFoodSource = (group)=> {
+    let icon = '';
+    switch (group){
+      case 1: 
+        icon = require('../Icons/food1.png');
+        break;
+      case 2: 
+        icon = require('../Icons/food2.png');
+        break;
+      case 3: 
+        icon = require('../Icons/food3.png');
+        break;
+      case 4: 
+        icon = require('../Icons/food5.png');
+        break;
+      
+    }
+    return icon;
+  
+  }
+
+  const getDesertSource = (group)=> {
+    let icon = '';
+    switch (group){
+      case 1: 
+        icon = require('../Icons/desert1.png');
+        break;
+      case 2: 
+        icon = require('../Icons/desert2.png');
+        break;
+      case 3: 
+        icon = require('../Icons/desert3.png');
+        break;
+      case 4: 
+        icon = require('../Icons/desert4.png');
+        break;
+      
+    }
+    return icon;
+  
+  }
+  const getFruitSource = (group)=> {
+    let icon = '';
+    switch (group){
+      case 1: 
+        icon = require('../Icons/fruit1.png');
+        break;
+      case 2: 
+        icon = require('../Icons/fruit2.png');
+        break;
+      case 3: 
+        icon = require('../Icons/fruit3.png');
+        break;
+      case 4: 
+        icon = require('../Icons/fruit4.png');
+        break;
+      
+    }
+    return icon;
+  
+  }
 
   const getArrowSource = (arrow) => { 
     let source = '';
@@ -133,6 +275,7 @@ const getSymbolSource = (group)=> {
           setSource(getSymbolSource(group));
         }
       }).catch(e => console.log(e));
+      
     }, [sourceFile, group]);
 
     const opacity = frozen > 0 ? .3 : 1;

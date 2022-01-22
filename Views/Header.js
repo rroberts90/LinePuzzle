@@ -26,6 +26,7 @@ const Header = ({title1,item1,title2, item2, fontAnim, navigation}) => {
     </View>
     );
 }
+
 const InfoHeader = ({navigation, title, overrideDestination}) => {
     
     return (

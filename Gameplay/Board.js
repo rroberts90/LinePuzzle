@@ -118,6 +118,7 @@ const gameDims = (game) => {
 class Board {
 
   constructor(game, level, prevBoard, boardSize, puzzleInfo) {
+    this.score = level;
     console.log(`new board puzzle #: ${puzzleInfo.puzzleNumber} Level #: ${level + puzzleInfo.initialProgress}`);
     this.gameType = game;
 
