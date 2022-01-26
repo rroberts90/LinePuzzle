@@ -70,16 +70,21 @@ const storeItem = async (key,value) => {
         });
 
       
+        if(board.gameType === 'puzzle'){
+       /*  Doing this all in one in game now
+        console.log('updating level progress')
         const levelProgress = await getItem('levelProgress');
-
+        
+        console.log(levelProgress);
         const currentPuzzle = await getItem('currentPuzzle');
+        console.log(`currentPuzzle: ${currentPuzzle}`);
 
         const updatedProgress = levelProgress.map(level=> level);
         updatedProgress[currentPuzzle-1].progress++; //Level is index position +1
-        storeItem('levelProgress',updatedProgress);
+        storeItem('levelProgress',updatedProgress);*/
         
 
-          
+        }
   }
 
   const getSettings = async () => {
@@ -108,12 +113,15 @@ const storeItem = async (key,value) => {
     storeItem('display', 'impossible');
     storeItem('board', true);
 
+
+    intializeLevelProgress();
+  }
+  const intializeLevelProgress = () => {
     const zeroProgress = packInfo.levels.map(level=> {return {progress:0, stars:[]}});
 
     console.log(zeroProgress)
     storeItem('levelProgress',zeroProgress);
 
-
   }
 
-  export {clearAll, storeItem, getItem, getItems, levelUp, initialize, getSettings};
+  export {clearAll, storeItem, getItem, getItems, levelUp, initialize, getSettings, intializeLevelProgress};

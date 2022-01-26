@@ -70,7 +70,6 @@ const setStart = (grid, numRow, numCol, prevFinish, finalColor) => {
 const copyBoardData = (prevGrid) => {
   return prevGrid.map(row =>
     row.map(node => {
-      //console.log(node.diameter);
       const nodeCopy = new Node(MyMath.gridPos(node.gridPos.row, node.gridPos.col),
         MyMath.point(node.pos.x, node.pos.y),
         node.colors, null, null, node.diameter);
@@ -136,7 +135,9 @@ class Board {
         this.setupGridFromScratch(game, 0, prevBoard)
       }
       else {
-        this.loadSave(pack[level + puzzleInfo.initialProgress]);
+        this.loadSave(pack[level + puzzleInfo.initialProgress], puzzleInfo);
+
+        // add symbol theme to nodes
       }
 
       if (prevBoard) {
@@ -165,7 +166,6 @@ class Board {
   copyPositionData(prevGrid) {
     this.grid.forEach((row, i) =>
       row.forEach((node, j) => {
-        //console.log(node.diameter);
         node.diameter = prevGrid[i][j].diameter;
         node.pos = prevGrid[i][j].pos;
 
@@ -383,11 +383,12 @@ class Board {
 
   }
 
-  loadSave(savedBoard) {
+  loadSave(savedBoard, puzzleInfo) {
 
     this.grid = savedBoard.grid.map(row => row.map(savedNode => {
       const node = new Node(); //  load save fills  empty node
       node.loadSave(savedNode);
+      node.theme = puzzleInfo.theme;
       return node;
     }));
 

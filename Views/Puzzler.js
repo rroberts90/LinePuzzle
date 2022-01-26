@@ -9,13 +9,19 @@ const defaultBackground = GlobalStyles.defaultBackground.backgroundColor;
 const defaultSize = 1;
 
 const getScoring = (difficulty) => {
-    const baseScoring = {'gold':60, 'silver':120,'brown':300};
+    const baseScoring = {'gold':60, 'silver':120,'brown':160};
+    if(difficulty === 'moderate'){
+        return {'gold':90, 'silver':150,'brown':300}
+    }
+    if(difficulty === 'hard') {
+        return {'gold':120, 'silver':180,'brown':300}
+    }
+
     return baseScoring;
 }
 
-
-const getGoalInfo = (time) => {
-    const scoring = getScoring();
+const getGoalInfo = (time, difficulty) => {
+    const scoring = getScoring(difficulty);
     if(time <= scoring['gold']){
         return {color: 'gold', time:scoring['gold'] }
     }
@@ -29,8 +35,11 @@ const getGoalInfo = (time) => {
     }
 }
 
+const getStarColors = () => {
+    return {gold: 'gold', brown: 'rgba(185, 114, 45,1)', silver: 'rgb(190,194,203)'}
+}
 
-const Puzzler = ({ info, time, setTime, navigation}) => {
+const Puzzler = ({ info, time, setTime, navigation, level}) => {
 
     useEffect(()=> setTime(0),[]);
     useInterval(()=>{
@@ -39,10 +48,10 @@ const Puzzler = ({ info, time, setTime, navigation}) => {
 
     }, 1000);
     return (
-        <PuzzleHeader navigation = {navigation} info={info} time={time} getGoalInfo={getGoalInfo}/> 
+        <PuzzleHeader navigation = {navigation} info={info} time={time} getGoalInfo={getGoalInfo} level={level}/> 
  );   
 }
 
-export {getGoalInfo as getStar};
+export {getGoalInfo as getStar, getScoring,getStarColors};
 
 export default Puzzler;

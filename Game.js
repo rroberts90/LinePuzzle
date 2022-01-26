@@ -8,10 +8,8 @@ import { storeItem, getItem, getItems } from './Storage';
 import Timer from './Views/Timer';
 import Mover from './Views/Mover';
 
-import {PuzzleHeader} from './Views/Header'
 import Header from './Views/Header'
 import useSound from './Sounds';
-import { BackButton } from './Views/NavigationButtons';
 import {getStar} from './Views/Puzzler';
 import Puzzler from './Views/Puzzler';
 
@@ -29,7 +27,7 @@ const Game = ({ navigation, route }) => {
 
 
   const gameType = route.name;
-  const { boardSize, level:puzzleNumber, initialProgress} = route.params;
+  const { boardSize, level:puzzleNumber, initialProgress, group: theme, title, difficulty} = route.params;
   const [level, setLevel] = useState(0);
 
   const height = useWindowDimensions().height;
@@ -50,13 +48,13 @@ const Game = ({ navigation, route }) => {
 
     if (ref.current === null && !prevBoard) {
       
-      ref.current = new Board(gameType, 0, null, boardSize, {puzzleNumber, initialProgress});
+      ref.current = new Board(gameType, 0, null, boardSize, {puzzleNumber, initialProgress,theme});
       ref.current.level = 0;
     }
 
     else if (prevBoard) {
 
-      ref.current = new Board(gameType, prevBoard.level + 1, prevBoard,boardSize, {puzzleNumber, initialProgress});
+      ref.current = new Board(gameType, prevBoard.level + 1, prevBoard,boardSize, {puzzleNumber, initialProgress,theme});
       ref.current.level = prevBoard.level + 1;
 
     }
@@ -102,18 +100,24 @@ const Game = ({ navigation, route }) => {
      if(gameType === 'puzzle') {
       
       // get the star info and save it
-      const star = getStar(time).color;
+      const star = getStar(time,difficulty).color;
+      
       getItem('levelProgress').then(levelProgress=> {
+      
         const updatedProgress = levelProgress.map(level=> level);
+        updatedProgress[puzzleNumber-1].progress++; //Level is index position +1
+
         if(star !== GlobalStyles.defaultBackground.backgroundColor) {
           updatedProgress[puzzleNumber-1].stars.push(star);
         }
+
         storeItem('levelProgress',updatedProgress);
+
       });
 
-      if(initialProgress + level >= 20){
+      if(initialProgress + level >= 10){
         console.log('COMPLETED');
-        navigation.push('afterPuzzle',{puzzleNumber: puzzleNumber})
+        navigation.push('afterPuzzle',{puzzleNumber: puzzleNumber, title})
     
         }
        setTime(0);
@@ -126,12 +130,14 @@ const Game = ({ navigation, route }) => {
         toValue: end0,
         duration: Duration,
         useNativeDriver: true,
+        delay: 2000,
         easing: Easing.ease
       }),
       Animated.timing(translateYAnim1, {
         toValue: end1,
         duration: Duration,
         useNativeDriver: true,
+        delay: 2000,
         easing: Easing.ease
       })
       ]).start(finished => {
@@ -172,7 +178,7 @@ const Game = ({ navigation, route }) => {
   }
 
 
-  const puzzleID = level+1 + initialProgress <= 20 ? `${level+1 + initialProgress}` : 20;
+  const puzzleID = level+1 + initialProgress <= 20 ? `${level+1 + initialProgress}` : 10;
   return (<>
     <Animated.View style={{ position: 'absolute', height: '100%', width: '100%', transform: [{ translateY: translateYAnim1 }] }}>
 
@@ -209,7 +215,7 @@ const Game = ({ navigation, route }) => {
       gameType === 'moves' ?
         <Mover onFinish={onFinish} level={level} moves={moves} navigation={navigation} /> :
       gameType === 'puzzle' ?
-        <Puzzler navigation = {navigation} info={{puzzleID: puzzleID}} time={time} setTime={setTime}/> :
+        <Puzzler navigation = {navigation} info={{puzzleID: puzzleID, difficulty}} time={time} setTime={setTime} level={level}/> :
         <Header fontAnim={1} navigation={navigation} />
     }
 

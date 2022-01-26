@@ -121,7 +121,7 @@ const getSymbolSource = (group)=> {
         icon = require('../Icons/dogs3.png');
         break;
       case 4: 
-        icon = require('../Icons/dogs4.png');
+        icon = require('../Icons/dogs5.png');
         break;
       
     }
@@ -132,7 +132,7 @@ const getSymbolSource = (group)=> {
     let icon = '';
     switch (group){
       case 1: 
-        icon = require('../Icons/dogs5.png');
+        icon = require('../Icons/dogs4.png');
         break;
       case 2: 
         icon = require('../Icons/dogs6.png');
@@ -152,7 +152,7 @@ const getSymbolSource = (group)=> {
     let icon = '';
     switch (group){
       case 1: 
-        icon = require('../Icons/science1.png');
+        icon = require('../Icons/science5.png');
         break;
       case 2: 
         icon = require('../Icons/science2.png');
@@ -220,7 +220,7 @@ const getSymbolSource = (group)=> {
         icon = require('../Icons/fruit2.png');
         break;
       case 3: 
-        icon = require('../Icons/fruit3.png');
+        icon = require('../Icons/fruit5.png');
         break;
       case 4: 
         icon = require('../Icons/fruit4.png');
@@ -230,6 +230,27 @@ const getSymbolSource = (group)=> {
     return icon;
   
   }
+  const getCardSource = (group)=> {
+    let icon = '';
+    switch (group){
+      case 1: 
+        icon = require('../Icons/card1.png');
+        break;
+      case 2: 
+        icon = require('../Icons/card2.png');
+        break;
+      case 3: 
+        icon = require('../Icons/card3.png');
+        break;
+      case 4: 
+        icon = require('../Icons/card4.png');
+        break;
+      
+    }
+    return icon;
+  
+  }
+
 
   const getArrowSource = (arrow) => { 
     let source = '';
@@ -258,24 +279,36 @@ const getSymbolSource = (group)=> {
   
   const defaultGroup = 'shapes';
   
-  const Symbol = ({group, diameter, frozen, freezer}) => {
+  const sourceDict = {
+    impossible: getImpossibleSource,
+    learner: getImpossibleSource,
+    glyph: getGlyphSource,
+    animal2: getAnimalSource,
+    animal1: getSymbolSource,
+    pets1: getDogSource,
+    pets2: getDog2Source,
+    flower: getFlowerSource,
+    food: getFoodSource,
+    science: getScienceSource,
+    desert: getDesertSource,
+    fruit: getFruitSource,
+    card: getCardSource
+
+  };
+
+  const Symbol = ({group, diameter, frozen, freezer, theme}) => {
     const [sourceFile, setSource] = useState(()=>getSymbolSource(group)); //default
     
     useEffect(()=>{
-      getItem('display').then(display => {
-        if (display === 'glyphs') {
-          setSource(getGlyphSource(group));
-        }
-        else if (display === 'impossible') {
-          setSource(getImpossibleSource(group));
-        }
-        else if (display === 'seaAnimal') {
-          setSource(getAnimalSource(group));
-        } else {
-          setSource(getSymbolSource(group));
-        }
-      }).catch(e => console.log(e));
-      
+      if (!theme) {
+        getItem('display').then(display => {
+          setSource(sourceDict[display](group))
+        }).catch(e => console.log(e));
+      }
+      else{
+        setSource(sourceDict[theme](group))
+      }
+
     }, [sourceFile, group]);
 
     const opacity = frozen > 0 ? .3 : 1;
@@ -483,7 +516,7 @@ const shouldAddArrow = (node, neighbor) => {
           const source = require('../Icons/freezePattern5.png');
           return null; //<Image style={[styles.special, styles.freezePattern, {borderRadius: node.diameter/2}]} source={source}/>
       }else if(node.special === 'rotateCC') {
-        const source = require('../Icons/rotateCC3.png');
+        const source = require('../Icons/rotateCC4.png');
         return <Image style={[styles.special, {height:'100%',width:'100%', opacity: 1}]} source={source}/>;
 
       }else if(booster) { 
@@ -549,4 +582,4 @@ const shouldAddArrow = (node, neighbor) => {
 
   });
   
-  export { Symbol, Special,Arrows, getGlyphSource, getSymbolSource, getImpossibleSource, getAnimalSource};
+  export { Symbol, Special,Arrows, getGlyphSource, getSymbolSource, getImpossibleSource, getAnimalSource, getFoodSource, getFruitSource,getFlowerSource, getDesertSource, getDogSource, getDog2Source, getScienceSource, getCardSource};

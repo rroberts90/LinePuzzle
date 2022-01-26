@@ -3,9 +3,21 @@ import {ScrollView, View, StyleSheet } from 'react-native';
 import { InfoHeader } from './Header';
 
 import { PuzzleButton } from './NavigationButtons';
-import { getItem } from '../Storage';
+import { getItem,intializeLevelProgress } from '../Storage';
 
 const packInfo = require('../PremadeBoardStuff/Output/packInfo.json');
+
+const getNextPuzzle = (currentLevel, levelProgress)=> {
+    let foundPuzzle = null;
+    let current = currentLevel;
+    while(current+1 < levelProgress.length && !foundPuzzle) {
+        current = current+1;
+        if(levelProgress[current].progress < levelProgress[current].mazeCount){
+            foundPuzzle = current;
+        }
+    }
+    return foundPuzzle;
+}
 
 const PuzzlePicker = ({navigation, route}) => {
     const [disabled, toggleDisabled]= useState(false);
@@ -20,16 +32,22 @@ const PuzzlePicker = ({navigation, route}) => {
 
     useEffect(()=> {
         getItem('levelProgress').then(levelProgress=>{
+            if(levelProgress){
             setProgress(levelProgress);
+            const tmp = progress.map(level=> level);
+            }else{
+                // not initialized
+                //intializeLevelProgress();
+            }
         });
-        
+
     },[renderOnArrival]);
 
     //setupPuzzles()
     const count = packInfo.count;
 
     return (<View style={styles.container}>
-        <InfoHeader title={'Puzzles'} navigation= {navigation}/>
+        <InfoHeader title={'Puzzle Packs'} navigation= {navigation}/>
         <ScrollView style={styles.list}>
         {Array.from({length: count}, (_, ndx)=>ndx).map(number=>  {
             const puzzleProgress = progress[number] ? progress[number].progress : 0

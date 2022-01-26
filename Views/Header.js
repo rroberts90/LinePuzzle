@@ -1,5 +1,5 @@
-import  React, { useEffect, useState } from 'react';
-import { View,Text, StyleSheet, SafeAreaView, Animated, Image } from 'react-native';
+import  React, { useEffect, useState, useRef } from 'react';
+import { View,Text, StyleSheet, SafeAreaView, Animated, Image,Easing } from 'react-native';
 import { BackButton } from './NavigationButtons';
 import GlobalStyles from '../GlobalStyles'
 
@@ -40,29 +40,55 @@ const InfoHeader = ({navigation, title, overrideDestination}) => {
     );
 }
 
-const PuzzleHeader = ({ navigation,time,info, getGoalInfo }) => {
-    const goalInfo = getGoalInfo(time)
+const PuzzleHeader = ({ navigation,time,info, getGoalInfo , level}) => {
+    const goalInfo = getGoalInfo(time, info.difficulty)
     //                <Text style={[styles.timetext, {alignSelf:'flex-end'}]}> {goalInfo.time} s</Text>
+    const sizeAnim = useRef(new Animated.Value(0)).current;
+    const fadeAnim = useRef(new Animated.Value(1)).current;
 
+    useEffect(()=>{
+        if(level > 0) {
+        Animated.sequence([
+            Animated.timing(sizeAnim, {
+                toValue: 1.25,
+                isInteraction: false,
+                useNativeDriver: true,
+                duration: 1000,
+                easing: Easing.in(Easing.quad)
+            }),
+            Animated.timing(fadeAnim, {
+                toValue: 0,
+                isInteraction: false,
+                useNativeDriver: true,
+                duration:3000,
+                easing: Easing.cubic
+            })           
+         ]).start(onFinish=> {
+            sizeAnim.setValue(0);
+            fadeAnim.setValue(1);
+        });
+
+    }
+    },[level]);
     return (
         <View style={styles.box3}>
            
             <BackButton navigation={navigation} overrideDestination={'puzzles'} />
            
+            <View style={{ position: 'absolute', left: 0, bottom: 0, justifyContent: 'flex-start', alignItems: 'center', width: '100%' }}>
+                <View style={styles.bar} />
+            </View>
             <View style={styles.duo}>
                 <Text style={styles.header}>#</Text>
                 <Text style={styles.timetext}>{info.puzzleID} </Text>
             </View>
             <View style={styles.duo}>
-                <Image style={[styles.star, {tintColor: goalInfo.color}]} source={require('../Icons/star3.png')}/>
+                <Animated.Image style={[styles.star, {tintColor: goalInfo.color, transform: [{scale: sizeAnim}], opacity: fadeAnim}]} source={require('../Icons/star4.png')}/>
             </View>
             <View style={styles.duo}>
                 <Text style={styles.timetext}>{time} s</Text>
             </View>
 
-            <View style={{ position: 'absolute', left: 0, bottom: 0, justifyContent: 'flex-start', alignItems: 'center', width: '100%' }}>
-                <View style={styles.bar} />
-            </View>
 
         </View>
     );
@@ -127,7 +153,8 @@ const styles = StyleSheet.create({
     },
     star: {
         height: 40,
-        width: 40
+        width: 40,
+        zIndex: 40
     }
 
 });

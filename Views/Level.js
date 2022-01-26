@@ -100,7 +100,7 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
 
     setWin(true); // triggers end line fade in 
     hintEl.current.onPress = null;
-    setTimeout(()=>onWin(currentLevel=> currentLevel+1), 1000);
+    setTimeout(()=>onWin(currentLevel=> currentLevel+1), 0);
 
 
     play('win');
@@ -247,7 +247,7 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
       <UserPath segments={lineSegments.current} fades={fadeSegments.current} />
       {getBoard().gameType==='tutorial'  && l === 0? <DemoCursor node={getBoard().start} nextNode={getBoard().solution[1]} first={true} firstNode={getBoard().start}/>: null}
 
-      <Pulse pos={currPosF} colors={rotateColors(currentNode.colors, currentNode.rot)} GOGOGO={pulser} diameter = {currentNode.diameter} />
+      <Pulse pos={currPosF} colors={rotateColors(currentNode.colors, currentNode.rot)} GOGOGO={pulser} diameter = {currentNode.diameter} isFinish={currentNode == getBoard().finish} />
 
       <Cursor node={currentNode} currPoint={point(currX, currY)} triggerPulser={triggerPulser} detectMatch = {detectMatch} intervalId={intervalId} />
       <GridView board={getBoard()} afterUpdate={updateAfterLayout} height={height} won={win} triggerPulser={triggerPulser}/>

@@ -60,6 +60,9 @@ const getCriteria = (gameType, level, difficulty, largeBoard) => {
              circles: 2,
              totalBoosters: 5,
             gameType: gameType };
+            if(gameType === 'timed') { // add an extra booster because this mode is hard!
+                puzzle.totalBoosters++;
+            }
         if(!largeBoard) {
             return puzzle;
         }else{

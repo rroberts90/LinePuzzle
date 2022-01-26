@@ -95,11 +95,7 @@ const Frozen = ({ node, rotAnim }) => {
       }]
     }}>
 
-      <View style={{
-        width: width - 1, height: 2, backgroundColor: 'rgb(36,36,36)', position: 'absolute', alignSelf:
-          'flex-start', top: '55%', left: 1, borderRadius: 5
-      }} />
-      <View style={{ alignSelf: 'flex-end', width: width - 1, height: 2, backgroundColor: 'rgb(36,36,36)', position: 'absolute', top: '55%', right: 1, borderRadius: 2 }} />
+
       <Image style={styles.lock} source={require('../Icons/Lock1.png')} />
 
       <View style={{
@@ -162,7 +158,7 @@ const NodeView = (props) => {
 
       <Special node={props.node} gameType={props.gameType} />
 
-      <Symbol group={props.node.symbol} diameter={props.node.diameter} frozen={props.node.frozen} freezer={props.node.special === 'freezer'} />
+      <Symbol group={props.node.symbol} diameter={props.node.diameter} frozen={props.node.frozen} freezer={props.node.special === 'freezer'} theme={props.node.theme}/>
 
       <Frozen node={props.node} rotAnim={rotAnim} />
 
@@ -177,7 +173,6 @@ const Pulse = (props) => {
 
 
   const colorStyles = borderStyles(props.colors);
-  const duration = 500;
   useEffect(() => {
     // console.log(`Pulsing. gogogo: ${props.GOGOGO}`)
     if (props.GOGOGO > 0) {
@@ -185,11 +180,13 @@ const Pulse = (props) => {
       //console.log("pulsing");
       fadeAnim.setValue(1);
       sizeAnim.setValue(1);
+      const scaleBy = 1.35 //props.isFinish? 1.35 :  1.35;
+      const duration = 500//props.isFinish ? 500 * (1.95 / 1.35) : 500;
 
       Animated.parallel([
      
         Animated.timing(sizeAnim, {
-          toValue: 1.35,
+          toValue: scaleBy,
           duration: duration,
           useNativeDriver: true,
           isInteraction: false,
@@ -222,6 +219,7 @@ const Pulse = (props) => {
       convertToLayout(props.pos),
       {
         opacity: fadeAnim,
+        borderWidth: props.diameter/2,
         transform: [{ scale: sizeAnim }]
       }]}
 
@@ -274,13 +272,19 @@ const styles = StyleSheet.create({
   lock: {
     position: 'absolute',
 
-    width: '60%',
-    height: '60%',
+    width: '65%',
+    height: '65%',
     alignSelf: 'center',
-    top: '20%',
+    top: '15%',
     opacity: 1,
   }
 });
 
-const nodeSize = styles.nodeSize;
 export { NodeView, Pulse, dynamicNodeSize, dynamicNodeSizeNoPosition };
+
+//      <View style={{ alignSelf: 'flex-end', width: width - 1, height: 2, backgroundColor: 'rgb(36,36,36)', position: 'absolute', top: '55%', right: 1, borderRadius: 2 }} />
+
+// //      <View style={{
+//   width: width - 1, height: 2, backgroundColor: 'rgb(36,36,36)', position: 'absolute', alignSelf:
+//   'flex-start', top: '55%', left: 1, borderRadius: 5
+// }} />

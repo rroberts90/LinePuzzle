@@ -1,13 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
 
-import { View, Text, Button, Image, Pressable, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, Button, Image, Pressable, StyleSheet, ScrollView } from 'react-native';
 import colorScheme from '../Gameplay/ColorSchemes'
 import useSound from '../Sounds';
 
 import { clearAll, storeItem, getSettings } from '../Storage'
 import { InfoHeader } from './Header';
-import { getGlyphSource, getAnimalSource, getSymbolSource, getImpossibleSource } from './Symbols';
+import { getGlyphSource, getAnimalSource, getSymbolSource, getImpossibleSource, getDogSource, getDog2Source, getScienceSource, getFoodSource, getDesertSource, getFlowerSource, getFruitSource, getCardSource } from './Symbols';
 
 const DisplayImage = ({ source }) => {
     return <Image style={styles.iconSmall} source={source} />;
@@ -26,6 +26,21 @@ const Selector = ({ toggle, color, text1, text2, press1, press2 }) => {
                 <Text style={styles.toggleText}>{text2}</Text>
             </Pressable>
         </View>
+    );
+}
+
+const SymbolGroup = ({ getSource, selected, groupName, setDisplay }) => {
+    const { play } = useSound();
+
+    return (<Pressable style={[styles.toggle, styles.toggleColorFour, styles.iconContainer]}
+        onPress={() => { play('connect'); setDisplay(groupName) }}
+    >
+        <View style={selected === groupName ? [styles.selectedFour, {width: styles.iconSmall.width* 4 + 10}] : null} />
+        <DisplayImage source={getSource(1)} />
+        <DisplayImage source={getSource(2)} />
+        <DisplayImage source={getSource(3)} />
+        <DisplayImage source={getSource(4)} />
+    </Pressable>
     );
 }
 
@@ -98,82 +113,67 @@ function SettingsScreen({ navigation, route }) {
     return (
         <>
             <View style={styles.container}>
-                <InfoHeader navigation = {navigation} title= {'Settings'}/>
-              
-                <View style={{ flexDirection: 'column', marginTop: '25%'}}>
-                <Text style={styles.headerText}>Music</Text>
+                <InfoHeader navigation={navigation} title={'Settings'} />
 
-                <View style={styles.line}>
-                    <Selector toggle={music} color={colorScheme.four} text1={'on'} text2={'off'} press1={() => { toggleMusic(true); play('connect'); }} press2={() => { toggleMusic(false); play('connect'); }} />
-                </View>
+                <View style={{ flexDirection: 'column', marginTop: '25%' }}>
 
+                    <Text style={styles.headerText}>Music</Text>
 
-                </View>
-                <View style={styles.bar}/> 
-                <View style={{ flexDirection: 'column'}}>
-
-                <Text style={styles.headerText}>Sounds</Text>
-
-                <View style={styles.line}>
-                    <Selector toggle={soundOn} color={colorScheme.four} text1={'on'} text2={'off'} press1={() => { toggleSound(true); play('connect'); }} press2={() => toggleSound(false)} />
-                </View>
-                </View>
-
-                <View style={styles.bar}/> 
-                <View style={{ flexDirection: 'column'}}>
-
-                <Text style={styles.headerText}>Vibrate</Text>
-
-                <View style={styles.line}>
-                    <Selector toggle={vibrate} color={colorScheme.four} text1={'on'} text2={'off'} press1={() => { toggleVibrate(true); play('connect'); }} press2={() => { toggleVibrate(false); play('connect'); }} />
-                </View>
-                </View>
-
-                <View style={styles.bar}/> 
-
-                <View style={{ flexDirection: 'column'}}>
-
-                <Text style={styles.headerText}>Display</Text>
-
-                <View style={styles.line}>
-                    <View style={{ flexDirection: 'column' }}>
-
-                        <Pressable style={[styles.toggle, styles.toggleColorFour, styles.iconContainer]} onPress={() => { play('connect'); setDisplay('impossible') }}>
-                            <View style={display === 'impossible' ? styles.selectedFour : null} />
-                            <DisplayImage source={getImpossibleSource(1)} />
-                            <DisplayImage source={getImpossibleSource(2)} />
-                            <DisplayImage source={getImpossibleSource(3)} />
-                            <DisplayImage source={getImpossibleSource(4)} />
-                        </Pressable>
-                        <Pressable style={[styles.toggle, styles.toggleLeft, styles.toggleColorFour, styles.iconContainer]} onPress={() => { play('connect'); setDisplay('glyphs') }}>
-                            <View style={display === 'glyphs' ? styles.selectedFour : null} />
-                            <DisplayImage source={getGlyphSource(1)} />
-                            <DisplayImage source={getGlyphSource(2)} />
-                            <DisplayImage source={getGlyphSource(3)} />
-                            <DisplayImage source={getGlyphSource(4)} />
-                        </Pressable>
-                        <Pressable style={[styles.toggle, styles.toggleRight, styles.toggleColorFour, styles.iconContainer]} onPress={() => { play('connect'); setDisplay('seaAnimal') }}>
-                            <View style={display === 'seaAnimal' ? styles.selectedFour : null} />
-                            <DisplayImage source={getAnimalSource(1)} />
-                            <DisplayImage source={getAnimalSource(2)} />
-                            <DisplayImage source={getAnimalSource(3)} />
-                            <DisplayImage source={getAnimalSource(4)} />
-                        </Pressable>
-
-                        <Pressable style={[styles.toggle, styles.toggleLeft, styles.toggleColorFour, styles.iconContainer]} onPress={() => { play('connect'); setDisplay('shapes') }}>
-                            <View style={display === 'shapes' ? styles.selectedFour : null} />
-                            <DisplayImage source={getSymbolSource(1)} />
-                            <DisplayImage source={getSymbolSource(2)} />
-                            <DisplayImage source={getSymbolSource(3)} />
-                            <DisplayImage source={getSymbolSource(4)} />
-                        </Pressable>
+                    <View style={styles.line}>
+                        <Selector toggle={music} color={colorScheme.four} text1={'on'} text2={'off'} press1={() => { toggleMusic(true); play('connect'); }} press2={() => { toggleMusic(false); play('connect'); }} />
                     </View>
                 </View>
+                <View style={styles.bar} />
+                <View style={{ flexDirection: 'column' }}>
+
+                    <Text style={styles.headerText}>Sounds</Text>
+
+                    <View style={styles.line}>
+                        <Selector toggle={soundOn} color={colorScheme.four} text1={'on'} text2={'off'} press1={() => { toggleSound(true); play('connect'); }} press2={() => toggleSound(false)} />
+                    </View>
+                </View>
+
+                <View style={styles.bar} />
+                <View style={{ flexDirection: 'column' }}>
+
+                    <Text style={styles.headerText}>Vibrate</Text>
+
+                    <View style={styles.line}>
+                        <Selector toggle={vibrate} color={colorScheme.four} text1={'on'} text2={'off'} press1={() => { toggleVibrate(true); play('connect'); }} press2={() => { toggleVibrate(false); play('connect'); }} />
+                    </View>
+                </View>
+
+                <View style={styles.bar} />
+
+                <View style={{ flexDirection: 'column' }}>
+
+                    <Text style={styles.headerText}>Themes</Text>
+
+                    <View style={styles.line}>
+                        <ScrollView style={{ height: 200 }}>
+                            <View style={{ flexDirection: 'column', alignItems: 'center' }}>
+                                <SymbolGroup selected={display} groupName={'impossible'} getSource={getImpossibleSource} setDisplay={setDisplay} />
+                                <SymbolGroup selected={display} groupName={'glyph'} getSource={getGlyphSource} setDisplay={setDisplay} />
+                                <SymbolGroup selected={display} groupName={'card'} getSource={getCardSource} setDisplay={setDisplay} />
+                                <SymbolGroup selected={display} groupName={'animal2'} getSource={getAnimalSource} setDisplay={setDisplay} />
+                                <SymbolGroup selected={display} groupName={'animal1'} getSource={getSymbolSource} setDisplay={setDisplay} />
+                                <SymbolGroup selected={display} groupName={'pets1'} getSource={getDogSource} setDisplay={setDisplay} />
+                                <SymbolGroup selected={display} groupName={'pets2'} getSource={getDog2Source} setDisplay={setDisplay} />
+                                <SymbolGroup selected={display} groupName={'science'} getSource={getScienceSource} setDisplay={setDisplay} />
+                                <SymbolGroup selected={display} groupName={'food'} getSource={getFoodSource} setDisplay={setDisplay} />
+                                <SymbolGroup selected={display} groupName={'desert'} getSource={getDesertSource} setDisplay={setDisplay} />
+                                <SymbolGroup selected={display} groupName={'flower'} getSource={getFlowerSource} setDisplay={setDisplay} />
+                                <SymbolGroup selected={display} groupName={'fruit'} getSource={getFruitSource} setDisplay={setDisplay} />
+
+                            </View>
+
+                        </ScrollView>
+                    </View>
                 </View>
                 <Button title='Clear User Data' style={{ marginTop: 100 }} onPress={() => clearAll()} />
 
             </View>
-</>
+        </>
     );
 }
 
@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'flex-end',
         alignSelf: 'center',
-        marginBottom: 10
+        margin: 10
 
     },
     container: {
@@ -194,7 +194,6 @@ const styles = StyleSheet.create({
     headerText: {
         fontSize: 25,
         alignSelf: 'center',
-        marginBottom: '2%'
     },
     toggle: {
         borderWidth: 0,
@@ -245,7 +244,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         opacity: .5,
         backgroundColor: colorScheme.four,
-        width: '100%',
+        width: '65%',
         height: '100%',
         borderRadius: 10
     },

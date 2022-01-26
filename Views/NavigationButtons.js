@@ -143,8 +143,11 @@ const mapDifficultyToColor = (difficulty) => {
 }
 
 const PuzzleButton = ({ navigation, disabled, toggleDisabled, info }) => {
-    const name = `Pack ${info.level}`;
+    const name = `${info.title}`;
+
+    const progress = Math.min(info.initialProgress,info.mazeCount);
     const progressStr = `${info.initialProgress}/${info.mazeCount}`;
+
     const puzzleCompleted = info.initialProgress >= info.mazeCount;
     const source = !puzzleCompleted ? require('../Icons/play1.png') : require('../Icons/check1.png')
     return (
@@ -156,7 +159,7 @@ const PuzzleButton = ({ navigation, disabled, toggleDisabled, info }) => {
                     storeItem('currentPuzzle', info.level);
                     navigation.push('puzzle', info);
                 } else {
-                    navigation.push('afterPuzzle', { puzzleNumber: info.level });
+                    navigation.push('afterPuzzle', { puzzleNumber: info.level, title:info.title, difficulty:info.difficulty });
 
                 }
                 setTimeout(() => toggleDisabled(false), 500);
@@ -164,7 +167,7 @@ const PuzzleButton = ({ navigation, disabled, toggleDisabled, info }) => {
             }}
             disabled={disabled}
         >
-            <View style={{ flexDirection: 'row', flex: 1, alignItems: 'center' }}>
+            <View style={{ flexDirection: 'row', flex: 1.5, alignItems: 'center' }}>
 
                 <View>
                     <Image style={[styles.play,
