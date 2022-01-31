@@ -8,12 +8,11 @@ import DemoCursor from './DemoCursor';
 import {point, centerOnNode,logGridPos,rotateColors} from '../Utils';
 import { UserPath } from './Paths';
 import useInterval from './useInterval.js';
-import { levelUp, getItem} from '../Storage';
+import { levelUp, getItem, storeItem} from '../Storage';
 import useSound from '../Sounds'
 import {Arrows} from './Symbols'
 
 import GlobalStyles from '../GlobalStyles'
-
 const defaultBackground = GlobalStyles.defaultBackground.backgroundColor;
 
 
@@ -42,15 +41,25 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
     resetCurrentNode(1600);
     }
 
-    lineSegments.current = [];
 
     setWin(false);
     setDefaultPulser(0);
     getBoard().restart();
+    lineSegments.current = [];
+
     return () => {
 
   }
   },[l]);
+
+  const addLineSegment = (node, next)=> {
+
+    const seg = {
+     startNode:node,
+     endNode:next,
+    };
+     lineSegments.current  = [...lineSegments.current, seg];
+  }
 
   useInterval(() => {
     
@@ -66,13 +75,26 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
   
   // sets the endPointto the CurrentNode position after it's position is measurable.
   const updateAfterLayout = () => {
+
     resetCurrentNode(1);
-    setTimeout(()=>{
-      if(loading) {
+
+
+    setTimeout(() => {
+      if (loading) {
+        if (lineSegments.current.length === 0 && getBoard().visitedNodes.length > 1) {
+          // there are saved nodes, fire up some starter line segments
+          getBoard().visitedNodes.reduce((prev, curr) => {
+    
+            addLineSegment(prev, curr);
+            return curr;
+          });
+        }
+        getBoard().grid.forEach((row) =>
+        row.forEach((node) =>{  node.loaded = true}));
         toggleLoading(false);
       }
     }, 500);
-    
+
   }
 
   /** 
@@ -81,16 +103,12 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
   */
   const updateNodeBundle = (next,node, hint) => {
 
+
    const prevNode = node;
    setCurrentNode(next);
 
-   const updatedEndPoint = centerOnNode(next.pos, next.diameter);
+   addLineSegment(prevNode,next);
 
-  const seg = {
-   startNode:prevNode,
-   endPoint:updatedEndPoint,
-  };
-   lineSegments.current  = [...lineSegments.current, seg];
 
    triggerPulser(currentValue => currentValue+1);
   
@@ -122,7 +140,10 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
     setMoves(moves=> moves- 5);
     setTime(time => time+5);
     next.special = null;
-    setMoves(moves=> moves+1);
+    setMoves(moves=> {
+      return moves > 0 ? moves+1 : moves
+    });
+    
 
  }else{
   setMoves(moves=> moves+1);
@@ -135,7 +156,7 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
 
   const node = getBoard().getCurrentNode();
   
-   if(node === getBoard().finish) { // prevents glitch where user can trigger multiple game finishes
+   if(node === getBoard().finish || getBoard().forcedFinish) { // prevents glitch where user can trigger multiple game finishes
     return {newNode: null, prevPoint:null};
 
    }

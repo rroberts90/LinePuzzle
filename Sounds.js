@@ -9,7 +9,10 @@ const sounds = {
     'win': require('./Sounds/win3.mp3'),
     'button': require('./Sounds/tap1.wav'),
     'undo': require('./Sounds/tap2.wav'),
-    'paper': require('./Sounds/paper.wav')
+    'paper': require('./Sounds/paper.wav'),
+    'gameOver':require('./Sounds/gameOver1.wav'),
+    'packWin':require('./Sounds/puzzlePackWin.wav')
+
 }
 
 const getNextNoteNdx = (ndx) => {
@@ -31,16 +34,19 @@ export default function useSound() {
         );
         setSound(sound);
         
-        if(key=='paper'){
+        if(key==='paper'){
             await sound.setPositionAsync(400);
         }
-        if(key=='button') {
+        if(key==='button') {
             await sound.setVolumeAsync(.5);
         }
-        if(key =='undo') {
+        if(key ==='undo') {
 
            // await sound.setVolumeAsync(.5);
 
+        }
+        if(key === 'background') {
+            await sound.setIsLoopingAsync(true);
         }
 
         await sound.playAsync();

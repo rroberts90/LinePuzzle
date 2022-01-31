@@ -11,6 +11,8 @@ const toDegrees = (angle) =>{
     return angle * (180 / Math.PI);
   }
 
+
+
 const calculateColor = (node, endPoint) => {
    
     const center = centerOnNode(node.pos, node.diameter);
@@ -67,7 +69,7 @@ const Fade = (props) => {
 }
 
 
-const Segment = ({startNode, endPoint, fixedColor}) => {
+const Segment = ({startNode,endPoint, fixedColor}) => {
 
   if (startNode === null  || endPoint === null){
       return null;
@@ -86,8 +88,7 @@ const Segment = ({startNode, endPoint, fixedColor}) => {
     const angle = xDir > 0 ? toDegrees(Math.asin(opp/ scaleX)) : 180 - toDegrees(Math.asin(opp/ scaleX)); // scaleX is also hypotenuse
 
     const rotate = `${angle}deg`;
-    
-    return (<View style={[styles.dot, 
+    return (<><View style={[styles.dot, 
                          convertToLayout(startPos),
                         { backgroundColor: color,
                          transform: [ 
@@ -95,8 +96,84 @@ const Segment = ({startNode, endPoint, fixedColor}) => {
                           { translateX: scaleX/2 },
                              { scaleX: scaleX }, 
                              { scaleY: scaleY },
-
                              ] }]}/>
+                             
+
+
+                             </>
+
+   );
+}
+
+const getFixedStyles = (startNode, endNode) => {
+ const width = startNode.diameter/ 5;
+ const rotatedColors = rotateColors(startNode.colors, startNode.rot);
+
+  if(startNode.gridPos.row < endNode.gridPos.row){  // below
+    const startPos1 = centerOnNode(startNode.pos,  startNode.diameter)
+    const startPos = point(startPos1.x - width/2, startPos1.y)
+
+    const length = Math.abs(endNode.pos.y - startNode.pos.y)
+   
+    return {
+      backgroundColor: rotatedColors[2],
+      top: startPos.y,
+      left: startPos.x,
+      width: width,
+      height: length
+    }
+  }
+
+  else if(startNode.gridPos.row > endNode.gridPos.row){ // above
+    const startPos1 = centerOnNode(endNode.pos,  endNode.diameter)
+    const startPos = point(startPos1.x - width/2, startPos1.y)
+ 
+    const length = Math.abs(endNode.pos.y - startNode.pos.y)
+    
+    return {
+      backgroundColor: rotatedColors[0],
+      top: startPos.y,
+      left: startPos.x,
+      width: width,
+      height: length
+    }
+  }
+  else if(startNode.gridPos.col > endNode.gridPos.col){ // going left
+    const startPos1 = centerOnNode(endNode.pos,  endNode.diameter)
+    const startPos = point(startPos1.x, startPos1.y - width/2)
+
+    const length = Math.abs(endNode.pos.x - startNode.pos.x)
+    
+    return {
+      backgroundColor: rotatedColors[3],
+      top: startPos.y,
+      left: startPos.x,
+      width: length,
+      height: width
+    }
+  }
+  else if(startNode.gridPos.col < endNode.gridPos.col){ // going right
+    const startPos1 = centerOnNode(startNode.pos,  startNode.diameter)
+    const startPos = point(startPos1.x, startPos1.y - width/2)
+
+    const length = Math.abs(endNode.pos.x - startNode.pos.x)
+    
+    return {
+      backgroundColor: rotatedColors[1],
+      top: startPos.y,
+      left: startPos.x,
+      width: length,
+      height: width
+    }
+  }
+}
+const FixedSegment = ({startNode, endNode}) => {
+    
+    const fixedStyles = getFixedStyles(startNode, endNode);
+
+    fixedStyles['position'] = 'absolute';
+    return (<View style={fixedStyles}/>
+                             
 
    );
 }
@@ -105,11 +182,11 @@ const Segment = ({startNode, endPoint, fixedColor}) => {
     return (
       <View >
         {segments.map((seg,i) =>
-            <Segment startNode={seg.startNode} endPoint={seg.endPoint} key={i}/>
+            <FixedSegment startNode={seg.startNode} endNode={seg.endNode} key={i}/>
         )}
         {fades.map((seg,i) =>
             <Fade fade={true} onFade={()=> fades.pop()}  key={i}>
-            <Segment startNode={seg.startNode} endPoint={seg.endPoint}/>
+            <FixedSegment startNode={seg.startNode} endNode={seg.endNode}/>
             </Fade>
         )}
       </View>
@@ -132,6 +209,8 @@ const arrowStyles = (width, height, color) => {
   }
 }
 
+
+
 const animateArrow = (triangleAnim, distance ,start) => {
   return Animated.loop(
     Animated.sequence([
@@ -152,22 +231,6 @@ const animateArrow = (triangleAnim, distance ,start) => {
     }),
   
   ]));
-}
-
-const ArrowGroup = ({moveAnim, width}) => {
-  return;
-}
-
-// opacity trick: opacity: Animated.subtract( Animated.multiply(moveAnim,-1),offset-100), top: offset,left: 50, transform: [{ translateY: moveAnim }
-const Arrow = ({ moveAnim, width, offset , height}) => {
-  return (
-    <Animated.View
-      style={[arrowStyles(width, width, 'black'),
-      { position:'absolute', opacity: Animated.subtract( Animated.multiply(moveAnim,-1),offset-height), top: offset, transform: [{ translateY: moveAnim }, { rotate: '45deg' }] }]}
-    />
-  );
-
-
 }
 
 const Arrow2 = ({moveAnim, width}) => {
@@ -275,7 +338,12 @@ const BridgeSegment=  ({color, width, end}) => {
         left: 0,
         position: 'absolute',
 
-      }
+      },
+    lightener : { 
+      zIndex:10,
+
+
+    }
   });
 
   export {Segment, UserPath, Fade, CapSegment, calculateColor}

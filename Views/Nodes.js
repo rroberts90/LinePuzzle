@@ -118,12 +118,14 @@ const NodeView = (props) => {
   const rotAnim = useRef(new Animated.Value(0)).current;
   const measureRef = useRef(null);
   useEffect(() => {
+
     Animated.timing(rotAnim, {
       toValue: props.node.rot * -90,
-      duration: 1000,
+      duration: props.node.loaded ? 1000 : 0,
       useNativeDriver: true,
 
     }).start();
+    
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.node.rot]);
 
@@ -174,7 +176,6 @@ const Pulse = (props) => {
 
   const colorStyles = borderStyles(props.colors);
   useEffect(() => {
-    // console.log(`Pulsing. gogogo: ${props.GOGOGO}`)
     if (props.GOGOGO > 0) {
 
       //console.log("pulsing");

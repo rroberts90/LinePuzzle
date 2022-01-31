@@ -44,9 +44,7 @@ const storeItem = async (key,value) => {
 
   const levelUp = async ( board) => {
     console.log('leveling up');
-    console.log(board.score)
     if(board.gameType === 'timed' || board.gameType === 'moves') {
-      storeItem('currentScore',  board.score);
 
       let itemName = `${board.gameType}Score`;
       if(board.grid.length === 6) {
@@ -55,11 +53,10 @@ const storeItem = async (key,value) => {
         itemName += '5x7';
       }
 
-      getItem(itemName).then(score=> {
+      getItem('currentScore').then(currentScore=> {
+        storeItem('currentScore',  currentScore+1);
 
-        if( board.score > score){
-          storeItem(itemName,  board.score);
-        }
+
       });
     }
       getItem('level').then(level=> {
@@ -90,7 +87,7 @@ const storeItem = async (key,value) => {
   const getSettings = async () => {
     let values;
     try {
-      values = await AsyncStorage.multiGet([ '@music','@sound', '@vibrate', '@display', '@board']);
+      values = await AsyncStorage.multiGet([ '@puzzleTimer','@sound', '@vibrate', '@display', '@board']);
       return values;
     } catch(e) {
       // read error
@@ -109,6 +106,8 @@ const storeItem = async (key,value) => {
     storeItem('sound', true);
     storeItem('difficulty', true);
     storeItem('music', true);
+    storeItem('puzzleTimer', true);
+
     storeItem('vibrate', true);
     storeItem('display', 'impossible');
     storeItem('board', true);
@@ -117,9 +116,8 @@ const storeItem = async (key,value) => {
     intializeLevelProgress();
   }
   const intializeLevelProgress = () => {
-    const zeroProgress = packInfo.levels.map(level=> {return {progress:0, stars:[]}});
+    const zeroProgress = packInfo.levels.map(level=> {return {progress:0, stars:[], visitedNodes: [], savedTime: 0}});
 
-    console.log(zeroProgress)
     storeItem('levelProgress',zeroProgress);
 
   }

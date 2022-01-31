@@ -51,7 +51,8 @@ const PuzzlePicker = ({navigation, route}) => {
         <ScrollView style={styles.list}>
         {Array.from({length: count}, (_, ndx)=>ndx).map(number=>  {
             const puzzleProgress = progress[number] ? progress[number].progress : 0
-            return <PuzzleButton navigation= {navigation} title={'puzzle'} info={{...packInfo.levels[number], initialProgress: puzzleProgress}} disabled = {disabled} toggleDisabled={toggleDisabled} key={number}/>
+            const savedTime = progress[number] && progress[number].savedTime  ? progress[number].savedTime : 0
+            return <PuzzleButton navigation= {navigation} title={'puzzle'} info={{...packInfo.levels[number], initialProgress: puzzleProgress, savedTime: savedTime}} disabled = {disabled} toggleDisabled={toggleDisabled} key={number}/>
             } 
         )}
         </ScrollView>

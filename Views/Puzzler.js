@@ -39,16 +39,33 @@ const getStarColors = () => {
     return {gold: 'gold', brown: 'rgba(185, 114, 45,1)', silver: 'rgb(190,194,203)'}
 }
 
-const Puzzler = ({ info, time, setTime, navigation, level}) => {
+const Puzzler = ({ info, time, setTime, navigation, level, board}) => {
 
-    useEffect(()=> setTime(0),[]);
-    useInterval(()=>{
+    const [justWon, setJustWon] = useState(false); // hacky way to pause time right after puzzle finished
+    const [levelDisplay, setLevelDisplay] = useState(()=> info.puzzleID); // shows the level. the level changes need to be delayed so they look cleaner
 
-        setTime(t=> t+1);
+    useEffect(()=> setTime(info.savedTime || 0),[]); //reset time on start
+    
+    useEffect(()=> { // pause time after win 
+        if(level > 0){
+            setJustWon(true);
+            setTimeout(()=> {
+                setJustWon(false);           
+                 setTime(0);
+                 setLevelDisplay(info.puzzleID);
+            }, 3500);
+        }
+    }, [level]);
+
+    useInterval(()=>{ 
+
+        if(!justWon) {
+            setTime(t=> t+1);
+        }
 
     }, 1000);
     return (
-        <PuzzleHeader navigation = {navigation} info={info} time={time} getGoalInfo={getGoalInfo} level={level}/> 
+        <PuzzleHeader navigation = {navigation} info={info} time={time} getGoalInfo={getGoalInfo} level={level} levelDisplay={levelDisplay} board={board} /> 
  );   
 }
 

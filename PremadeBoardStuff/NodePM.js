@@ -125,6 +125,23 @@ class Node {
     }
     return saved;
   }
+  freezeLinks(){ 
+    this.links.forEach(linkedNode =>{
+        if(linkedNode.symbol === this.symbol){
+            linkedNode.frozen++;
+        }
+    });
+
+  }
+  
+  unFreezeLinks(){ 
+    this.links.forEach(linkedNode =>{
+        if(linkedNode.symbol === this.symbol){
+            linkedNode.frozen--;
+        }
+    });
+
+  }
 
 
 toString(){

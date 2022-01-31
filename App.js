@@ -24,7 +24,13 @@ function HomeScreen({ navigation }) {
     const [endlessBoard, toggleEndlessBoard] = useState(true); // true is 4x6, false 5x7
    const [movesBoard, toggleMovesBoard] = useState(true);
    const [timedBoard, toggleTimedBoard] = useState(true);
-
+    const {play}= useSound();
+    useEffect(()=> {
+        getItem('music').then(music=> {
+            if(music) {
+            }
+        })
+    },[]);
     return (
         <SafeAreaView style={[{ flex: 1, alignItems: 'center', justifyContent: 'center' }]}>
             <Text style={styles.headerText}> COLOR MAZE </Text>

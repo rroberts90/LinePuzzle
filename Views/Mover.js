@@ -10,7 +10,7 @@ function sleep(ms) {
     return new Promise(resolve=> setTimeout(resolve,ms));
   }
 
-const Mover = ({onFinish, level, moves, navigation}) => {
+const Mover = ({onFinish, level, moves, navigation, saveVisited}) => {
     //const [prevCount, setPrevCount]= useState(()=> visitedNodes);
 
     const [prevMoves, setPrevMoves]= useState(()=> moves);
@@ -39,7 +39,7 @@ const Mover = ({onFinish, level, moves, navigation}) => {
         }
         if(defaultMoves-moves <= 0  && !finished){
              setFinished(true);
-             sleep(500).then(()=>onFinish('moves',level));
+             onFinish('moves',level);
         }
 
         setPrevMoves(moves);
@@ -47,7 +47,7 @@ const Mover = ({onFinish, level, moves, navigation}) => {
     
 
     return (
-        <Header title1={'Moves'} item1={defaultMoves - moves} title2={'Score'} item2={level} fontAnim={fontAnim} navigation= {navigation}/>
+    <Header title1={'Moves'} item1={defaultMoves - moves} title2={'Score'} item2={level} fontAnim={fontAnim} navigation= {navigation}/>
  );   
 }
 

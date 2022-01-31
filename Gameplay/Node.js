@@ -60,6 +60,7 @@ class Node {
     this.symbol = null;
     this.special = null;
     this.frozen = 0;
+    this.loaded = false;
     
   }
 
@@ -91,6 +92,24 @@ class Node {
       }
     }
     return { candidate: null, matchColor: null };
+
+  }
+
+  freezeLinks(){ 
+    this.links.forEach(linkedNode =>{
+        if(linkedNode.symbol === this.symbol){
+            linkedNode.frozen++;
+        }
+    });
+
+  }
+  
+  unFreezeLinks(){ 
+    this.links.forEach(linkedNode =>{
+        if(linkedNode.symbol === this.symbol){
+            linkedNode.frozen--;
+        }
+    });
 
   }
 

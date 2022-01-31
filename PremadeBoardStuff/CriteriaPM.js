@@ -37,9 +37,9 @@ const getCriteria = (gameType, difficulty, largeBoard,level) => {
          }else{
             let hard = [];
             Object.assign(hard, endlessHard);
-            hard.minLength += 4;
-            hard.maxFalsePathLength += 2;
-            hard.falsePaths += 4;
+            hard.minLength += 8;
+            hard.maxFalsePathLength += 4;
+            hard.falsePaths += 10;
             return hard;
          }
     }

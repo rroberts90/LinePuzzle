@@ -2,6 +2,7 @@ import  React, { useEffect, useState, useRef } from 'react';
 import { View,Text, StyleSheet, SafeAreaView, Animated, Image,Easing } from 'react-native';
 import { BackButton } from './NavigationButtons';
 import GlobalStyles from '../GlobalStyles'
+import { getItem } from '../Storage';
 
 const defaultBackground = GlobalStyles.defaultBackground.backgroundColor;
 
@@ -40,14 +41,20 @@ const InfoHeader = ({navigation, title, overrideDestination}) => {
     );
 }
 
-const PuzzleHeader = ({ navigation,time,info, getGoalInfo , level}) => {
+const PuzzleHeader = ({ navigation,time,info, getGoalInfo , level, levelDisplay, board}) => {
     const goalInfo = getGoalInfo(time, info.difficulty)
     //                <Text style={[styles.timetext, {alignSelf:'flex-end'}]}> {goalInfo.time} s</Text>
     const sizeAnim = useRef(new Animated.Value(0)).current;
     const fadeAnim = useRef(new Animated.Value(1)).current;
 
+    const [puzzleTimer, togglePuzzleTimer] = useState(true);
+   
+    useEffect(()=> {
+        getItem('puzzleTimer').then(pT=> togglePuzzleTimer(pT));
+    }, []);
+
     useEffect(()=>{
-        if(level > 0) {
+        if(level > 0 && goalInfo.color != defaultBackground) {
         Animated.sequence([
             Animated.timing(sizeAnim, {
                 toValue: 1.25,
@@ -70,23 +77,24 @@ const PuzzleHeader = ({ navigation,time,info, getGoalInfo , level}) => {
 
     }
     },[level]);
+
     return (
         <View style={styles.box3}>
            
-            <BackButton navigation={navigation} overrideDestination={'puzzles'} />
+            <BackButton navigation={navigation} overrideDestination={'puzzles'} board={board} time={time}/>
            
             <View style={{ position: 'absolute', left: 0, bottom: 0, justifyContent: 'flex-start', alignItems: 'center', width: '100%' }}>
                 <View style={styles.bar} />
             </View>
             <View style={styles.duo}>
                 <Text style={styles.header}>#</Text>
-                <Text style={styles.timetext}>{info.puzzleID} </Text>
+                <Text style={styles.timetext}>{levelDisplay} </Text>
             </View>
             <View style={styles.duo}>
                 <Animated.Image style={[styles.star, {tintColor: goalInfo.color, transform: [{scale: sizeAnim}], opacity: fadeAnim}]} source={require('../Icons/star4.png')}/>
             </View>
             <View style={styles.duo}>
-                <Text style={styles.timetext}>{time} s</Text>
+                { puzzleTimer? <Text style={styles.timetext}>{time} s</Text>: null}
             </View>
 
 

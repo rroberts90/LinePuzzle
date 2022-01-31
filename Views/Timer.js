@@ -48,8 +48,9 @@ const Timer = ({onFinish, level, time, setTime, navigation}) => {
     
     useInterval(()=>{
 
+        if(time > 0){
         setTime(t=> t-1);
-
+        }
         if(time <= 0){
             return;
         }

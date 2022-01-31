@@ -53,7 +53,7 @@ function SettingsScreen({ navigation, route }) {
 
     const [vibrate, toggleVibrate] = useState(null);
 
-    const [music, toggleMusic] = useState(null);
+    const [puzzleTimer, togglePuzzleTimer] = useState(null);
 
     const [display, setDisplay] = useState(null);
 
@@ -70,7 +70,7 @@ function SettingsScreen({ navigation, route }) {
 
             setDisplay(d2 ? d2.replace(/"/g, '') : 'shapes');
 
-            toggleMusic(d === 'true' ? true : false);
+            togglePuzzleTimer(d === 'true' ? true : false);
 
             toggleSound(s === 'true' ? true : false);
             toggleVibrate(v === 'true' ? true : false);
@@ -80,10 +80,10 @@ function SettingsScreen({ navigation, route }) {
     }, []);
 
     useEffect(() => {
-        if (music !== null) {
-            storeItem('music', music);
+        if (puzzleTimer !== null) {
+            storeItem('puzzleTimer', puzzleTimer);
         }
-    }, [music]);
+    }, [puzzleTimer]);
 
     useEffect(() => {
         if (soundOn !== null) {
@@ -115,15 +115,16 @@ function SettingsScreen({ navigation, route }) {
             <View style={styles.container}>
                 <InfoHeader navigation={navigation} title={'Settings'} />
 
-                <View style={{ flexDirection: 'column', marginTop: '25%' }}>
+                <View style={{ flexDirection: 'column',marginTop: '25%'  }}>
 
-                    <Text style={styles.headerText}>Music</Text>
+                    <Text style={styles.headerText}>Puzzle Timer</Text>
 
                     <View style={styles.line}>
-                        <Selector toggle={music} color={colorScheme.four} text1={'on'} text2={'off'} press1={() => { toggleMusic(true); play('connect'); }} press2={() => { toggleMusic(false); play('connect'); }} />
+                        <Selector toggle={puzzleTimer} color={colorScheme.four} text1={'on'} text2={'off'} press1={() => { togglePuzzleTimer(true); play('connect'); }} press2={() => togglePuzzleTimer(false)} />
                     </View>
                 </View>
                 <View style={styles.bar} />
+
                 <View style={{ flexDirection: 'column' }}>
 
                     <Text style={styles.headerText}>Sounds</Text>
@@ -150,20 +151,20 @@ function SettingsScreen({ navigation, route }) {
                     <Text style={styles.headerText}>Themes</Text>
 
                     <View style={styles.line}>
-                        <ScrollView style={{ height: 200 }}>
+                        <ScrollView style={{ height: 220 }}>
                             <View style={{ flexDirection: 'column', alignItems: 'center' }}>
                                 <SymbolGroup selected={display} groupName={'impossible'} getSource={getImpossibleSource} setDisplay={setDisplay} />
                                 <SymbolGroup selected={display} groupName={'glyph'} getSource={getGlyphSource} setDisplay={setDisplay} />
                                 <SymbolGroup selected={display} groupName={'card'} getSource={getCardSource} setDisplay={setDisplay} />
+                                <SymbolGroup selected={display} groupName={'flower'} getSource={getFlowerSource} setDisplay={setDisplay} />
                                 <SymbolGroup selected={display} groupName={'animal2'} getSource={getAnimalSource} setDisplay={setDisplay} />
                                 <SymbolGroup selected={display} groupName={'animal1'} getSource={getSymbolSource} setDisplay={setDisplay} />
                                 <SymbolGroup selected={display} groupName={'pets1'} getSource={getDogSource} setDisplay={setDisplay} />
                                 <SymbolGroup selected={display} groupName={'pets2'} getSource={getDog2Source} setDisplay={setDisplay} />
-                                <SymbolGroup selected={display} groupName={'science'} getSource={getScienceSource} setDisplay={setDisplay} />
                                 <SymbolGroup selected={display} groupName={'food'} getSource={getFoodSource} setDisplay={setDisplay} />
                                 <SymbolGroup selected={display} groupName={'desert'} getSource={getDesertSource} setDisplay={setDisplay} />
-                                <SymbolGroup selected={display} groupName={'flower'} getSource={getFlowerSource} setDisplay={setDisplay} />
                                 <SymbolGroup selected={display} groupName={'fruit'} getSource={getFruitSource} setDisplay={setDisplay} />
+                                <SymbolGroup selected={display} groupName={'science'} getSource={getScienceSource} setDisplay={setDisplay} />
 
                             </View>
 

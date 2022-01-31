@@ -181,7 +181,7 @@ const getAllNeighbors = (numRow, numCol)  => {
         if(!nextNode.special || nextNode.special==='booster') {
           nextNode.rotateLinked();
         } else if (nextNode.special === 'freezer'){
-          nextNode.links.forEach(node=> node.frozen++);
+          nextNode.freezeLinks();
 
         } else if (nextNode.special === 'rotateCC') {
           this.grid.forEach((row) => row.forEach(node => {
@@ -210,7 +210,7 @@ const getAllNeighbors = (numRow, numCol)  => {
       // if node is a freeze-node, and it is not in visitedNodes list a second time, 
       // remove a freeze from its links
       if(current.special == 'freezer'  ) {
-        current.links.forEach(node=> node.frozen--);
+        current.unFreezeLinks();
         
       } else if(current.special !== 'freezer') {  // don't reverse rotate linked nodes if node is a freeze
 

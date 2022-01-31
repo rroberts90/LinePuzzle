@@ -26,8 +26,8 @@ const puzzle1 = { group: .5,
 
 // remember difficulty == false means hard 
 const getCriteria = (gameType, level, difficulty, largeBoard) => {
-    /*console.log(` Progress level: ${level}`);
-    console.log(` Difficulty level: ${difficulty}`);*/
+    console.log(` Progress level: ${level}`);
+    //console.log(` Difficulty level: ${difficulty}`);*/
     if(level ==null) {
         level = 1;
     }
@@ -106,7 +106,7 @@ const getCriteria = (gameType, level, difficulty, largeBoard) => {
         criteria.group = .4;
         criteria.maxFalsePathLength = 8;
         criteria.falsePaths = 4;
-        criteria.freezer = .1;
+        criteria.freezer = .3;
         criteria.minLength = 15;
         criteria.circles = 2;
 

@@ -1,11 +1,13 @@
+
 import {rotateColors, logGridPos} from './Utils.js'
+
 const visit = (board, visitedNodes, candidate, pathList,uniqueVisitsDict) => {
     //console.log(`visiting node: ${candidate.toString()}`);
 
     board.visitedNodes = [...visitedNodes, candidate];
     candidate.fixed = true;
     if(candidate.special == 'freezer'){
-        candidate.links.forEach(node=> node.frozen++);
+        candidate.freezeLinks();
 
     }else {
         if(candidate.special === 'rotateCC') {
@@ -84,7 +86,7 @@ const pathFinder = (board, pathList, uniqueVisitsDict) => {
         
         // only remove freeze if reject is not still in visitedNodes
         if(reject.special==='freezer' &&!visitedNodes.find(node => node === reject) ) {
-            reject.links.forEach(node=> node.frozen--);
+            reject.unFreezeLinks();
         }
         else{
             reject.rotateLinked(true);

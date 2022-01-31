@@ -10,6 +10,7 @@ const levelNames = require("./Output/levelNames.json");
 import * as fs from 'fs';
 import { group } from 'console';
 import { getgroups } from 'process';
+
 const isInRange = (x, r) => {
   return x >= r[0] && x <= r[1];
 }
@@ -32,7 +33,7 @@ const groupInfo = {
 const getNamesByLevel = (levelCount) => {
   const levelGroups = [];
   let nextNdx = -1;
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 3; i++) {
     levelGroups.push({ title: `Learner ${i + 1}`, key: 'learner' })
 
   }
@@ -69,6 +70,7 @@ const createJSON = (level, n, solutionRange, pathLengthRange, boardSize, difficu
       prevBoard = board;
     }
   }
+
   //boards.sort((a,b)=> a.pathLength - b.pathLength);
   //boards.sort((a,b)=> a.shortestSolution - b.shortestSolution);
 
@@ -80,7 +82,7 @@ const createJSON = (level, n, solutionRange, pathLengthRange, boardSize, difficu
 }
 
 const makeFile = (fileName, data) => {
-  fs.writeFile(fileName, data, err => {
+  fs.writeFileSync(fileName, data, err => {
     if (err) {
       console.error(err);
       return;
@@ -110,8 +112,8 @@ const makeLevels = async (num) => {
   const mazePerLevel = 10;
   let difficulty = 0;
 
-  for (let i = 1; i <= num; i++) {
-    if (i === 6) {
+  for (let i = 50; i <= num; i++) {
+    if (i === 4) {
       sRange = [15, 20];
       pRange = [40, 60];
       difficulty++;
@@ -121,33 +123,48 @@ const makeLevels = async (num) => {
       pRange = [60, 120];
 
     }
-    if (i === 25) {
+    if (i === 30) {
+      sRange = [20, 35];
+      pRange = [80, 200];
+
+    }
+    if (i === 50) {
       sRange = [20, 30];
-      pRange = [100, 200];
+      pRange = [120, 200];
       difficulty++;
       smallBoard = false;
     }
+    if (i === 100) {
+      sRange = [25, 35];
+      pRange = [150, 300];
+      smallBoard = false;
+    }
+   
     const difficultyBool = difficulty === 0 ? true : false;
-   // const data = createJSON(i, mazePerLevel, sRange, pRange, smallBoard, difficultyBool);
+    const data = createJSON(i, mazePerLevel, sRange, pRange, smallBoard, difficultyBool);
     const fileName = `./Output/${i}.json`;
-    //makeFile(fileName, data);
+   
+    makeFile(fileName, data);
+  
     packInfo.levels.push({
-      level: i, difficulty: difficulties[difficulty],
+      level: i, 
+      difficulty: difficulties[difficulty],
       mazeCount: mazePerLevel,
       title: levelNames[i - 1].title,
       group: levelNames[i - 1].key
     })
   }
 
-  //const requireScript = makeRequireScript(num);
- // makeFile('./Output/getPuzzlePack.js', requireScript);
+  const requireScript = makeRequireScript(num);
+// makeFile('./Output/getPuzzlePack.js', requireScript);
 
-  makeFile('./Output/packInfo.json', JSON.stringify(packInfo));
+ // makeFile('./Output/packInfo.json', JSON.stringify(packInfo));
 }
-
-makeLevels(20)
-
-//makeFile('./Output/levelNames.json', JSON.stringify(getNamesByLevel(200)))
+console.log('hi')
+makeLevels(150)
+//const requireScript = makeRequireScript(150);
+//makeFile('./Output/getPuzzlePack.js', requireScript);
+///makeFile('./Output/levelNames.json', JSON.stringify(getNamesByLevel(300)))
 
 /*const  makePuzzlePacks =  async (num)=> {
   console.log(FileSystem.documentDirectory);

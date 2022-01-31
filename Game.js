@@ -25,9 +25,15 @@ function stackTrace() {
 }
 const Game = ({ navigation, route }) => {
 
+ //console.log = function() {}
+ const gameType = route.name;
+  const { boardSize, 
+    level:puzzleNumber, 
+    initialProgress, 
+    group: theme, 
+    title, 
+    difficulty, savedTime} = route.params;
 
-  const gameType = route.name;
-  const { boardSize, level:puzzleNumber, initialProgress, group: theme, title, difficulty} = route.params;
   const [level, setLevel] = useState(0);
 
   const height = useWindowDimensions().height;
@@ -44,19 +50,22 @@ const Game = ({ navigation, route }) => {
 
   const [saveLoaded, setSaveLoaded] = useState(false);
 
+  const {play} = useSound();
   const getBoard = (ref, prevBoard) => {
 
     if (ref.current === null && !prevBoard) {
       
       ref.current = new Board(gameType, 0, null, boardSize, {puzzleNumber, initialProgress,theme});
       ref.current.level = 0;
+      ref.current.forcedFinish = false;
+
     }
 
     else if (prevBoard) {
 
       ref.current = new Board(gameType, prevBoard.level + 1, prevBoard,boardSize, {puzzleNumber, initialProgress,theme});
       ref.current.level = prevBoard.level + 1;
-
+      ref.current.forcedFinish = false;
     }
 
     return ref.current;
@@ -88,7 +97,7 @@ const Game = ({ navigation, route }) => {
     if (level > 0) {
       if (level === 1) { // special case give board1 positions
         board1.current.grid.forEach((row, i) =>
-          row.forEach((node, j) => node.pos = board0.current.grid[i][j].pos));
+          row.forEach((node, j) =>{ node.pos = board0.current.grid[i][j].pos; node.loaded = true}));
 
       }
       const end0 = translateYAnim0._value + height;
@@ -106,7 +115,7 @@ const Game = ({ navigation, route }) => {
       
         const updatedProgress = levelProgress.map(level=> level);
         updatedProgress[puzzleNumber-1].progress++; //Level is index position +1
-
+        updatedProgress[puzzleNumber-1].visitedNodes = []; // reset visited nodes
         if(star !== GlobalStyles.defaultBackground.backgroundColor) {
           updatedProgress[puzzleNumber-1].stars.push(star);
         }
@@ -117,27 +126,28 @@ const Game = ({ navigation, route }) => {
 
       if(initialProgress + level >= 10){
         console.log('COMPLETED');
-        navigation.push('afterPuzzle',{puzzleNumber: puzzleNumber, title})
+        play('packWin');
+        setTimeout(()=>navigation.push('afterPuzzle',{puzzleNumber: puzzleNumber, title}), 1000);
     
         }
-       setTime(0);
 
         
 
      }
 
+     const delayTime = gameType === 'puzzle' ? 2000 : 1000;
       Animated.parallel([Animated.timing(translateYAnim0, {
         toValue: end0,
         duration: Duration,
         useNativeDriver: true,
-        delay: 2000,
+        delay: delayTime,
         easing: Easing.ease
       }),
       Animated.timing(translateYAnim1, {
         toValue: end1,
         duration: Duration,
         useNativeDriver: true,
-        delay: 2000,
+        delay: delayTime,
         easing: Easing.ease
       })
       ]).start(finished => {
@@ -145,6 +155,10 @@ const Game = ({ navigation, route }) => {
           console.log('  level animations finished.');
         } else {
           throw 'Level Animation did not finish';
+        }
+        if(gameType === 'puzzle'){
+          //setTime(0);
+
         }
         if (level % 2 !== 0) { // board0 is offscreen. reset
           getBoard(board0, board1.current);
@@ -173,7 +187,18 @@ const Game = ({ navigation, route }) => {
 
 
   const onFinish = async (gameType, highLevel) => {
-    navigation.push('afterGame', { gameType: gameType, score: level, boardSize: boardSize });
+    getBoard(board0).forcedFinish = true;
+    getBoard(board1).forcedFinish = true;
+    play('gameOver');
+
+    setTimeout(()=> {
+      navigation.push('afterGame', { gameType: gameType, score: level, boardSize: boardSize })
+      getBoard(board0).forcedFinish = false;
+      getBoard(board1).forcedFinish = false;
+
+    },
+    2000);
+ 
 
   }
 
@@ -215,8 +240,8 @@ const Game = ({ navigation, route }) => {
       gameType === 'moves' ?
         <Mover onFinish={onFinish} level={level} moves={moves} navigation={navigation} /> :
       gameType === 'puzzle' ?
-        <Puzzler navigation = {navigation} info={{puzzleID: puzzleID, difficulty}} time={time} setTime={setTime} level={level}/> :
-        <Header fontAnim={1} navigation={navigation} />
+        <Puzzler board={board0Current ? board0 : board1} navigation = {navigation} info={{puzzleID: puzzleID, difficulty, savedTime}} time={time} setTime={setTime} level={level}/> :
+        <Header fontAnim={1} navigation={navigation}  />
     }
 
   </>

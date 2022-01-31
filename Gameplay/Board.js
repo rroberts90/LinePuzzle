@@ -5,6 +5,7 @@ import colorScheme from './ColorSchemes';
 
 import Node from './Node'
 import getPuzzlePack from '../PremadeBoardStuff/Output/getPuzzlePack.js';
+import { getItem, storeItem } from '../Storage.js';
 
 const getColors = (colorSet) => {
   return Object.entries(colorSet).map((arr) => arr[1]);
@@ -126,16 +127,20 @@ class Board {
 
       // get saved board
       const pack = getPuzzlePack(puzzleInfo.puzzleNumber);
-      this.numRow = pack[level].grid.length;
-      this.numCol = pack[level].grid[0].length;
 
       const actualLevel = level + puzzleInfo.initialProgress;
-      if (actualLevel >= 20) {
+      if (!pack[actualLevel]) {
         // dummy board just so errors don't fly everywhere
+        this.numRow = pack[0].grid.length;
+        this.numCol = pack[0].grid[0].length;
+
         this.setupGridFromScratch(game, 0, prevBoard)
       }
       else {
-        this.loadSave(pack[level + puzzleInfo.initialProgress], puzzleInfo);
+        this.numRow = pack[level].grid.length;
+        this.numCol = pack[level].grid[0].length;
+  
+        this.loadSave(pack[actualLevel], puzzleInfo, prevBoard);
 
         // add symbol theme to nodes
       }
@@ -168,7 +173,7 @@ class Board {
       row.forEach((node, j) => {
         node.diameter = prevGrid[i][j].diameter;
         node.pos = prevGrid[i][j].pos;
-
+        node.loaded = true;
       }
 
       ));
@@ -268,7 +273,7 @@ class Board {
       else if (nextNode.special === 'freezer') {
 
         // don't rotate links, instead add a freeze
-        nextNode.links.forEach(node => node.frozen++);
+        nextNode.freezeLinks();
 
       } else if (nextNode.special === 'rotateCC') {
         this.grid.forEach((row) => row.forEach(node => {
@@ -303,7 +308,7 @@ class Board {
     // if node is a freeze-node, and it is not in visitedNodes list a second time, 
     // remove a freeze from its links
     if (current.special == 'freezer') {
-      current.links.forEach(node => node.frozen--);
+      current.unFreezeLinks();
 
     } else if (current.special !== 'freezer') {  // don't reverse rotate linked nodes if node is a freeze
 
@@ -383,7 +388,8 @@ class Board {
 
   }
 
-  loadSave(savedBoard, puzzleInfo) {
+  async loadSave(savedBoard, puzzleInfo, prevBoard) {
+    console.log(`puzzleNumber: ${puzzleInfo.puzzleNumber}`);
 
     this.grid = savedBoard.grid.map(row => row.map(savedNode => {
       const node = new Node(); //  load save fills  empty node
@@ -400,13 +406,46 @@ class Board {
 
     }));
 
-
     this.start = this.getNodeFromGridPos(savedBoard.start);
     this.finish = this.getNodeFromGridPos(savedBoard.finish);
     this.visitedNodes = savedBoard.visitedNodes.map(rawGridPos => this.getNodeFromGridPos(MyMath.unCompressGridPos(rawGridPos)));
     this.solution = savedBoard.solution.map(rawGridPos => this.getNodeFromGridPos(MyMath.unCompressGridPos(rawGridPos)));
 
+    this.puzzleNumber = puzzleInfo.puzzleNumber;
+    
+    const levelProgress = await getItem('levelProgress');
+    if(levelProgress && !prevBoard) {
+      // check if there a visited nodes saved
+      const puzzleProgress = levelProgress[puzzleInfo.puzzleNumber-1];
+      if(puzzleProgress.visitedNodes && puzzleProgress.visitedNodes.length > 0){ 
+        // visited nodes are saved as just grid pos objects
+        const alreadyVisited = puzzleProgress.visitedNodes.map(gridPos => this.getNodeFromGridPos(gridPos));
+        alreadyVisited.shift();        // remove duplicate first node .
 
+        console.log(alreadyVisited.length);
+        // visit all this nodes
+        alreadyVisited.forEach(node=> this.visitNode(node));
+
+      }
+    }
+
+  }
+
+
+   saveVisitedNodes (time){ // saves visited Nodes in local storage
+    
+       console.log(`saveVisitedNodes: ${this.visitedNodes.length}`);
+      getItem('levelProgress').then(levelProgress=> {
+        
+        const updatedProgress = levelProgress.map(level=> level);
+        updatedProgress[this.puzzleNumber-1].visitedNodes = this.visitedNodes.map(node=> node.gridPos);
+        if(time) {
+          updatedProgress[this.puzzleNumber-1].savedTime =  time;
+        }
+        storeItem('levelProgress',updatedProgress);
+  
+      });
+    
   }
 
   getNodeFromGridPos(gridPos) {

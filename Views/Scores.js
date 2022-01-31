@@ -40,9 +40,12 @@ function AfterGameScreen({ navigation, route }) {
     } else {
         itemName += '5x7';
     }
+
     useEffect(() => {
         getItem('currentScore').then(val => {
-            setCurrent(val);
+            if(val) {
+             setCurrent(val);
+            }
         })
     }, []);
 

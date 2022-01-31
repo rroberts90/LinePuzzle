@@ -15,6 +15,8 @@ const PlayButton = ({ navigation, title, disabled, toggleDisabled, borderColor, 
         <TouchableOpacity
             style={[styles.menuButton, { borderColor: borderColor }]}
             onPress={() => {
+                storeItem('currentScore',  0);
+
                 toggleDisabled(true);
                 boardSize !== null ? navigation.push(title, { boardSize: true }) : navigation.push(title);
                 setTimeout(() => toggleDisabled(false), 500);
@@ -52,13 +54,19 @@ const IconButton = ({ navigation, title, disabled, toggleDisabled, borderColor, 
     );
 }
 
-const BackButton = ({ navigation, overrideDestination }) => {
+const BackButton = ({ navigation, overrideDestination, board, time }) => {
+
+
     return (
 
         <TouchableOpacity
             style={styles.backbutton}
             onPress={() => {
                 storeItem('tutorialFinished', true);
+                if(board){
+                    board.current.saveVisitedNodes(time);
+
+                }
                 overrideDestination ? navigation.navigate(overrideDestination, { updateProgress: true }) : navigation.navigate('colormaze')
             }}
         >

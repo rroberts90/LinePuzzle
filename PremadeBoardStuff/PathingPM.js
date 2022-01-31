@@ -477,7 +477,7 @@ const visit = (board, visitedNodes, candidate, criteria) => {
     board.visitedNodes = [...visitedNodes, candidate];
     candidate.fixed = true;
     if(candidate.special === 'freezer'){
-        candidate.links.forEach(node=> node.frozen++);
+        candidate.freezeLinks();
 
     }else {
         if(candidate.special === 'rotateCC') {
