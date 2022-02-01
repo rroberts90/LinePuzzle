@@ -14,7 +14,8 @@ const styles = StyleSheet.create({
     },
     defaultNodeColor: {
         backgroundColor: 'rgba(229,225,215,1)'
-    }
+    },
+
 });
 
 export default styles;

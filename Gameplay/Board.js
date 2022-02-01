@@ -74,6 +74,7 @@ const copyBoardData = (prevGrid) => {
       const nodeCopy = new Node(MyMath.gridPos(node.gridPos.row, node.gridPos.col),
         MyMath.point(node.pos.x, node.pos.y),
         node.colors, null, null, node.diameter);
+        nodeCopy.loaded = true;
       return nodeCopy;
 
     }
@@ -172,8 +173,11 @@ class Board {
     this.grid.forEach((row, i) =>
       row.forEach((node, j) => {
         node.diameter = prevGrid[i][j].diameter;
-        node.pos = prevGrid[i][j].pos;
         node.loaded = true;
+        
+        node.pos = prevGrid[i][j].pos;
+        MyMath.logPoint(`after ${i},${j}: `, node.pos)
+
       }
 
       ));
@@ -373,24 +377,28 @@ class Board {
   }
 
 
-  save() {
+  save(){
     //prevents cyclical refs
-    /* const visitedNodes = this.visitedNodes.map(node=> );
-     const solution = this.solution.map(node=> node.gridPos);
-     return JSON.stringify({
-       group:this.grid.map(row=>row.map(node => node.save())),
-       start: this.start.gridPos,
-       finish: this.finish.gridPos,
-       visitedNodes: visitedNodes,
-       solution: solution
-     
-     });*/
+    const visitedNodes = this.visitedNodes.map(node=> compressGridPos(node.gridPos));
+    const solution = this.solution.map(node=> compressGridPos(node.gridPos));
+  
+    return {
+      grid:this.grid.map(row=>row.map(node => node.save())),
+      start: this.start.gridPos,
+      finish: this.finish.gridPos,
+      visitedNodes: visitedNodes,
+      solution: solution,
+      pathLength: this.pathLength
+    
+    };
 
   }
 
   async loadSave(savedBoard, puzzleInfo, prevBoard) {
-    console.log(`puzzleNumber: ${puzzleInfo.puzzleNumber}`);
 
+    this.grid = savedBoard.grid.map(row => row.map(savedNode => {
+      return null;
+    }));
     this.grid = savedBoard.grid.map(row => row.map(savedNode => {
       const node = new Node(); //  load save fills  empty node
       node.loadSave(savedNode);
@@ -398,13 +406,14 @@ class Board {
       return node;
     }));
 
-    this.setupNeighbors(this.grid.length, this.grid[0].length);
 
     // now that we have proper refs to every node , unpack links
     this.grid.map(row => row.map(node => {
       node.links = node.links.map(gridPos => this.getNodeFromGridPos(gridPos));
 
     }));
+    
+    this.setupNeighbors(this.grid.length, this.grid[0].length);
 
     this.start = this.getNodeFromGridPos(savedBoard.start);
     this.finish = this.getNodeFromGridPos(savedBoard.finish);
@@ -422,7 +431,6 @@ class Board {
         const alreadyVisited = puzzleProgress.visitedNodes.map(gridPos => this.getNodeFromGridPos(gridPos));
         alreadyVisited.shift();        // remove duplicate first node .
 
-        console.log(alreadyVisited.length);
         // visit all this nodes
         alreadyVisited.forEach(node=> this.visitNode(node));
 

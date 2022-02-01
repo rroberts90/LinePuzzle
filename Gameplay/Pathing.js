@@ -400,6 +400,7 @@ const setupGrid = async(board, gameType, level) => {
         const defaultLevel = 15;
         const defaultDifficulty = true;
         const vals = await getItems('level', 'difficulty');
+      
         if(vals){
         const diff = vals[1][1] === 'true' ? true : false;
         const level = parseInt(vals[0][1]);

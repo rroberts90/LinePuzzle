@@ -101,8 +101,10 @@ const logColors  = (colors) => {
 const randInt = (min,max)  => {
     return Math.floor(Math.random() * (max - min)) + min;
 }
-
+const compressGridPos = (gridPos)=> {
+  return [gridPos.row, gridPos.col];
+}
 const unCompressGridPos = (arr) => {
   return {row: arr[0], col: arr[1]}
 }
-export {gridPos, point, distance, centerOnNode, pointInCircle, logPoint, logGridPos,compareGridPos, rotateArray, logColors, randInt, convertToLayout, rotateColors, unCompressGridPos};
+export {gridPos, point, distance, centerOnNode, pointInCircle, logPoint, logGridPos,compareGridPos, rotateArray, logColors, randInt, convertToLayout, rotateColors, unCompressGridPos, compressGridPos};

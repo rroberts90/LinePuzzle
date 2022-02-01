@@ -76,6 +76,7 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
   // sets the endPointto the CurrentNode position after it's position is measurable.
   const updateAfterLayout = () => {
 
+
     resetCurrentNode(1);
 
 
@@ -89,8 +90,9 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
             return curr;
           });
         }
+
         getBoard().grid.forEach((row) =>
-        row.forEach((node) =>{  node.loaded = true}));
+          row.forEach((node) =>{  node.loaded = true}));
         toggleLoading(false);
       }
     }, 500);
@@ -162,8 +164,9 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
    }
 
    const {candidate} = node.matchPoint(point);
-   
+    
     if (candidate) {
+
       const { next, prev } = getBoard().visitNode(candidate);
       if (next) {
 
@@ -179,6 +182,7 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
 
       }
     } else {
+
       return {newNode: null, prevPoint:null};
     }
 

@@ -83,8 +83,7 @@ class Node {
   matchPoint(point) {
     const neighbor = this.insideNeighbor(point);
     if (neighbor) {
-      //console.log(`inside neighbor:`);
-      //console.log(` ${neighbor.pos.x} ${neighbor.pos.y}`);
+
 
       const matchColor = this.isMatch(neighbor);
       if (neighbor && matchColor) {
@@ -173,7 +172,12 @@ class Node {
     this.colors = savedNode.c.map(rawColor=> 'rgba' + rawColor);
     this.special = savedNode.sp || null;
    
+
+    if(savedNode.r && savedNode.r !== 0 ){
+      throw Error('node saved with rotation');
+    }
     this.rot = savedNode.r || 0;
+    
     this.direction = savedNode.d || -1;
     this.fixed = savedNode.f || false;
    
@@ -190,8 +194,8 @@ toString(){
     gridPos: this.gridPos,
     symbol: this.symbol,
     colors: this.colors,
-    links: this.links.map(node => node.gridPos)
-
+    links: this.links.map(node => node.gridPos),
+    neighbors: this.neighbors.map(node=> node.gridPos)
   });//{
   // gridPos: JSON.stringify(this.gridPos),
   //  links: JSON.stringify(this.links)

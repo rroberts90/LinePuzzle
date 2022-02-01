@@ -12,7 +12,9 @@ const defaultNodeColor = GlobalStyles.defaultNodeColor.backgroundColor;
 const measure = (ref, node, afterUpdate) => {
   if (ref.current) {
     ref.current.measureInWindow((x, y, width, height) => {
-      node.pos = { x: x, y: y };
+      if(y > 0) {
+        node.pos = { x: x, y: y };
+      }
       node.diameter = Math.floor(width);
       if (afterUpdate) {
         afterUpdate();
@@ -23,6 +25,7 @@ const measure = (ref, node, afterUpdate) => {
     throw 'measure node error'
   }
 }
+
 const borderStyles = (colors) => {
   return {
     borderTopColor: colors[0],
