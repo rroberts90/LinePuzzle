@@ -176,7 +176,6 @@ class Board {
         node.loaded = true;
         
         node.pos = prevGrid[i][j].pos;
-        MyMath.logPoint(`after ${i},${j}: `, node.pos)
 
       }
 

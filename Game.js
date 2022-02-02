@@ -87,11 +87,12 @@ const Game = ({ navigation, route }) => {
     getBoard(board1, board0.current);
     setSaveLoaded(true);
     
-    setTimeout(()=> {
+    setTimeout(()=> { // hacky way to force all the nodes to get correct positions
       board1.current.grid.forEach((row, i) =>
       row.forEach((node, j) =>{ node.pos = board0.current.grid[i][j].pos; }));
 
     }, 500);
+
   }, []);
 
   useEffect(() => {
@@ -104,7 +105,7 @@ const Game = ({ navigation, route }) => {
     if (level > 0) {
       if (level === 1) { // special case give board1 positions
         board1.current.grid.forEach((row, i) =>
-          row.forEach((node, j) =>{ node.pos = board0.current.grid[i][j].pos; node.loaded = true; logPoint(`${i},${j}: `, node.pos)}));
+          row.forEach((node, j) =>{ node.pos = board0.current.grid[i][j].pos; node.loaded = true;}));
 
       }
       const end0 = translateYAnim0._value + height;

@@ -12,7 +12,6 @@ const toDegrees = (angle) =>{
   }
 
 
-
 const calculateColor = (node, endPoint) => {
    
     const center = centerOnNode(node.pos, node.diameter);
@@ -88,7 +87,7 @@ const Segment = ({startNode,endPoint, fixedColor}) => {
     const angle = xDir > 0 ? toDegrees(Math.asin(opp/ scaleX)) : 180 - toDegrees(Math.asin(opp/ scaleX)); // scaleX is also hypotenuse
 
     const rotate = `${angle}deg`;
-    return (<><View style={[styles.dot, 
+    return (<View style={[styles.dot, 
                          convertToLayout(startPos),
                         { backgroundColor: color,
                          transform: [ 
@@ -100,7 +99,6 @@ const Segment = ({startNode,endPoint, fixedColor}) => {
                              
 
 
-                             </>
 
    );
 }
@@ -167,12 +165,36 @@ const getFixedStyles = (startNode, endNode) => {
     }
   }
 }
+const getTransformStyles = (start , end, arrowWidth )=> { 
+  if(start.row < end.row){
+    return [{translateY: -arrowWidth/4},{rotate: '225deg'}]
+  }
+  if(start.row > end.row){//up
+    return [{translateY: arrowWidth/4},{rotate: '45deg'}]
+  }
+  if(start.col > end.col) {
+    return [{translateX: arrowWidth/4},{rotate: '-45deg'}]
+  }
+  else{
+    return [{translateX: -arrowWidth/4},{rotate: '-225deg'}]
+  }
+}
+
 const FixedSegment = ({startNode, endNode}) => {
     
     const fixedStyles = getFixedStyles(startNode, endNode);
 
+    const isHorizontal = startNode.gridPos.row === endNode.gridPos.row ;
+
     fixedStyles['position'] = 'absolute';
-    return (<View style={fixedStyles}/>
+    fixedStyles['justifyContent'] = 'center';
+    fixedStyles['alignItems'] = 'center';
+
+    const arrowWidth = startNode.diameter/5 / 1.5;
+    const transformStyles = getTransformStyles(startNode.gridPos, endNode.gridPos, arrowWidth);
+    return (<View style={[fixedStyles, {flexDirection: isHorizontal ? 'row': 'column'}]}>
+      <View style={[arrowStyles(arrowWidth, arrowWidth, 'rgba(255,255,255,.5)' ), styles.lightener,{transform: transformStyles}]} />
+    </View>
                              
 
    );
@@ -288,7 +310,7 @@ const BridgeSegment=  ({color, width, end}) => {
     const triangleOffset = Math.floor(node.pos.y /2);
 
     useEffect(()=> {
-     if(won=== false && color== defaultFinishColor){
+     if(won=== false ){
         Animated.stagger(1500, [animateArrow(triangleAnim1, 75),animateArrow(triangleAnim2, 75) ]).start();
         //animateArrowForever(triangleAnim1, triangleOffset);
       }
@@ -338,12 +360,13 @@ const BridgeSegment=  ({color, width, end}) => {
         left: 0,
         position: 'absolute',
 
+
       },
     lightener : { 
       zIndex:10,
-
-
-    }
+      position: 'relative',
+      margin:.5
+        }
   });
 
   export {Segment, UserPath, Fade, CapSegment, calculateColor}
