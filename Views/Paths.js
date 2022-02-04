@@ -310,7 +310,7 @@ const BridgeSegment=  ({color, width, end}) => {
     const triangleOffset = Math.floor(node.pos.y /2);
 
     useEffect(()=> {
-     if(won=== false ){
+     if(won=== false && color== defaultFinishColor){
         Animated.stagger(1500, [animateArrow(triangleAnim1, 75),animateArrow(triangleAnim2, 75) ]).start();
         //animateArrowForever(triangleAnim1, triangleOffset);
       }

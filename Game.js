@@ -26,7 +26,7 @@ function stackTrace() {
 }
 const Game = ({ navigation, route }) => {
 
- //console.log = function() {}
+ console.log = function() {}
  const gameType = route.name;
   const { boardSize, 
     level:puzzleNumber, 
@@ -87,11 +87,16 @@ const Game = ({ navigation, route }) => {
     getBoard(board1, board0.current);
     setSaveLoaded(true);
     
-    setTimeout(()=> { // hacky way to force all the nodes to get correct positions
-      board1.current.grid.forEach((row, i) =>
-      row.forEach((node, j) =>{ node.pos = board0.current.grid[i][j].pos; }));
 
-    }, 500);
+    setTimeout(()=> { // hacky way to force all the nodes to get correct positions
+      let maxDiameter = 0;
+      board1.current.grid.forEach((row, i) =>
+      row.forEach((node, j) =>{ 
+        node.pos = board0.current.grid[i][j].pos;
+        
+       }));
+
+    }, 500);  
 
   }, []);
 

@@ -76,5 +76,7 @@ const colorScheme9 =
   three: "rgba(255, 167, 53,1)", // orange
   four: "rgba(69, 142, 50,1)" // lime green
 }
+
+
 export default colorScheme9;
 

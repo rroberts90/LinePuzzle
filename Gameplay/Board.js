@@ -421,6 +421,7 @@ class Board {
 
     this.puzzleNumber = puzzleInfo.puzzleNumber;
     
+   
     const levelProgress = await getItem('levelProgress');
     if(levelProgress && !prevBoard) {
       // check if there a visited nodes saved
@@ -433,6 +434,17 @@ class Board {
         // visit all this nodes
         alreadyVisited.forEach(node=> this.visitNode(node));
 
+        // check for mistakes
+        let mistake = false;
+        for(let i =0;i< this.visitedNodes.length-1;i++){
+          if(!this.visitedNodes[i].isMatch(this.visitedNodes[i+1])) {
+            mistake = true;
+          }
+
+        }
+        if(mistake) {
+          this.restart();
+        }
       }
     }
 
