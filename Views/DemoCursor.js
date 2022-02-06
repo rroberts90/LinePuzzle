@@ -6,7 +6,7 @@ import { centerOnNode } from '../Utils';
 
 
 const DemoCursor = ({ node, nextNode, first, firstNode }) => {
-    //const [endPoint, setEndpoint] = useState({x:0, y:0});
+
     const endPointAnim = useRef(new Animated.ValueXY(0, 0)).current;
     const [endPoint, setEndPoint] = useState({ x: 0, y: 0 });
     const fadeAnim = useRef(new Animated.Value(1)).current;

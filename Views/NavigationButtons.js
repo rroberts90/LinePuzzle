@@ -84,60 +84,6 @@ const BoardSize = ({ row, col }) => {
         <Text style={[styles.boardSize]}>{row}</Text></>);
 }
 
-// has a choice for board size
-const PlayButtonExpanded = ({ navigation, title, disabled, toggleDisabled, borderColor, text, boardSizeSelected, toggleSize }) => {
-    const { play } = useSound();
-    return (
-        <TouchableOpacity
-            style={[styles.menuButton2, { borderColor: borderColor }]}
-            onPress={() => {
-                toggleDisabled(true);
-                navigation.push(title, { boardSize: boardSizeSelected });
-                setTimeout(() => toggleDisabled(false), 500);
-
-            }}
-            disabled={disabled}
-        >
-            <View style={{
-                height: '80%', aspectRatio: 1, marginHorizontal: 5, justifyContent: 'center'
-            }}>
-                <Image style={[styles.play2,
-                { tintColor: borderColor, opacity: .8 }]}
-                    source={require('../Icons/play1.png')} />
-            </View>
-            <Text style={[styles.buttonText,
-            text ? { fontSize: 30 } : {}]}>
-                {text ? text : title}
-            </Text>
-            <View style={[styles.row2]}>
-                <Pressable style={[styles.boardSizeButton]}
-                    onPress={() => toggleSize(true)}
-                >
-                    <View style={{
-                        position: 'absolute',
-                        width: '100%'
-                        , height: '100%',
-                        backgroundColor: boardSizeSelected ? borderColor : 'rgb(211,211,211)',
-                        opacity: .5
-                    }} />
-                    <BoardSize row={'6'} col={'4'} />
-                </Pressable>
-                <Pressable style={[styles.boardSizeButton]}
-                    onPress={() => toggleSize(false)}>
-                    <View style={{
-                        position: 'absolute',
-                        width: '100%'
-                        , height: '100%',
-                        backgroundColor: boardSizeSelected ? 'rgb(211,211,211)' : borderColor,
-                        opacity: .5
-                    }} />
-                    <BoardSize row={'7'} col={'5'} />
-
-                </Pressable>
-            </View>
-        </TouchableOpacity>
-    );
-}
 
 const mapDifficultyToColor = (difficulty) => {
     if (difficulty === 'easy') {
@@ -353,4 +299,4 @@ const styles = StyleSheet.create({
         height: '50%'
     }
 });
-export { BackButton, PlayButton, IconButton, PlayButtonExpanded, BoardSize, PuzzleButton };
+export { BackButton, PlayButton, IconButton, BoardSize, PuzzleButton };

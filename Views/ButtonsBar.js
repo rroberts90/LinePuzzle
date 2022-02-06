@@ -1,4 +1,4 @@
-// butttons bar
+
 import React, {useState, useRef, useEffect} from 'react';
 
 import { View, StyleSheet, Button, TouchableOpacity, Image, SafeAreaView} from 'react-native';

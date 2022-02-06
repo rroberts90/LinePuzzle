@@ -285,10 +285,3 @@ const styles = StyleSheet.create({
 });
 
 export { NodeView, Pulse, dynamicNodeSize, dynamicNodeSizeNoPosition };
-
-//      <View style={{ alignSelf: 'flex-end', width: width - 1, height: 2, backgroundColor: 'rgb(36,36,36)', position: 'absolute', top: '55%', right: 1, borderRadius: 2 }} />
-
-// //      <View style={{
-//   width: width - 1, height: 2, backgroundColor: 'rgb(36,36,36)', position: 'absolute', alignSelf:
-//   'flex-start', top: '55%', left: 1, borderRadius: 5
-// }} />

@@ -2,8 +2,6 @@ import { Audio } from 'expo-av';
 import React, { useState, useEffect } from 'react';
 import { getItem } from './Storage';
 
-//const notes = [require('./Sounds/a.wav'), require('./Sounds/b.wav'), require('./Sounds/c.wav'), require('./Sounds/d.wav'), require('./Sounds/e.wav'), require('./Sounds/f.wav'), require('./Sounds/g.wav')];
-
 const sounds = {
     'connect': require('./Sounds/tap2.wav'), 
     'win': require('./Sounds/win3.mp3'),
@@ -13,10 +11,6 @@ const sounds = {
     'gameOver':require('./Sounds/gameOver1.wav'),
     'packWin':require('./Sounds/puzzlePackWin.wav')
 
-}
-
-const getNextNoteNdx = (ndx) => {
-    return (ndx+1) % notes.length;
 }
 
 export default function useSound() {
@@ -66,51 +60,3 @@ export default function useSound() {
     return {play: playSound};
 }
 
-
-
-
-
-/*function useNotes() {
-    const root = './Sounds';
-
- 
-    const [sound, setSound] = useState();
-
-    const ndx = useRef(0);
-
-    async function playSound() {
-        const nextNdx = getNextNoteNdx(ndx.current);
-        ndx.current = nextNdx;
-        const { sound } = await Audio.Sound.createAsync(
-            notes[nextNdx]
-        );
-
-        setSound(sound);
-
-        //console.log('Playing Sound');
-        await sound.playAsync();
-    }
-
-     const reset = () => {
-        ndx.current = 0;
-    }
-
-    useEffect(() => {
-
-        return sound
-            ? () => {
-               // console.log('sound changed');
-
-                sound.unloadAsync();
-
-
-            }
-            : undefined;
-    }, [sound]);
-    useEffect( () => {
-        return sound ? ()=> {sound.unloadAsync()
-        } : undefined;
-    }, [] );
-
-    return {play: playSound, reset: reset};
-}*/

@@ -112,20 +112,24 @@ const makeLevels = async (num) => {
   const mazePerLevel = 10;
   let difficulty = 0;
 
-  for (let i = 50; i <= num; i++) {
+  for (let i = 4; i <= num; i++) {
+    console.info(i)
     if (i === 4) {
-      sRange = [15, 20];
-      pRange = [40, 60];
+      sRange = [16, 20];
+      pRange = [60, 80];
       difficulty++;
     }
+    if (i === 10) {
+      sRange = [16, 25];
+      pRange = [80, 120];
+    }
     if (i === 16) {
-      sRange = [15, 20];
-      pRange = [60, 120];
-
+      sRange = [17, 25];
+      pRange = [100, 150];
     }
     if (i === 30) {
       sRange = [20, 35];
-      pRange = [80, 200];
+      pRange = [100, 200];
 
     }
     if (i === 50) {
@@ -160,8 +164,7 @@ const makeLevels = async (num) => {
 
  // makeFile('./Output/packInfo.json', JSON.stringify(packInfo));
 }
-console.log('hi')
-makeLevels(150)
+makeLevels(49)
 //const requireScript = makeRequireScript(150);
 //makeFile('./Output/getPuzzlePack.js', requireScript);
 ///makeFile('./Output/levelNames.json', JSON.stringify(getNamesByLevel(300)))

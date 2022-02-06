@@ -9,7 +9,7 @@ import Game from './Game'
 import SettingsScreen from './Views/Settings'
 import {ScoresScreen, AfterGameScreen} from './Views/Scores'
 import useSound from './Sounds';
-import { PlayButton, IconButton ,PlayButtonExpanded} from './Views/NavigationButtons'
+import { PlayButton, IconButton } from './Views/NavigationButtons'
 import PuzzlePicker from './Views/PuzzlePicker'
 import AboutScreen from './Views/AboutScreen'
 import AfterPuzzleScreen from './Views/AfterPuzzle'

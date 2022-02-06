@@ -105,6 +105,7 @@ const AfterPuzzleScreen = ({navigation, route}) => {
     const {play}= useSound();
 
     useEffect(()=> {
+        
         getItem('levelProgress').then(levelProgress=> {
             //  aliasing the trophy names into alphabetically ordered names. then just use javascript's built in sort
             const orderedStars = changeNamesBack(changeNames(levelProgress[puzzleNumber-1].stars).sort());

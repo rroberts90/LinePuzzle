@@ -2,7 +2,7 @@
   "expo": {
     "name": "Color Maze",
     "slug": "ColorMaze",
-    "version": "1.0.1",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/1024.png",
     "splash": {
@@ -14,9 +14,9 @@
       "fallbackToCacheTimeout": 0
     },
     "assetBundlePatterns": [
-      "./assets/*",
-      "./Icons/*",
-      "./Sounds/*"
+      "./assets/",
+      "./Icons/",
+      "./Sounds/"
     ],
     "ios": {
       "supportsTablet": true,
@@ -27,9 +27,6 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       }
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "sentry-expo"

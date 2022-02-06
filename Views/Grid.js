@@ -1,6 +1,6 @@
 import { Animated, View, StyleSheet, Easing, Text, Image, useWindowDimensions} from "react-native";
 import React, { useEffect, useRef, useState } from "react";
-import { Segment, CapSegment } from './Paths';
+import {  CapSegment } from './Paths';
 
 import { NodeView } from "./Nodes";
 

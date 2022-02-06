@@ -42,5 +42,19 @@
     "eslint-plugin-react": "^7.24.0",
     "eslint-plugin-react-hooks": "^4.2.0"
   },
-  "private": true
+  "private": true,
+  "name": "spinners",
+  "version": "1.0.3",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rroberts90/LinePuzzle.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rroberts90/LinePuzzle/issues"
+  },
+  "homepage": "https://github.com/rroberts90/LinePuzzle#readme",
+  "description": ""
 }

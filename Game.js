@@ -26,7 +26,7 @@ function stackTrace() {
 }
 const Game = ({ navigation, route }) => {
 
- console.log = function() {}
+ //console.log = function() {}
  const gameType = route.name;
   const { boardSize, 
     level:puzzleNumber, 
@@ -142,9 +142,14 @@ const Game = ({ navigation, route }) => {
         play('packWin');
         setTimeout(()=>navigation.push('afterPuzzle',{puzzleNumber: puzzleNumber, title}), 1000);
     
+        }else{
+          play('win');
         }
 
         
+
+     }else{
+      play('win');
 
      }
 

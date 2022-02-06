@@ -123,7 +123,6 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
     setTimeout(()=>onWin(currentLevel=> currentLevel+1), 0);
 
 
-    play('win');
 
     // check if vibrate is AOK with user
     getItem('vibrate').then(vibrate=> {
