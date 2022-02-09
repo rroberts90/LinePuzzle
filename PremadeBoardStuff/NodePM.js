@@ -1,4 +1,4 @@
-// the other node.js
+// the other-other node.js
 
 import {rotateArray, rotateColors, gridPos, compressGridPos} from './Utils.js';
 

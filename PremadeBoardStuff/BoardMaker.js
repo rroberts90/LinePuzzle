@@ -1,6 +1,5 @@
 import Board from './BoardPM.js'
 import getCriteria from './CriteriaPM.js'
-
 //console.log = function() {}
 
 import { createRequire } from "module";
@@ -110,14 +109,14 @@ const makeLevels = async (num) => {
   let sRange = [10, 15];
   let pRange = [20, 30];
   const mazePerLevel = 10;
-  let difficulty = 0;
+  let difficulty = 1;
 
-  for (let i = 4; i <= num; i++) {
+  for (let i = 58; i <= num; i++) {
     console.info(i)
     if (i === 4) {
       sRange = [16, 20];
       pRange = [60, 80];
-      difficulty++;
+      //difficulty++;
     }
     if (i === 10) {
       sRange = [16, 25];
@@ -132,15 +131,20 @@ const makeLevels = async (num) => {
       pRange = [100, 200];
 
     }
-    if (i === 50) {
-      sRange = [20, 30];
-      pRange = [120, 200];
+    if (i === 51) {
+      sRange = [20, 35];
+      pRange = [100, 200];
+
+    }
+    if (i === 75) {
+      sRange = [20, 40];
+      pRange = [150, 200];
       difficulty++;
       smallBoard = false;
     }
     if (i === 100) {
-      sRange = [25, 35];
-      pRange = [150, 300];
+      sRange = [30, 40];
+      pRange = [175, 400];
       smallBoard = false;
     }
    
@@ -162,9 +166,31 @@ const makeLevels = async (num) => {
   const requireScript = makeRequireScript(num);
 // makeFile('./Output/getPuzzlePack.js', requireScript);
 
- // makeFile('./Output/packInfo.json', JSON.stringify(packInfo));
+  //makeFile('./Output/packInfo.json', JSON.stringify(packInfo));
 }
-makeLevels(49)
+makeLevels(150)
+
+const  rewritePuzzle = (level, number, start, finish, smallBoard)=> {
+  let criteriaNotMet = true;
+  let board;
+  const solutionRange = [20, 35];
+  const pathLengthRange = [100, 200];
+  while (criteriaNotMet) {
+     board = new Board(smallBoard, getCriteria('endless', false, smallBoard, level), null);
+
+    if (board.start.gridPos.col === start && board.finish.gridPos.col === finish && isInRange(board.shortestSolution, solutionRange) && isInRange(board.pathLength, pathLengthRange)) {
+      criteriaNotMet = false;
+    }
+  }
+
+  const file = fs.readFileSync(`./Output/${level}.json`);
+  const boards = JSON.parse(file.toString());
+
+  boards[number-1]= board.save();
+  makeFile(`./Output/${level}.json`, JSON.stringify(boards))
+}
+//rewritePuzzle(49, 4, 3,3, true)
+
 //const requireScript = makeRequireScript(150);
 //makeFile('./Output/getPuzzlePack.js', requireScript);
 ///makeFile('./Output/levelNames.json', JSON.stringify(getNamesByLevel(300)))

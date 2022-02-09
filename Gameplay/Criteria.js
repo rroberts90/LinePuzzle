@@ -54,8 +54,8 @@ const getCriteria = (gameType, level, difficulty, largeBoard) => {
             freezer: .2, 
             rotateCC: .1,
              falsePaths: 8, 
-             minLength: 15, 
-             maxFalsePathLength: 10, 
+             minLength: 16, 
+             maxFalsePathLength: 12, 
              maxLength: 100, 
              circles: 2,
              totalBoosters: 5,
@@ -104,10 +104,10 @@ const getCriteria = (gameType, level, difficulty, largeBoard) => {
     else{
         criteria.directLinks = .3
         criteria.group = .4;
-        criteria.maxFalsePathLength = 8;
-        criteria.falsePaths = 4;
-        criteria.freezer = .3;
-        criteria.minLength = 15;
+        criteria.maxFalsePathLength = 13;
+        criteria.falsePaths = 8;
+        criteria.freezer = .2;
+        criteria.minLength = 17;
         criteria.circles = 2;
 
     }
