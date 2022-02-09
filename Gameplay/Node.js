@@ -113,7 +113,8 @@ class Node {
   }
 
   insideNeighbor(point) {
-    return this.neighbors.find(neighbor => MyMath.pointInCircle(point, neighbor.pos, neighbor.diameter));
+   // return this.neighbors.find(neighbor => MyMath.pointInCircle(point, neighbor.pos, neighbor.diameter));
+    return this.neighbors.find(neighbor => MyMath.pointPastCircle(point, this, neighbor));
   }
 
   isNeighbor(node) {

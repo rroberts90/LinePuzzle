@@ -6,6 +6,42 @@ const point = (x,y) => {
     return {x:x,y:y};
 }
 
+
+const pointPastCircle = (point, start, end) => {
+
+  if (start.gridPos.row === end.gridPos.row) { //horizontal
+    const yTop = end.pos.y;
+    const yBottom = yTop + end.diameter;
+
+    if (point.y > yTop && point.y < yBottom) {
+      if (start.gridPos.col < end.gridPos.col) { // going right
+        if (point.x > end.pos.x) {
+          return true;
+        }
+      } else { // going left
+        if (point.x < end.pos.x + end.diameter) {
+          return true;
+        }
+      }
+    }
+  }
+  else {
+    const xLeft = end.pos.x;
+    const xRight = xLeft + end.diameter;
+    if (point.x < xRight && point.x > xLeft) {
+      if (start.gridPos.row < end.gridPos.row) { // going down
+        if (point.y > end.pos.y) {
+          return true;
+        }
+      }else { // going up
+        if (point.y < end.pos.y + end.diameter) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
 /**
  * 
  * @param {*} point 
@@ -107,4 +143,4 @@ const compressGridPos = (gridPos)=> {
 const unCompressGridPos = (arr) => {
   return {row: arr[0], col: arr[1]}
 }
-export {gridPos, point, distance, centerOnNode, pointInCircle, logPoint, logGridPos,compareGridPos, rotateArray, logColors, randInt, convertToLayout, rotateColors, unCompressGridPos, compressGridPos};
+export {gridPos, point, distance, centerOnNode, pointInCircle, logPoint, logGridPos,compareGridPos, rotateArray, logColors, randInt, convertToLayout, rotateColors, unCompressGridPos, compressGridPos, pointPastCircle};
