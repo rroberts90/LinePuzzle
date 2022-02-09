@@ -337,6 +337,25 @@ const setupTutorial = (board, level) => {
 
             break;
         case 4: 
+        board.grid[3][0].symbol = 2;
+        board.grid[3][0].links = [board.grid[4][0],board.grid[1][0]];
+
+        board.grid[1][0].symbol = 2;
+        board.grid[1][0].links = [board.grid[3][0],board.grid[4][0],board.grid[4][1]];
+
+        
+        board.grid[4][0].symbol = 2;
+        board.grid[4][0].links = [board.grid[3][0],board.grid[1][0]],board.grid[4][1];
+
+        board.grid[4][1].symbol = 1;
+        board.grid[3][1].symbol = 1;
+        board.grid[1][1].symbol = 1;
+
+        board.grid[4][1].links = [board.grid[3][1],board.grid[1][1]];
+        board.grid[3][1].links = [board.grid[4][1],board.grid[1][1]];
+        board.grid[1][1].links = [board.grid[3][1],board.grid[4][1]];
+
+        board.grid[4][0].special = 'freezer';
 
 
           break;
@@ -364,28 +383,7 @@ const setupTutorial = (board, level) => {
     pathFinder(board);
 
     board.solution = board.visitedNodes.map(node=> node);
-    if(level === 4){ // faking freeze nodes so I don't have to write more code or hard code colors
-        board.grid[3][0].symbol = 2;
-        board.grid[3][0].links = [board.grid[4][0],board.grid[1][0]];
 
-        board.grid[1][0].symbol = 2;
-        board.grid[1][0].links = [board.grid[3][0],board.grid[4][0],board.grid[4][1]];
-
-        
-        board.grid[4][0].symbol = 2;
-        board.grid[4][0].links = [board.grid[3][0],board.grid[1][0]],board.grid[4][1];
-
-        board.grid[4][1].symbol = 1;
-        board.grid[3][1].symbol = 1;
-        board.grid[1][1].symbol = 1;
-
-        board.grid[4][1].links = [board.grid[3][1],board.grid[1][1]];
-        board.grid[3][1].links = [board.grid[4][1],board.grid[1][1]];
-        board.grid[1][1].links = [board.grid[3][1],board.grid[4][1]];
-
-        board.grid[4][0].special = 'freezer';
-
-    }
     board.resetGrid();
 }
 
