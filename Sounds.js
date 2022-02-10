@@ -34,9 +34,9 @@ export default function useSound() {
         if(key==='button') {
             await sound.setVolumeAsync(.5);
         }
-        if(key ==='undo') {
+        if(key ==='packWin') {
 
-           // await sound.setVolumeAsync(.5);
+           await sound.setVolumeAsync(.5);
 
         }
         if(key === 'background') {

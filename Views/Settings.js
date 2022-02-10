@@ -171,12 +171,12 @@ function SettingsScreen({ navigation, route }) {
                         </ScrollView>
                     </View>
                 </View>
-                <Button title='Clear User Data' style={{ marginTop: 100 }} onPress={() => clearAll()} />
 
             </View>
         </>
     );
 }
+//                <Button title='Clear User Data' style={{ marginTop: 100 }} onPress={() => clearAll()} />
 
 const styles = StyleSheet.create({
     line: {

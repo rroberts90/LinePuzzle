@@ -14,7 +14,7 @@ const getScoring = (difficulty) => {
         return {'gold':90, 'silver':150,'brown':300}
     }
     if(difficulty === 'hard') {
-        return {'gold':120, 'silver':180,'brown':300}
+        return {'gold':180, 'silver':240,'brown':360}
     }
 
     return baseScoring;
