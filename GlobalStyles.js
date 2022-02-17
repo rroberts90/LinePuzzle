@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
         backgroundColor: defaultBackground2
     },
     defaultNodeColor: {
-        backgroundColor: 'rgba(229,225,215,1)'
+        backgroundColor: defaultBackground
     },
 
 });

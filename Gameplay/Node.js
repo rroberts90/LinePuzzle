@@ -4,42 +4,6 @@ import * as MyMath from '../Utils.js';
 
 const Default_Node_Width = 80;
 
-const toDegrees = (angle) => {
-  return angle * (180 / Math.PI);
-}
-
-const calculateColor = (node, endPoint) => {
-
-  const center = MyMath.centerOnNode(node.pos, node.diameter);
-  const hypo = MyMath.distance(endPoint.x - center.x, endPoint.y - center.y);
-  const adj = MyMath.distance(endPoint.x - center.x, 0);
-  const angle = toDegrees(Math.acos(adj / hypo));
-  const xDir = Math.sign(endPoint.x - center.x);
-  const yDir = Math.sign(endPoint.y - center.y)
-
-  let color;
-  const computedColors = MyMath.rotateColors(node.colors, node.rot);
-  if (xDir == 1 && angle < 45) {
-    color = computedColors[1];
-  }
-  else if (xDir == -1 && angle < 45) {
-    color = computedColors[3];
-  }
-  else if (yDir == -1 && angle >= 45) {
-    color = computedColors[0];
-  }
-  else if (yDir == 1 && angle >= 45) {
-    color = computedColors[2];
-  }
-  else {
-    color = "grey";
-  }
-
-  return color;
-}
-
-
-
 /**
 * 
 * @param {} props 
@@ -61,7 +25,8 @@ class Node {
     this.special = null;
     this.frozen = 0;
     this.loaded = false;
-    
+    this.horizontalFlipped = false;
+    this.verticalFlipped = false;
   }
 
 
@@ -124,6 +89,7 @@ class Node {
   isMatch(node) {
     let match = null;
 
+    // get flipped colors
     // get computed colors
     const compNodeRotatedColors = MyMath.rotateColors(node.colors, node.rot);
     const myNodeRotatedColors = MyMath.rotateColors(this.colors, this.rot);

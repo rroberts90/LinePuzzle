@@ -64,7 +64,7 @@ const GridView = ({board, won, afterUpdate, triggerPulser}) => {
 
     }, 
     cap: {
-      flex: 2,
+    flex: 1.6,
       width: '100%',
       height: '100%'
     },

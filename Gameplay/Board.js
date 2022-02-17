@@ -268,7 +268,9 @@ class Board {
     if (this.isPathOpen(curr, nextNode)) {
 
       this.visitedNodes = [...this.visitedNodes, nextNode];
+
       nextNode.fixed = true;
+      //nextNode.verticalFlipped = !nextNode.verticalFlipped
 
       if (!nextNode.special || nextNode.special === 'booster') {
         nextNode.rotateLinked();

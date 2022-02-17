@@ -405,21 +405,6 @@ const shouldAddArrow = (node, neighbor) => {
    let {pos, type} = positionArrow2(node, linkedNode,width,height);
     pos = point(pos.x + node.pos.x, pos.y + node.pos.y);
    
-    
-    if(linkedNode.links.includes(node)) {
-      if (node.gridPos.row === linkedNode.gridPos.row) { 
-          type = 4;
-
-          if(node.gridPos.col > linkedNode.gridPos.col) { // only 1 node needs to render bidirectional
-            return null;
-          }
-      }else{
-          type = 5;
-          if(node.gridPos.row > linkedNode.gridPos.row) {// only 1 node needs to render bidirectional
-            return null;
-          }
-      }
-  }
   const source = getArrowSource(type);
 
 
@@ -485,6 +470,7 @@ const shouldAddArrow = (node, neighbor) => {
         setBooster(true);
       }
     },[]);
+
     useEffect(()=>{
       if(!node.special  && booster){
         const speed = 20;
@@ -513,10 +499,14 @@ const shouldAddArrow = (node, neighbor) => {
     }, [node.special]);
 
       if(node.special === 'freezer') {
-          const source = require('../Icons/freezePattern5.png');
+          //.const source = require('../Icons/freezePattern5.png');
           return null; //<Image style={[styles.special, styles.freezePattern, {borderRadius: node.diameter/2}]} source={source}/>
       }else if(node.special === 'rotateCC') {
         const source = require('../Icons/rotateCC4.png');
+        return <Image style={[styles.special, {height:'100%',width:'100%', opacity: 1}]} source={source}/>;
+
+      }else if(node.special === 'verticalFlip'){
+        const source = require('../Icons/arrowFlip1.png');
         return <Image style={[styles.special, {height:'100%',width:'100%', opacity: 1}]} source={source}/>;
 
       }else if(booster) { 

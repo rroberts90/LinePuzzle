@@ -8,7 +8,7 @@ const Node_Width = 60;
 import GlobalStyles from '../GlobalStyles'
 
 const defaultNodeColor = GlobalStyles.defaultNodeColor.backgroundColor;
-
+const SizePercent = '80%'
 const measure = (ref, node, afterUpdate) => {
   if (ref.current) {
     ref.current.measureInWindow((x, y, width, height) => {
@@ -38,7 +38,7 @@ const borderStyles = (colors) => {
 const dynamicNodeSize = (diameter, tutorial) => {
 
   return {
-    height: '80%',
+    height: SizePercent,
     aspectRatio: 1,
 
     backgroundColor: "lightgrey",
@@ -51,7 +51,7 @@ const dynamicNodeSize = (diameter, tutorial) => {
 const borderSize = (diameter) => {
   return {
     borderRadius: diameter / 2,
-    borderWidth: Math.floor(diameter / 6) + .5
+    borderWidth: Math.floor(diameter / 8) + .5
   }
 }
 
@@ -119,9 +119,10 @@ const Frozen = ({ node, rotAnim }) => {
 const NodeView = (props) => {
 
   const rotAnim = useRef(new Animated.Value(0)).current;
+  const flipAnim = useRef(new Animated.Value(0)).current;
+
   const measureRef = useRef(null);
   useEffect(() => {
-
     Animated.timing(rotAnim, {
       toValue: props.node.rot * -90,
       duration: props.node.loaded ? 1000 : 0,
@@ -131,6 +132,20 @@ const NodeView = (props) => {
     
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.node.rot]);
+  
+  useEffect(() => {
+    console.log('flipping')
+
+    const toValue = props.node.verticalFlipped ? 1 : 0
+    Animated.timing(flipAnim, {
+      toValue: toValue,
+      duration: props.node.loaded ? 1000 : 0,
+      useNativeDriver: true,
+
+    }).start();
+    
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.node.verticalFlipped]);
 
 
   const colorStyles = borderStyles(props.node.colors);
@@ -147,7 +162,11 @@ const NodeView = (props) => {
             inputRange: [0, 360],
             outputRange: ['0deg', '360deg']
           })
-        }]
+        },
+        {rotateX: flipAnim.interpolate({
+          inputRange: [0, 1],
+          outputRange: ['0deg', '180deg']
+        }) }]
       }
     ]}
 
@@ -159,7 +178,6 @@ const NodeView = (props) => {
       }}
     >
 
-      <Image source={require('../Icons/nodeTexture4.png')} style={{ position: 'absolute', width: '100%', height: '100%', borderRadius: props.node.diameter / 2, opacity: .35 }} />
 
       <Special node={props.node} gameType={props.gameType} />
 
@@ -236,12 +254,12 @@ const Pulse = (props) => {
 
 const styles = StyleSheet.create({
   nodeSize: {
-    height: '80%',
+    height: SizePercent,
     aspectRatio: 1,
-    backgroundColor: "rgb(220,220,220)",
+    backgroundColor: defaultNodeColor,
     zIndex: 10,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
 
   nodeBorder: {
