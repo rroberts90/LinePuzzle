@@ -80,26 +80,7 @@ const pathFinder = (board, pathList, uniqueVisitsDict) => {
             }
         }
       
-        //console.log(`rejecting current node`);
-        const reject = visitedNodes.pop();
-        
-        // only remove freeze if reject is not still in visitedNodes
-        if(reject.special==='freezer' &&!visitedNodes.find(node => node === reject) ) {
-            reject.unFreezeLinks();
-        }
-        else{
-            reject.rotateLinked(true);
-        } 
-        if(reject.special === 'rotateCC' && !visitedNodes.find(node=> node.special==='rotateCC')
-        ) { 
-            board.grid.forEach((row) => row.forEach(node => {
-                node.direction = -1;
-            }));
-        }
-        if (!visitedNodes.find(node => node === reject)) { // ok to set fixed to false
-            reject.fixed = false;
-        }
-
+        board.removeLast()
         return false;
     }
 }

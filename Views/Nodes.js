@@ -133,20 +133,6 @@ const NodeView = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.node.rot]);
   
-  useEffect(() => {
-    console.log('flipping')
-
-    const toValue = props.node.verticalFlipped ? 1 : 0
-    Animated.timing(flipAnim, {
-      toValue: toValue,
-      duration: props.node.loaded ? 1000 : 0,
-      useNativeDriver: true,
-
-    }).start();
-    
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props.node.verticalFlipped]);
-
 
   const colorStyles = borderStyles(props.node.colors);
 
