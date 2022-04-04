@@ -7,7 +7,7 @@ import { storeItem } from '../Storage';
 import GlobalStyles from '../GlobalStyles'
 
 const defaultBackground = GlobalStyles.defaultBackground.backgroundColor;
-const buttonBackground = defaultBackground//'rgba(240,240,245,1)';
+const buttonBackground = defaultBackground
 
 const PlayButton = ({ navigation, title, disabled, toggleDisabled, borderColor, text, boardSize }) => {
     const { play } = useSound();

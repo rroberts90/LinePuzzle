@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "Color Maze",
-    "slug": "ColorMaze",
+    "name": "Primaze",
+    "slug": "Primaze",
     "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/1024.png",
     "splash": {
-      "image": "./assets/splash3.png",
+      "image": "./assets/splash4.png",
       "resizeMode": "contain",
-      "backgroundColor": "#f8f8ff"
+      "backgroundColor": "#FFFAFA"
     },
     "updates": {
       "fallbackToCacheTimeout": 0

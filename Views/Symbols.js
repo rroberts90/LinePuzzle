@@ -1,9 +1,8 @@
 import React, { useEffect,useState, useRef, forwardRef } from 'react'
 import {StyleSheet, View, Animated,Easing, Image, Text, useWindowDimensions} from 'react-native'
 
-import { distance, centerOnNode, point, convertToLayout } from '../Utils'
+import {  point, convertToLayout } from '../Utils'
 import {getItem} from '../Storage'
-import { Segment } from './Paths'
 
 const getSymbolSource = (group)=> {
     let icon = '';
@@ -318,8 +317,8 @@ const getSymbolSource = (group)=> {
   }
   
   const ArrowPadding = 1;
-  // absolutely positioned relative to parent (node)
  
+  // absolutely positioned relative to parent (node)
   const positionArrow2 = (startNode, endNode, width, height) => {
     const radius = startNode.diameter /2;
     const diameter = startNode.diameter;
@@ -382,12 +381,17 @@ const getSymbolSource = (group)=> {
   }
 
 const shouldAddArrow = (node, neighbor) => {
+  if(node.special === 'freezer') { // don't show any freezer arrows bc they don't do anything
+      return false;
+  }
   if (node.links.includes(neighbor)) {
-    // if link exists and node has no symbol always draw link. 
-    if (!node.symbol) {
+    
+
+   if (!node.symbol) {     // if link exists and node has no symbol always draw link. 
+
       return true;
     }
-    if (node.symbol !== neighbor.symbol) { // matches symbols already tells user nodes are linked.
+    if (node.symbol !== neighbor.symbol) { //  symbols already tells user nodes are linked.
       return true;
     } else {
       return false;
@@ -417,9 +421,7 @@ const shouldAddArrow = (node, neighbor) => {
   }
 
   const Arrows = ({grid}) => {
-    
-      //const [length, setLength]= useState(1000); //abritrarily high number
-      const flat = grid.reduce((flat, row) => [...flat, ...row]);
+          const flat = grid.reduce((flat, row) => [...flat, ...row]);
 
       const length = Math.min(grid[1][0].pos.y - grid[0][0].pos.y - grid[0][0].diameter,grid[0][1].pos.x - grid[0][0].pos.x - grid[0][0].diameter   );
       const arrows = flat.reduce((arrowList, node) => {
@@ -431,14 +433,6 @@ const shouldAddArrow = (node, neighbor) => {
       }, []);
 
 
-    useEffect(()=> {
-      
-      //console.log(arrows);
-    }, 
-      []);
-      //           arrows.map((arrow, i)=> <FixedArrow node={arrow.node} linkedNode= {arrow.neighbor} key={i} />) 
-/*       {arrows.map((arrow, i)=> <Segment startNode={arrow.node} endPoint={centerOnNode(arrow.neighbor.pos, arrow.neighbor.diameter)} fixedColor={'rgba(130,130,130,.5)'} key={i}/>)
-        }*/
     return (<View style={{position:'absolute', height:'100%', width: '100%'}}> 
 
 
@@ -447,7 +441,7 @@ const shouldAddArrow = (node, neighbor) => {
         }
       </View>);
   }
-//.map((neighbor,i)=> <Arrow node={props.node} linkedNode= {neighbor} key={i} length={arrowNodes.length} />)}
+
   const arrowStyles = (width, height) => {
      return { 
          width: width,
@@ -499,8 +493,7 @@ const shouldAddArrow = (node, neighbor) => {
     }, [node.special]);
 
       if(node.special === 'freezer') {
-          //.const source = require('../Icons/freezePattern5.png');
-          return null; //<Image style={[styles.special, styles.freezePattern, {borderRadius: node.diameter/2}]} source={source}/>
+          return null; 
       }else if(node.special === 'rotateCC') {
         const source = require('../Icons/rotateCC4.png');
         return <Image style={[styles.special, {height:'100%',width:'100%', opacity: 1}]} source={source}/>;
@@ -547,9 +540,7 @@ const shouldAddArrow = (node, neighbor) => {
           width:'100%',
           opacity:.5
       },
-      freezePattern: {
-        opacity: .25
-      },
+
       booster: {
         flexDirection: 'row',
         alignItems: 'center',

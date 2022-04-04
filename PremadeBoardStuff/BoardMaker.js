@@ -109,14 +109,15 @@ const makeLevels = async (num) => {
   let sRange = [10, 15];
   let pRange = [20, 30];
   const mazePerLevel = 10;
-  let difficulty = 1;
+  let difficulty = 0;
 
-  for (let i = 58; i <= num; i++) {
+  for (let i = 1; i <= num; i++) {
     console.info(i)
+
     if (i === 4) {
       sRange = [16, 20];
       pRange = [60, 80];
-      //difficulty++;
+      difficulty++;
     }
     if (i === 10) {
       sRange = [16, 25];

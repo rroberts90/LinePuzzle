@@ -251,6 +251,7 @@ const canAddBooster  = (node, board, criteria, excludeSolution) => {
     }
 
 }
+
 // assumes solution has already been found
 const setupFalsePaths = (board, criteria) => { 
     
@@ -285,113 +286,6 @@ const setupFalsePaths = (board, criteria) => {
 
 }
 
-const setupTutorial = (board, level) => {
-    board.solution = [];
-    switch(level) {
-        case 0: 
-            break;
-        case 2:
-            board.grid[4][0].links = [board.grid[3][0]];
-            board.grid[3][0].links = [board.grid[2][0]];
-            board.grid[1][0].links = [board.grid[0][0]];
-            board.grid[1][1].links = [board.grid[0][1]];          
-            board.grid[4][1].links = [board.grid[4][0]];          
-            board.grid[3][1].links = [board.grid[2][1]];          
-
-              break;
-        case 1:
-            board.grid[3][0].symbol = 2;
-            board.grid[1][0].symbol = 2;
-            board.grid[4][0].symbol = 2;
-            board.grid[2][1].symbol = 2;
-
-
-            board.grid[3][0].links = [board.grid[4][0],board.grid[1][0],board.grid[2][1] ];
-    
-            board.grid[1][0].links = [board.grid[3][0],board.grid[4][0], board.grid[2][1]];
-    
-            
-            board.grid[4][0].links = [board.grid[3][0],board.grid[1][0], board.grid[2][1]];
-            board.grid[2][1].links = [board.grid[3][0],board.grid[1][0], board.grid[4][0]];
-
-
-            break;
-        case 3: 
-          board.grid[3][0].symbol = 3
-          board.grid[2][0].symbol = 3
-          board.grid[1][1].symbol = 3
-
-          board.grid[4][0].symbol = 1
-          board.grid[0][0].symbol = 1
-          board.grid[4][1].symbol = 1
-
-          board.grid[4][0].links = [board.grid[0][0],board.grid[4][1]];
-
-          board.grid[3][0].links = [board.grid[2][0],board.grid[1][1]];
-  
-          board.grid[2][0].links = [board.grid[3][0],board.grid[1][1]];
-
-
-          board.grid[1][1].links = [board.grid[3][0],board.grid[2][0]];
-
-
-          board.grid[0][0].links = [board.grid[4][0],board.grid[4][1]];
-          board.grid[4][1].links = [board.grid[4][0],board.grid[0][0]];
-
-
-            break;
-        case 4: 
-
-
-          break;
-        case 5: 
-        board.grid[4][0].links = [board.grid[3][0]];
-
-         board.grid[3][0].symbol = 3
-         board.grid[0][0].symbol = 3
-         board.grid[3][0].links = [board.grid[0][0],board.grid[2][0]];
-
-         board.grid[0][0].links = [board.grid[3][0]];
-         board.grid[1][0].links = [board.grid[0][0]];
-
-         board.grid[4][1].symbol = 4;
-         board.grid[2][1].symbol = 4
-         board.grid[4][1].links = [board.grid[2][1]];
-         board.grid[2][1].links = [board.grid[4][1],board.grid[1][1]];
-
-
-
-        case 6:
-            break;
-
-    }
-    pathFinder(board);
-
-    board.solution = board.visitedNodes.map(node=> node);
-    if(level === 4){ // faking freeze nodes so I don't have to write more code or hard code colors
-        board.grid[3][0].symbol = 2;
-        board.grid[3][0].links = [board.grid[4][0],board.grid[1][0],board.grid[4][1]];
-
-        board.grid[1][0].symbol = 2;
-        board.grid[1][0].links = [board.grid[3][0],board.grid[4][0],board.grid[4][1]];
-
-        
-        board.grid[4][0].symbol = 2;
-        board.grid[4][0].links = [board.grid[3][0],board.grid[1][0]],board.grid[4][1];
-
-        board.grid[4][1].symbol = 1;
-        board.grid[3][1].symbol = 1;
-        board.grid[1][1].symbol = 1;
-
-        board.grid[4][1].links = [board.grid[3][1],board.grid[1][1]];
-        board.grid[3][1].links = [board.grid[4][1],board.grid[1][1]];
-        board.grid[1][1].links = [board.grid[3][1],board.grid[4][1]];
-
-        board.grid[4][0].special = 'freezer';
-
-    }
-    board.resetGrid();
-}
 
 const setupGrid = (board, criteria) => {
     const largeBoard = board.grid.length === 6 ? false : true;
@@ -435,6 +329,7 @@ const setupGame = (board, criteria) => {
    const MaxTries = 10;
    let shortestSolution = 0;
    let pathLength = 0;
+
   while(keepTrying(shortestSolution, pathLength, criteria) && realCount < MaxTries){
         randomizeBoard(board);
         criteria.falsePathsRemaining = criteria.falsePaths;
@@ -448,7 +343,6 @@ const setupGame = (board, criteria) => {
           const {minLength, total} = solutionChecker(board);
           shortestSolution = minLength;
           pathLength = total;
-        
         
            board.shortestSolution = shortestSolution;
            board.pathLength = pathLength;

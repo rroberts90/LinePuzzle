@@ -119,7 +119,6 @@ const Frozen = ({ node, rotAnim }) => {
 const NodeView = (props) => {
 
   const rotAnim = useRef(new Animated.Value(0)).current;
-  const flipAnim = useRef(new Animated.Value(0)).current;
 
   const measureRef = useRef(null);
   useEffect(() => {
@@ -148,11 +147,7 @@ const NodeView = (props) => {
             inputRange: [0, 360],
             outputRange: ['0deg', '360deg']
           })
-        },
-        {rotateX: flipAnim.interpolate({
-          inputRange: [0, 1],
-          outputRange: ['0deg', '180deg']
-        }) }]
+        }]
       }
     ]}
 

@@ -466,8 +466,9 @@ const setupGame = (board, criteria) => {
           // copy visited nodes and save it as solution 
           board.solution = board.visitedNodes.map(node=> node);
           board.finalColor = rotateColors(board.finish.colors, board.finish.rot)[0];
-          const {minLength, total} = solutionChecker(board);
+          const {minLength, total, uniques} = solutionChecker(board);
           board.totalPathLength = total;
+          board.uniques = uniques
           pathLength = total;
           shortestSolution = minLength;
          // console.log(`official solution: ${board.solution.length}`);

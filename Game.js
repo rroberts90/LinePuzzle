@@ -26,7 +26,7 @@ function stackTrace() {
 }
 const Game = ({ navigation, route }) => {
 
- //console.log = function() {}
+ console.log = function() {}
  const gameType = route.name;
   const { boardSize, 
     level:puzzleNumber, 
@@ -269,22 +269,3 @@ const Game = ({ navigation, route }) => {
 }
 
 export default Game;
-
-/*
-
-      const currentSave = board0Current ? board0.current.save() : board1.current.save();
-      const saveName = 'saved' + gameType;
-      storeItem(saveName, currentSave);
-
-*/
-
-/**      <View style={{position:'absolute', width: '100%', height: '15%', backgroundColor:'red', bottom: '-7.5%', left:0}}/>
-
- *   {gameType ==='null' ? <TouchableOpacity
-        style={{position:'absolute', top:40, right: 40, backgroundColor:'grey'}}
-        onPress={()=>savePuzzle()}
-    >
-      <Text style={{fontSize:30}}> Save </Text>
-        </TouchableOpacity> : null}
-
- */

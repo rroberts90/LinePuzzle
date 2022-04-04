@@ -14,7 +14,6 @@ const Cursor = (props) => {
     const panResponder = useRef(
       PanResponder.create({
         onStartShouldSetPanResponder: () => {
-          //pulseFlag.current = pulseFlag.current + 1;
           return true;
         },
 
@@ -56,7 +55,7 @@ const Cursor = (props) => {
         },
         onPanResponderRelease: (evt, gestureState) => {
          
-          const centeredEndPoint = mostRecentPoint.current;///MyMath.point(gestureState.x0, gestureState.y0); //MyMath.centerOnNode(MyMath.point(props.currX, props.currY), props.node.diameter );
+          const centeredEndPoint = mostRecentPoint.current;
           setEndPoint(null);
 
           pan.setValue({ x: 0, y: 0 });

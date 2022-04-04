@@ -33,7 +33,7 @@ function HomeScreen({ navigation }) {
     },[]);
     return (
         <SafeAreaView style={[{ flex: 1, alignItems: 'center', justifyContent: 'center' }]}>
-            <Text style={styles.headerText}> COLOR MAZE </Text>
+            <Text style={styles.headerText}> PRIMAZE </Text>
 
             <PlayButton
             navigation = {navigation} 
@@ -42,8 +42,6 @@ function HomeScreen({ navigation }) {
             disabled={disabled} 
             toggleDisabled= {toggleDisabled}
             />
-
-
 
             <PlayButton
             navigation = {navigation} 
@@ -68,12 +66,9 @@ function HomeScreen({ navigation }) {
             borderColor={colorScheme.four} 
             disabled={disabled} 
             toggleDisabled= {toggleDisabled}
-
             />
 
             <View style={[ styles.row]} >
-
-
                 <IconButton 
                 navigation={navigation} 
                 title={'Settings'} 
@@ -106,7 +101,7 @@ function LoadingScreen({navigation}){
         <View style={styles.loadingScreen} >
             {!tutorialFinished ? 
             <>
-            <Text style={styles.headerText}> COLOR MAZE </Text>
+            <Text style={styles.headerText}> PRIMAZE </Text>
 
                 <PlayButton navigation={navigation} borderColor={colorScheme.four} disabled={false} toggleDisabled={()=>{}} title={'tutorial'} text={'play intro'} boardSize={false}/>
                 <PlayButton navigation={navigation} borderColor={colorScheme.one} disabled={false} toggleDisabled={()=>{storeItem('tutorialFinished', true)}} title={'colormaze'} text={'skip intro'} boardSize={false}/>
@@ -125,7 +120,6 @@ const MyTheme = {
       background: defaultBackground,
     },
   };
-//console.log = function () {};
 
 function App() {
     // eslint-disable react/display-name
