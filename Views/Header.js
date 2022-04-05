@@ -67,7 +67,7 @@ const PuzzleHeader = ({ navigation, time, info, getGoalInfo, level, levelDisplay
                     toValue: 0,
                     isInteraction: false,
                     useNativeDriver: true,
-                    duration: 3000,
+                    duration: 2500,
                     easing: Easing.cubic
                 })
             ]).start(onFinish => {

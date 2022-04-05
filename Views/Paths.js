@@ -272,7 +272,6 @@ const BridgeSegment=  ({color, width, end}) => {
     width: width,
     height:  '50%',
     backgroundColor: color,
-    borderTopEndRadius:width
   }, positionStyles]}
    />;
 }
@@ -317,7 +316,7 @@ const BridgeSegment=  ({color, width, end}) => {
     },[won]);
  
     const width = end === 'start' || won ? node.diameter / 6 : node.diameter / 5;
-    const border = color==defaultFinishColor ? 2: 0;
+    const border = color===defaultFinishColor ? 2: 0;
 
     const left = node.pos.x + node.diameter/2 - (width/2) ;
 
