@@ -3,7 +3,7 @@ import {StyleSheet, View, Animated,Easing, Image, Text, useWindowDimensions} fro
 
 import {  point, convertToLayout } from '../Utils'
 import {getItem} from '../Storage'
-
+ 
 const getSymbolSource = (group)=> {
     let icon = '';
     switch (group){

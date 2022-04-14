@@ -26,7 +26,7 @@ function stackTrace() {
 }
 const Game = ({ navigation, route }) => {
 
- console.log = function() {}
+ //console.log = function() {}
  const gameType = route.name;
   const { boardSize, 
     level:puzzleNumber, 

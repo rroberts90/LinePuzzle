@@ -4,7 +4,7 @@ import {  CapSegment } from './Paths';
 
 import { NodeView } from "./Nodes";
 
-const GridView = ({board, won, afterUpdate, triggerPulser}) => {
+const GridView = ({board, won, afterUpdate, triggerPulser, moveAnim}) => {
 
   const rows = board.grid.map((row, i) => {
 
@@ -40,7 +40,8 @@ const GridView = ({board, won, afterUpdate, triggerPulser}) => {
         <CapSegment
           end={'start'}
           node={board.start}
-          won={won} />      
+          won={won} 
+          moveAnim={moveAnim}/>      
       </View>
 
     </Animated.View>);
@@ -66,7 +67,8 @@ const GridView = ({board, won, afterUpdate, triggerPulser}) => {
     cap: {
     flex: 1.6,
       width: '100%',
-      height: '100%'
+      height: '100%',
+      zIndex:0
     },
     grid: {
       flex: 9,
@@ -74,6 +76,7 @@ const GridView = ({board, won, afterUpdate, triggerPulser}) => {
       height: '100%',
       flexDirection: 'column',
       justifyContent: 'center',
+      zIndex: 10
     },
     row: {
       flexDirection: 'row',

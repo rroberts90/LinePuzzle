@@ -268,7 +268,7 @@ const Level = ({onWin, l, getBoard, current, hintEl, undoEl, restartEl, setMoves
 
 <Arrows  grid={getBoard().grid}/>
 
-      <UserPath segments={lineSegments.current} fades={fadeSegments.current} />
+      <UserPath segments={lineSegments} fades={fadeSegments.current}/>
       {getBoard().gameType==='tutorial'  && l === 0? <DemoCursor node={getBoard().start} nextNode={getBoard().solution[1]} first={true} firstNode={getBoard().start}/>: null}
 
       <Pulse pos={currPosF} colors={rotateColors(currentNode.colors, currentNode.rot)} GOGOGO={pulser} diameter = {currentNode.diameter} isFinish={currentNode == getBoard().finish} />

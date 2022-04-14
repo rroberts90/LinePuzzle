@@ -113,13 +113,13 @@ const getFixedStyles = (startNode, endNode) => {
 
     const length = Math.abs(endNode.pos.y - startNode.pos.y)
    
-    return {
+    return {type:1, fixedStyles:{
       backgroundColor: rotatedColors[2],
       top: startPos.y,
       left: startPos.x,
       width: width,
       height: length
-    }
+    }}
   }
 
   else if(startNode.gridPos.row > endNode.gridPos.row){ // above
@@ -128,13 +128,13 @@ const getFixedStyles = (startNode, endNode) => {
  
     const length = Math.abs(endNode.pos.y - startNode.pos.y)
     
-    return {
+    return {type: 0,fixedStyles:{
       backgroundColor: rotatedColors[0],
       top: startPos.y,
       left: startPos.x,
       width: width,
       height: length
-    }
+    }}
   }
   else if(startNode.gridPos.col > endNode.gridPos.col){ // going left
     const startPos1 = centerOnNode(endNode.pos,  endNode.diameter)
@@ -142,13 +142,13 @@ const getFixedStyles = (startNode, endNode) => {
 
     const length = Math.abs(endNode.pos.x - startNode.pos.x)
     
-    return {
+    return {type: 0, fixedStyles: {
       backgroundColor: rotatedColors[3],
       top: startPos.y,
       left: startPos.x,
       width: length,
       height: width
-    }
+    }}
   }
   else if(startNode.gridPos.col < endNode.gridPos.col){ // going right
     const startPos1 = centerOnNode(startNode.pos,  startNode.diameter)
@@ -156,59 +156,123 @@ const getFixedStyles = (startNode, endNode) => {
 
     const length = Math.abs(endNode.pos.x - startNode.pos.x)
     
-    return {
+    return {type: 1, fixedStyles: {
       backgroundColor: rotatedColors[1],
       top: startPos.y,
       left: startPos.x,
       width: length,
       height: width
-    }
+    }}
   }
 }
-const getTransformStyles = (start , end, arrowWidth )=> { 
-  if(start.row < end.row){
-    return [{translateY: -arrowWidth/4},{rotate: '225deg'}]
+const getTransformStyles = (start , end, arrowWidth, moveAnim )=> { 
+  if(!moveAnim) {
+    return [];
+  }
+  if(start.row < end.row){ //down
+    return [{translateY: Animated.multiply(moveAnim,-1)},{translateY: -arrowWidth/4},{rotate: '225deg'}]
   }
   if(start.row > end.row){//up
-    return [{translateY: arrowWidth/4},{rotate: '45deg'}]
+    return [{translateY: moveAnim},{translateY: arrowWidth/4},{rotate: '45deg'}]
   }
-  if(start.col > end.col) {
-    return [{translateX: arrowWidth/4},{rotate: '-45deg'}]
+  if(start.col > end.col) { //left
+    return [{translateX: moveAnim},{translateX: arrowWidth/4},{rotate: '-45deg'}]
   }
   else{
-    return [{translateX: -arrowWidth/4},{rotate: '-225deg'}]
+    return [{translateX: Animated.multiply(moveAnim,-1)},{translateX: -arrowWidth/4},{rotate: '-225deg'}]
   }
 }
 
-const FixedSegment = ({startNode, endNode}) => {
-    
-    const fixedStyles = getFixedStyles(startNode, endNode);
+const PathArrow1 = ({startNode, endNode, moveAnim, number}) => {
+
+
+  
+  const arrowWidth = startNode.diameter/5 / 1.5;
+
+  return ( <Animated.View style={[arrowStyles(arrowWidth, arrowWidth, 'rgba(255,255,255,.5)' ), 
+  styles.lightener,
+  {transform: getTransformStyles(startNode.gridPos, endNode.gridPos, arrowWidth, moveAnim)}]} />);
+}
+
+const FixedSegment = ({seg, startNode, endNode, number}) => {
+  
+  const moveAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(()=> {seg.moveAnim = moveAnim}, [] );
+
+  const {type, fixedStyles} = getFixedStyles(startNode, endNode);
 
     const isHorizontal = startNode.gridPos.row === endNode.gridPos.row ;
 
     fixedStyles['position'] = 'absolute';
-    fixedStyles['justifyContent'] = 'center';
+    fixedStyles['justifyContent'] = type === 1 ? 'flex-start' : 'flex-end';
     fixedStyles['alignItems'] = 'center';
 
-    const arrowWidth = startNode.diameter/5 / 1.5;
-    const transformStyles = getTransformStyles(startNode.gridPos, endNode.gridPos, arrowWidth);
-    return (<View style={[fixedStyles, {flexDirection: isHorizontal ? 'row': 'column'}]}>
-      <View style={[arrowStyles(arrowWidth, arrowWidth, 'rgba(255,255,255,.5)' ), styles.lightener,{transform: transformStyles}]} />
+ 
+    return (<View style={[
+      fixedStyles, 
+      {flexDirection: isHorizontal ? 'row': 'column'}
+    ]}>
+     <PathArrow1 startNode={startNode} endNode={endNode} moveAnim={moveAnim} number={number}/>
     </View>
                              
 
    );
 }
-   
+
+
+   const recursiveArrows = (segments, ndx)=> {
+
+    if(segments.current.length > 0) {
+        const seg = segments.current[ndx];
+
+      if(!seg.dist || seg.dist === 0) { // lazy
+        seg.dist = distance(seg.endNode.pos.x - seg.startNode.pos.x, seg.endNode.pos.y-seg.startNode.pos.y) - seg.endNode.diameter/2;
+      }
+      if(seg?.moveAnim) {
+        console.log(`animating arrow: distance ${seg.dist}`);
+        seg.moveAnim.setValue(seg.endNode.diameter/2)
+
+        animateArrowInFixedSegments(seg.moveAnim, seg.dist).start(onFinish=> {
+          // recursively trigger next animation
+          seg.moveAnim.setValue(seg.endNode.diameter/2)
+          const nextNdx = (ndx + 1) % segments.current.length;
+
+          recursiveArrows(segments, nextNdx);
+        });
+      } 
+    }
+
+
+   }
   const UserPath = ({segments, fades}) => {
+    const [prevLength, setPrevLength] = useState(()=> segments.current.length);
+    const [arrowAnimationRunning, toggleAAR] = useState(false);
+    useEffect(()=> {
+      console.log(segments.current.length)
+
+      // if there are segments on the grid and animation is not running, start it up!
+      if(segments.current.length >= 1 && !arrowAnimationRunning ) {
+        recursiveArrows(segments,0);
+        toggleAAR(true)
+      }
+      if(segments.current.length === 0) { // if segments length drops to zero stop all animations
+        toggleAAR(false)
+      }
+    
+     },[segments.current]);
+
+     useEffect(()=> {return function cleanup(){
+       segments.current = {} // prevents infinite call to recursiveArrows()
+     }},[])
     return (
       <View >
-        {segments.map((seg,i) =>
-            <FixedSegment startNode={seg.startNode} endNode={seg.endNode} key={i}/>
+        {segments.current.map((seg,i) =>
+            <FixedSegment seg={seg} startNode={seg.startNode} endNode={seg.endNode} key={i} number={i}/>
         )}
         {fades.map((seg,i) =>
             <Fade fade={true} onFade={()=> fades.pop()}  key={i}>
-            <FixedSegment startNode={seg.startNode} endNode={seg.endNode}/>
+            <FixedSegment seg={seg} startNode={seg.startNode} endNode={seg.endNode} number={i} />
             </Fade>
         )}
       </View>
@@ -232,35 +296,51 @@ const arrowStyles = (width, height, color) => {
 }
 
 
-
-const animateArrow = (triangleAnim, distance ,start) => {
+const animateArrowInFixedSegments = (triangleAnim, distance)=> {
+   return  Animated.timing(triangleAnim, {
+    toValue: -(distance),
+    duration: 3000,
+    easing: Easing.linear,
+    isInteraction: false,
+    useNativeDriver: true
+  })
+}
+const animateArrow = (triangleAnim, distance ,delay) => {
   return Animated.loop(
     Animated.sequence([
       Animated.timing(triangleAnim, {
       toValue: -(distance),
       duration: 3000,
       easing: Easing.linear,
-      delay: 0,
+      delay: delay,
       isInteraction: false,
       useNativeDriver: true
     }),
     Animated.timing(triangleAnim, {
-      toValue: 10,
+      toValue: 0,
       duration: 1,
       easing: Easing.linear,
       isInteraction: false,
       useNativeDriver: true
     }),
+    Animated.timing(triangleAnim, {
+      toValue: 0,
+      duration: 750,
+      easing: Easing.linear,
+      isInteraction: false,
+      useNativeDriver: true
+    })
   
   ]));
 }
 
-const Arrow2 = ({moveAnim, width}) => {
-  return <Animated.View style={[arrowStyles(width, width, 'black'),
+const Arrow2 = ({moveAnim, width, color}) => {
+  return <Animated.View style={[arrowStyles(width, width, color),
       {
         transform: [{ translateY: moveAnim }, { rotate: '45deg' }] 
       }]}/>;
 }
+
 
 const BridgeSegment=  ({color, width, end}) => {
 
@@ -276,20 +356,19 @@ const BridgeSegment=  ({color, width, end}) => {
    />;
 }
 
-  const CapSegment = ({end,node, won}) => {
+  const CapSegment = ({end,node, won, moveAnim}) => {
 
     let color;
 
     const fadeAnim = useRef(new Animated.Value(.65)).current;
     const triangleAnim1 = useRef(new Animated.Value(0)).current;
-    const triangleAnim2 = useRef(new Animated.Value(0)).current;
 
-    if(end === 'finish') {
-     color = won ? rotateColors(node.colors, node.rot)[0] : defaultFinishColor;
-    }else{
+    const stagger = end === 'start' ? 1500 : 1500;
+    if (end === 'finish') {
+      color = won ? rotateColors(node.colors, node.rot)[0] : defaultFinishColor;
+    } else {
       color = node.colors[2];
     }
-
 
     useEffect(() => {
       if ((won === true && end === 'finish')) {
@@ -309,13 +388,12 @@ const BridgeSegment=  ({color, width, end}) => {
     const triangleOffset = Math.floor(node.pos.y /2);
 
     useEffect(()=> {
-     if(won=== false && color== defaultFinishColor){
-        Animated.stagger(1500, [animateArrow(triangleAnim1, 75),animateArrow(triangleAnim2, 75) ]).start();
-        //animateArrowForever(triangleAnim1, triangleOffset);
+     if(true){
+        animateArrow(triangleAnim1, 100).start();
       }
     },[won]);
  
-    const width = end === 'start' || won ? node.diameter / 6 : node.diameter / 5;
+    const width = end === 'start' || won ? node.diameter / 5 : node.diameter / 5;
     const border = color===defaultFinishColor ? 2: 0;
 
     const left = node.pos.x + node.diameter/2 - (width/2) ;
@@ -323,6 +401,7 @@ const BridgeSegment=  ({color, width, end}) => {
 
     const triangleWidth = node.diameter / 5 - 6;
   
+    const pathTriangleColor = 'rgba(245,255,245,.5)'
     return <Animated.View style={{
       backgroundColor: color,
       width: width,
@@ -331,21 +410,19 @@ const BridgeSegment=  ({color, width, end}) => {
       opacity: fadeAnim,
       borderLeftWidth: border,
       borderRightWidth: border,
-      borderColor: 'rgba(0,0,0,.7)',
+      borderColor: 'rgba(0,0,0,.9)',
       transform: [{ translateY: end === 'start' ? -node.diameter/4 : node.diameter/4 },
       ],
       
       flexDirection: 'column',
       justifyContent: 'flex-end',
       alignItems: 'center',
-      borderTopEndRadius:width
     }}>
       {
-        end !== 'start' && color === defaultFinishColor ?
-          [<Arrow2 width= {triangleWidth} moveAnim={triangleAnim1} key={1} />,
-           <Arrow2 width= {triangleWidth} moveAnim={triangleAnim2} key={2} />,
+        
+          [<Arrow2 width= {triangleWidth} moveAnim={triangleAnim1} key={1}  color={end === 'start' ? pathTriangleColor : 'black'}/>,
           ]
-          : null}
+          }
      <BridgeSegment color={color} width={width} end={end}/>
     </Animated.View>
   }
@@ -368,5 +445,12 @@ const BridgeSegment=  ({color, width, end}) => {
         }
   });
 
+
   export {Segment, UserPath, Fade, CapSegment, calculateColor}
 
+const FixedSegment2 = ({ startNode, endNode }) => {
+  const startPos = centerOnNode(startNode.pos, startNode.diameter); const endPos = centerOnNode(endNode.pos, endNode.diameter); const color = calculateColor(startNode, endPos) 
+  const scaleX = distance(endPos.x - startPos.x, endPos.y - startPos.y); const scaleY = startNode.diameter / 5; // line width 
+  const opp = endPos.y - startPos.y; const xDir = Math.sign(endPos.x - startPos.x); const angle = xDir > 0 ? toDegrees(Math.asin(opp / scaleX)) : 180 - toDegrees(Math.asin(opp / scaleX)); // scaleX is also hypotenuse 
+  const rotate = `${angle}deg`; const arrowWidth = startNode.diameter / 5 / 1.5; const triangleAnim1 = useRef(new Animated.Value(0)).current; return (<><View style={[styles.dot, convertToLayout(startPos), { backgroundColor: color, display: 'flex', justifyContent: 'center', transform: [{ rotate: rotate }, { translateX: scaleX / 2 }, { scaleX: scaleX }, { scaleY: scaleY },] }]}> </View> <Arrow2 width={arrowWidth} moveAnim={triangleAnim1} key={1} color={pathTriangleColor} /> </>);
+}
