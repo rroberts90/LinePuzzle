@@ -185,8 +185,6 @@ const getTransformStyles = (start , end, arrowWidth, moveAnim )=> {
 
 const PathArrow1 = ({startNode, endNode, moveAnim, number}) => {
 
-
-  
   const arrowWidth = startNode.diameter/5 / 1.5;
 
   return ( <Animated.View style={[arrowStyles(arrowWidth, arrowWidth, 'rgba(255,255,255,.5)' ), 
@@ -196,7 +194,7 @@ const PathArrow1 = ({startNode, endNode, moveAnim, number}) => {
 
 const FixedSegment = ({seg, startNode, endNode, number}) => {
   
-  const moveAnim = useRef(new Animated.Value(0)).current;
+  const moveAnim = useRef(new Animated.Value(endNode.diameter/2)).current;
 
   useEffect(()=> {seg.moveAnim = moveAnim}, [] );
 
@@ -223,22 +221,25 @@ const FixedSegment = ({seg, startNode, endNode, number}) => {
 
    const recursiveArrows = (segments, ndx)=> {
 
-    if(segments.current.length > 0) {
-        const seg = segments.current[ndx];
+    if(segments.current.length > 0 && segments.current[ndx]) {
+      console.log('animating')
 
-      if(!seg.dist || seg.dist === 0) { // lazy
+      const seg = segments.current[ndx];
+
+      if(!seg.dist || seg.dist === 0) { // lazy 
         seg.dist = distance(seg.endNode.pos.x - seg.startNode.pos.x, seg.endNode.pos.y-seg.startNode.pos.y) - seg.endNode.diameter/2;
       }
       if(seg?.moveAnim) {
         console.log(`animating arrow: distance ${seg.dist}`);
         seg.moveAnim.setValue(seg.endNode.diameter/2)
+        const nextNdx = (ndx + 1) % segments.current.length;
+
+        setTimeout(()=> recursiveArrows(segments,nextNdx), 1750)
 
         animateArrowInFixedSegments(seg.moveAnim, seg.dist).start(onFinish=> {
-          // recursively trigger next animation
           seg.moveAnim.setValue(seg.endNode.diameter/2)
-          const nextNdx = (ndx + 1) % segments.current.length;
 
-          recursiveArrows(segments, nextNdx);
+          //recursiveArrows(segments, nextNdx);
         });
       } 
     }
@@ -253,6 +254,7 @@ const FixedSegment = ({seg, startNode, endNode, number}) => {
 
       // if there are segments on the grid and animation is not running, start it up!
       if(segments.current.length >= 1 && !arrowAnimationRunning ) {
+        console.log('starting animations')
         recursiveArrows(segments,0);
         toggleAAR(true)
       }
@@ -260,7 +262,7 @@ const FixedSegment = ({seg, startNode, endNode, number}) => {
         toggleAAR(false)
       }
     
-     },[segments.current]);
+     },[segments.current.length]);
 
      useEffect(()=> {return function cleanup(){
        segments.current = {} // prevents infinite call to recursiveArrows()
@@ -317,14 +319,14 @@ const animateArrow = (triangleAnim, distance ,delay) => {
       useNativeDriver: true
     }),
     Animated.timing(triangleAnim, {
-      toValue: 0,
+      toValue: 10,
       duration: 1,
       easing: Easing.linear,
       isInteraction: false,
       useNativeDriver: true
     }),
     Animated.timing(triangleAnim, {
-      toValue: 0,
+      toValue: 10,
       duration: 750,
       easing: Easing.linear,
       isInteraction: false,
@@ -447,10 +449,3 @@ const BridgeSegment=  ({color, width, end}) => {
 
 
   export {Segment, UserPath, Fade, CapSegment, calculateColor}
-
-const FixedSegment2 = ({ startNode, endNode }) => {
-  const startPos = centerOnNode(startNode.pos, startNode.diameter); const endPos = centerOnNode(endNode.pos, endNode.diameter); const color = calculateColor(startNode, endPos) 
-  const scaleX = distance(endPos.x - startPos.x, endPos.y - startPos.y); const scaleY = startNode.diameter / 5; // line width 
-  const opp = endPos.y - startPos.y; const xDir = Math.sign(endPos.x - startPos.x); const angle = xDir > 0 ? toDegrees(Math.asin(opp / scaleX)) : 180 - toDegrees(Math.asin(opp / scaleX)); // scaleX is also hypotenuse 
-  const rotate = `${angle}deg`; const arrowWidth = startNode.diameter / 5 / 1.5; const triangleAnim1 = useRef(new Animated.Value(0)).current; return (<><View style={[styles.dot, convertToLayout(startPos), { backgroundColor: color, display: 'flex', justifyContent: 'center', transform: [{ rotate: rotate }, { translateX: scaleX / 2 }, { scaleX: scaleX }, { scaleY: scaleY },] }]}> </View> <Arrow2 width={arrowWidth} moveAnim={triangleAnim1} key={1} color={pathTriangleColor} /> </>);
-}
