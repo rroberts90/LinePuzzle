@@ -1,0 +1,303 @@
+const getPuzzlePack  = (id) => {
+switch(id) {case 1: 
+ return require('./1.json')
+case 2: 
+ return require('./2.json')
+case 3: 
+ return require('./3.json')
+case 4: 
+ return require('./4.json')
+case 5: 
+ return require('./5.json')
+case 6: 
+ return require('./6.json')
+case 7: 
+ return require('./7.json')
+case 8: 
+ return require('./8.json')
+case 9: 
+ return require('./9.json')
+case 10: 
+ return require('./10.json')
+case 11: 
+ return require('./11.json')
+case 12: 
+ return require('./12.json')
+case 13: 
+ return require('./13.json')
+case 14: 
+ return require('./14.json')
+case 15: 
+ return require('./15.json')
+case 16: 
+ return require('./16.json')
+case 17: 
+ return require('./17.json')
+case 18: 
+ return require('./18.json')
+case 19: 
+ return require('./19.json')
+case 20: 
+ return require('./20.json')
+case 21: 
+ return require('./21.json')
+case 22: 
+ return require('./22.json')
+case 23: 
+ return require('./23.json')
+case 24: 
+ return require('./24.json')
+case 25: 
+ return require('./25.json')
+case 26: 
+ return require('./26.json')
+case 27: 
+ return require('./27.json')
+case 28: 
+ return require('./28.json')
+case 29: 
+ return require('./29.json')
+case 30: 
+ return require('./30.json')
+case 31: 
+ return require('./31.json')
+case 32: 
+ return require('./32.json')
+case 33: 
+ return require('./33.json')
+case 34: 
+ return require('./34.json')
+case 35: 
+ return require('./35.json')
+case 36: 
+ return require('./36.json')
+case 37: 
+ return require('./37.json')
+case 38: 
+ return require('./38.json')
+case 39: 
+ return require('./39.json')
+case 40: 
+ return require('./40.json')
+case 41: 
+ return require('./41.json')
+case 42: 
+ return require('./42.json')
+case 43: 
+ return require('./43.json')
+case 44: 
+ return require('./44.json')
+case 45: 
+ return require('./45.json')
+case 46: 
+ return require('./46.json')
+case 47: 
+ return require('./47.json')
+case 48: 
+ return require('./48.json')
+case 49: 
+ return require('./49.json')
+case 50: 
+ return require('./50.json')
+case 51: 
+ return require('./51.json')
+case 52: 
+ return require('./52.json')
+case 53: 
+ return require('./53.json')
+case 54: 
+ return require('./54.json')
+case 55: 
+ return require('./55.json')
+case 56: 
+ return require('./56.json')
+case 57: 
+ return require('./57.json')
+case 58: 
+ return require('./58.json')
+case 59: 
+ return require('./59.json')
+case 60: 
+ return require('./60.json')
+case 61: 
+ return require('./61.json')
+case 62: 
+ return require('./62.json')
+case 63: 
+ return require('./63.json')
+case 64: 
+ return require('./64.json')
+case 65: 
+ return require('./65.json')
+case 66: 
+ return require('./66.json')
+case 67: 
+ return require('./67.json')
+case 68: 
+ return require('./68.json')
+case 69: 
+ return require('./69.json')
+case 70: 
+ return require('./70.json')
+case 71: 
+ return require('./71.json')
+case 72: 
+ return require('./72.json')
+case 73: 
+ return require('./73.json')
+case 74: 
+ return require('./74.json')
+case 75: 
+ return require('./75.json')
+case 76: 
+ return require('./76.json')
+case 77: 
+ return require('./77.json')
+case 78: 
+ return require('./78.json')
+case 79: 
+ return require('./79.json')
+case 80: 
+ return require('./80.json')
+case 81: 
+ return require('./81.json')
+case 82: 
+ return require('./82.json')
+case 83: 
+ return require('./83.json')
+case 84: 
+ return require('./84.json')
+case 85: 
+ return require('./85.json')
+case 86: 
+ return require('./86.json')
+case 87: 
+ return require('./87.json')
+case 88: 
+ return require('./88.json')
+case 89: 
+ return require('./89.json')
+case 90: 
+ return require('./90.json')
+case 91: 
+ return require('./91.json')
+case 92: 
+ return require('./92.json')
+case 93: 
+ return require('./93.json')
+case 94: 
+ return require('./94.json')
+case 95: 
+ return require('./95.json')
+case 96: 
+ return require('./96.json')
+case 97: 
+ return require('./97.json')
+case 98: 
+ return require('./98.json')
+case 99: 
+ return require('./99.json')
+case 100: 
+ return require('./100.json')
+case 101: 
+ return require('./101.json')
+case 102: 
+ return require('./102.json')
+case 103: 
+ return require('./103.json')
+case 104: 
+ return require('./104.json')
+case 105: 
+ return require('./105.json')
+case 106: 
+ return require('./106.json')
+case 107: 
+ return require('./107.json')
+case 108: 
+ return require('./108.json')
+case 109: 
+ return require('./109.json')
+case 110: 
+ return require('./110.json')
+case 111: 
+ return require('./111.json')
+case 112: 
+ return require('./112.json')
+case 113: 
+ return require('./113.json')
+case 114: 
+ return require('./114.json')
+case 115: 
+ return require('./115.json')
+case 116: 
+ return require('./116.json')
+case 117: 
+ return require('./117.json')
+case 118: 
+ return require('./118.json')
+case 119: 
+ return require('./119.json')
+case 120: 
+ return require('./120.json')
+case 121: 
+ return require('./121.json')
+case 122: 
+ return require('./122.json')
+case 123: 
+ return require('./123.json')
+case 124: 
+ return require('./124.json')
+case 125: 
+ return require('./125.json')
+case 126: 
+ return require('./126.json')
+case 127: 
+ return require('./127.json')
+case 128: 
+ return require('./128.json')
+case 129: 
+ return require('./129.json')
+case 130: 
+ return require('./130.json')
+case 131: 
+ return require('./131.json')
+case 132: 
+ return require('./132.json')
+case 133: 
+ return require('./133.json')
+case 134: 
+ return require('./134.json')
+case 135: 
+ return require('./135.json')
+case 136: 
+ return require('./136.json')
+case 137: 
+ return require('./137.json')
+case 138: 
+ return require('./138.json')
+case 139: 
+ return require('./139.json')
+case 140: 
+ return require('./140.json')
+case 141: 
+ return require('./141.json')
+case 142: 
+ return require('./142.json')
+case 143: 
+ return require('./143.json')
+case 144: 
+ return require('./144.json')
+case 145: 
+ return require('./145.json')
+case 146: 
+ return require('./146.json')
+case 147: 
+ return require('./147.json')
+case 148: 
+ return require('./148.json')
+case 149: 
+ return require('./149.json')
+case 150: 
+ return require('./150.json')
+}}
+export default getPuzzlePack;

@@ -205,7 +205,6 @@ const FixedSegment = ({seg, startNode, endNode, number}) => {
     fixedStyles['position'] = 'absolute';
     fixedStyles['justifyContent'] = type === 1 ? 'flex-start' : 'flex-end';
     fixedStyles['alignItems'] = 'center';
-
  
     return (<View style={[
       fixedStyles, 
@@ -257,6 +256,11 @@ const FixedSegment = ({seg, startNode, endNode, number}) => {
         console.log('starting animations')
         recursiveArrows(segments,0);
         toggleAAR(true)
+      }
+      if(segments.current.length % 3 === 0 && arrowAnimationRunning) {
+        // add new arrow every third segment 
+        recursiveArrows(segments,0);
+
       }
       if(segments.current.length === 0) { // if segments length drops to zero stop all animations
         toggleAAR(false)
